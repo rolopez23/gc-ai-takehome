@@ -1,0 +1,185 @@
+[
+  {
+    "contract_id": "contract_1_clean",
+    "vendor": "Orion Software Solutions, Inc.",
+    "customer": "Meridian Analytics Corp.",
+    "overall_assessment": "Market-standard, well-balanced agreement. No material issues identified.",
+    "issues": []
+  },
+  {
+    "contract_id": "contract_2_egregious",
+    "vendor": "Nexlayer Technologies, Inc.",
+    "customer": "Broadfield Financial Group, Inc.",
+    "overall_assessment": "Mostly reasonable agreement with one critical structural defect in the data processing section.",
+    "issues": [
+      {
+        "clause": "Data Processing and Privacy (Section 6.1)",
+        "issue": "DPA incorporated by hyperlink to vendor URL rather than attached as a signed exhibit",
+        "issue_type": "incorporated_by_reference",
+        "severity": 9,
+        "market_standard": "The DPA should be attached as a physically integrated exhibit or schedule, signed by both parties at execution, and any amendments must require mutual written consent.",
+        "explanation": "A hyperlinked DPA allows the vendor to unilaterally amend data processing obligations — including security measures, subprocessor lists, retention periods, and cross-border transfer mechanisms — mid-contract without renegotiation or meaningful notice beyond a URL update. For customers subject to GDPR, CCPA, or other privacy regimes, this structure may itself constitute a compliance violation, as applicable law often requires documented controller-processor agreements with fixed terms. The 'continued use equals acceptance' construct is particularly dangerous: the customer could unknowingly accept materially degraded data protections after a vendor update."
+      }
+    ]
+  },
+  {
+    "contract_id": "contract_3_nonstandard",
+    "vendor": "Stratavox Systems, LLC",
+    "customer": "Crestfield Media Holdings, Inc.",
+    "overall_assessment": "Contract deviates from market norms in two respects but is not aggressively unfavorable. Worth flagging for discussion, not necessarily a dealbreaker.",
+    "issues": [
+      {
+        "clause": "Term and Termination (Section 9.2)",
+        "issue": "Automatic renewal non-cancellation notice period is 60 days, double the typical 30-day market standard",
+        "issue_type": "nonstandard_term",
+        "severity": 3,
+        "market_standard": "Standard SaaS contracts typically require 30 days' written notice before the end of the Subscription Term to avoid automatic renewal. A 60-day window significantly increases the risk of an inadvertent renewal, particularly for customers managing a large contract portfolio.",
+        "explanation": "While not inherently harmful, a 60-day cancellation notice window is twice the typical market standard and may catch in-house legal teams off-guard during busy periods. The practical risk is an unintended 12-month renewal commitment. Customer should negotiate this down to 30 days or request a calendar reminder right from execution."
+      },
+      {
+        "clause": "Intellectual Property Ownership (Section 4.4)",
+        "issue": "Vendor retains broad license to use Aggregated Usage Data for industry benchmarking reports shared with third parties",
+        "issue_type": "nonstandard_term",
+        "severity": 4,
+        "market_standard": "Most market-standard SaaS agreements allow vendors to use aggregated, anonymized data for internal product improvement only. Sharing externally — even in aggregate — is less common and should include explicit carve-outs protecting competitive sensitivity.",
+        "explanation": "The license grants Vendor the right to incorporate Aggregated Usage Data into benchmarking reports shared with third parties. While the contract includes reasonable carve-outs (no re-identification, no targeted advertising, no raw data sales), the external publication of aggregated insights derived from Customer's operations creates some competitive intelligence exposure. The carve-outs are reasonable but Customer should confirm that anonymization standards are technically robust, particularly if Customer operates in a concentrated market where aggregate patterns could be reverse-engineered."
+      }
+    ]
+  },
+  {
+    "contract_id": "contract_4_minor_issues",
+    "vendor": "Cloudpath Dynamics, Inc.",
+    "customer": "Vantage Point Logistics, Inc.",
+    "overall_assessment": "Agreement appears reasonable at first glance but contains six below-the-radar issues that are individually manageable yet collectively unfavorable to the customer.",
+    "issues": [
+      {
+        "clause": "Confidentiality (Section 5.4)",
+        "issue": "Confidentiality obligations terminate at contract expiration with no survival period",
+        "issue_type": "missing_provision",
+        "severity": 6,
+        "market_standard": "Standard SaaS contracts include a confidentiality survival period of 2–5 years post-termination (3 years is most common). Information shared under the agreement does not lose its sensitivity the moment the contract ends.",
+        "explanation": "With no survival clause, Vendor's confidentiality obligations cease the instant the Agreement terminates. Any trade secrets, technical roadmaps, financial data, or strategic information shared during the relationship would immediately be fair game. This is especially problematic if Customer terminates a relationship with a vendor that subsequently becomes a competitor."
+      },
+      {
+        "clause": "Limitation of Liability (Section 7.2)",
+        "issue": "Aggregate liability cap is limited to 3 months of fees, well below the market standard of 12 months",
+        "issue_type": "below_market_term",
+        "severity": 7,
+        "market_standard": "The market standard aggregate liability cap for SaaS agreements is 12 months of fees paid or payable in the 12 months preceding the claim. A 3-month cap provides materially insufficient recovery in the event of a significant service failure or data breach.",
+        "explanation": "A 3-month cap means that even a severe breach — such as a data loss event affecting Customer's operations for six months — would be capped at a fraction of the actual harm. This is particularly problematic given the absence of a vendor indemnification obligation (Section 8.2). Customer effectively bears nearly all downside risk."
+      },
+      {
+        "clause": "Services (Section 2.2) and General (Section 10.3)",
+        "issue": "No uptime SLA or performance commitment, combined with a unilateral modification right on 15 days' notice",
+        "issue_type": "missing_provision",
+        "severity": 6,
+        "market_standard": "Market-standard SaaS agreements include a defined uptime SLA (typically 99.5% or higher) with service credits for failures. Material changes to the Services generally require 30+ days' notice and may not include pricing changes mid-term.",
+        "explanation": "The absence of any uptime guarantee means Customer has no contractual basis to seek remedies for extended outages. The 15-day modification right (which also extends to pricing per Section 3.4) means that Vendor can change core commercial terms mid-subscription. The 'continued use equals acceptance' construct is legally problematic for a business customer that has already paid for a fixed subscription term."
+      },
+      {
+        "clause": "Indemnification (Section 8.1 and 8.2)",
+        "issue": "Indemnification is entirely one-sided — Customer indemnifies Vendor with no reciprocal IP indemnity from Vendor",
+        "issue_type": "one_sided_provision",
+        "severity": 7,
+        "market_standard": "Mutual indemnification is market standard. Vendor should indemnify Customer for third-party IP claims arising from use of the Services. One-sided indemnification is appropriate only in narrow contexts, not as a baseline commercial position.",
+        "explanation": "Section 8.2 explicitly disclaims any Vendor indemnification obligation. If a third party claims that the Services infringe their patent or copyright, Customer bears all defense costs and liability exposure with no contractual recourse against Vendor. This is a meaningful financial risk for enterprise customers in industries where patent litigation is common."
+      },
+      {
+        "clause": "Data Processing and Privacy (Section 6.2)",
+        "issue": "Data deletion upon termination is 'commercially reasonable efforts' with no defined timeline or confirmation obligation",
+        "issue_type": "vague_obligation",
+        "severity": 5,
+        "market_standard": "Market-standard agreements require deletion within 30–60 days of termination, with written certification upon request. 'Commercially reasonable efforts' with no deadline is unenforceable as a practical matter and may create regulatory exposure for customers subject to GDPR or CCPA.",
+        "explanation": "Vague deletion obligations create uncertainty in regulated industries where data residency and deletion timelines must be documented and auditable. A customer subject to GDPR, for example, must be able to demonstrate that data was deleted — an indefinite 'commercially reasonable' standard does not satisfy that requirement."
+      },
+      {
+        "clause": "Term and Termination (Section 9.5)",
+        "issue": "Vendor has no obligation to provide Customer Data in an exportable format upon termination",
+        "issue_type": "missing_provision",
+        "severity": 6,
+        "market_standard": "Market-standard agreements require the vendor to provide a complete, machine-readable export of Customer Data for at least 30 days following termination. Absence of this right creates significant operational risk during vendor transitions.",
+        "explanation": "Without a contractual right to data portability upon termination, Customer could be locked out of its own data if the vendor relationship sours. This is particularly risky if Customer is relying on the Services as a system of record. Customers should always negotiate a minimum 30-day post-termination data export window."
+      }
+    ]
+  },
+  {
+    "contract_id": "contract_5_mixed",
+    "vendor": "Pulsar Platforms, Inc.",
+    "customer": "Northgate Consulting Group, LLC",
+    "overall_assessment": "High-risk agreement combining a critical DPA defect, vendor co-ownership of customer outputs, a unilateral modification clause, and the full set of unfavorable minor issues from contract_4. Significant renegotiation required before execution.",
+    "issues": [
+      {
+        "clause": "Data Processing and Privacy (Section 6.1)",
+        "issue": "DPA incorporated by hyperlink to vendor URL rather than attached as a signed exhibit",
+        "issue_type": "incorporated_by_reference",
+        "severity": 9,
+        "market_standard": "The DPA should be a physically attached, mutually signed exhibit. Any amendment requires written consent of both parties.",
+        "explanation": "Same critical defect as contract_2_egregious. A hyperlinked DPA allows Vendor to unilaterally alter data processing obligations mid-contract without renegotiation. This is a regulatory compliance risk under GDPR, CCPA, and similar frameworks, which require documented and stable controller-processor terms. The 'continued use equals acceptance' mechanism compounds the risk."
+      },
+      {
+        "clause": "Intellectual Property Ownership (Section 4.3)",
+        "issue": "Vendor claims joint ownership of all Output generated using Customer Data, with the right to use Output for commercial purposes including marketing and AI model training",
+        "issue_type": "aggressive_ip_grab",
+        "severity": 10,
+        "market_standard": "Output generated from Customer Data belongs solely to Customer. Vendor should have no ownership rights in Output and may not use it for its own commercial purposes, marketing, or model training without explicit written consent.",
+        "explanation": "This is one of the most commercially aggressive IP provisions commonly seen in SaaS agreements. By claiming joint ownership of Output, Vendor acquires rights to analyses, reports, and derivative work product created using Customer's proprietary business data. The right to use Output in marketing materials means a customer's competitive intelligence or operational metrics could be showcased in Vendor's sales materials. The right to use Output to train AI models means Customer is effectively subsidizing Vendor's AI product development with its own proprietary data. This clause could be read to apply to outputs that incorporate trade secrets, M&A analysis, or privileged legal work product."
+      },
+      {
+        "clause": "Services (Section 2.4) and General (Section 10.3)",
+        "issue": "Unilateral modification clause allows Vendor to change pricing, features, and policies mid-term on only 10 days' notice; continued use constitutes acceptance",
+        "issue_type": "unilateral_modification",
+        "severity": 9,
+        "market_standard": "Material changes during a paid Subscription Term should require mutual written consent or, at minimum, 30+ days' notice with a right to terminate for convenience at no penalty. Mid-term pricing changes are not market standard under any circumstances.",
+        "explanation": "A 10-day unilateral modification window with a 'continued use equals acceptance' construct effectively negates the contractual certainty that a fixed Subscription Term is supposed to provide. Customer could face a mid-year price increase, feature removal, or policy change with no effective recourse short of halting business operations. The provision as drafted is particularly aggressive because it explicitly includes pricing — creating the risk that a customer that has already paid for a year could face additional charges with only 10 days to decide whether to stop using the platform."
+      },
+      {
+        "clause": "Confidentiality (Section 5.4)",
+        "issue": "No confidentiality survival clause; obligations terminate at contract end",
+        "issue_type": "missing_provision",
+        "severity": 6,
+        "market_standard": "3-year post-termination survival is standard.",
+        "explanation": "See contract_4_minor_issues for detailed analysis. Same issue applies here: Vendor's confidentiality obligations end at contract termination, leaving Customer's sensitive information unprotected."
+      },
+      {
+        "clause": "Limitation of Liability (Section 7.2)",
+        "issue": "Aggregate liability cap is 3 months of fees; no carve-outs for confidentiality, data protection, or IP breaches",
+        "issue_type": "below_market_term",
+        "severity": 8,
+        "market_standard": "12-month cap is standard, with carve-outs for confidentiality breaches, data protection violations, and gross negligence.",
+        "explanation": "The 3-month cap is below market, and critically, this contract does not include the standard carve-outs that protect customers from catastrophic data or IP loss events. Combined with the Output co-ownership provision, Vendor's total liability for misusing Customer's data and Output is capped at 3 months of subscription fees — a de minimis amount relative to the potential harm."
+      },
+      {
+        "clause": "Services (Section 2.2)",
+        "issue": "No uptime SLA or binding performance commitment",
+        "issue_type": "missing_provision",
+        "severity": 6,
+        "market_standard": "99.5% monthly uptime SLA with defined service credits is market standard.",
+        "explanation": "Customer has no contractual basis to claim remedies for service outages. Vendor can fail to meet any performance standard without triggering a breach."
+      },
+      {
+        "clause": "Indemnification (Sections 8.1 and 8.2)",
+        "issue": "One-sided indemnification — Customer indemnifies Vendor; Vendor provides no IP indemnification",
+        "issue_type": "one_sided_provision",
+        "severity": 7,
+        "market_standard": "Mutual indemnification is market standard. Vendor should indemnify Customer for third-party IP claims.",
+        "explanation": "Vendor assumes no liability for IP infringement by the Services. Customer bears all exposure to third-party patent or copyright claims."
+      },
+      {
+        "clause": "Data Processing and Privacy (Section 6.2)",
+        "issue": "Data deletion upon termination is 'commercially reasonable efforts' with no timeline; vendor may retain anonymized data indefinitely",
+        "issue_type": "vague_obligation",
+        "severity": 6,
+        "market_standard": "Deletion within 30–60 days with written certification. Retention of anonymized data should be narrowly scoped and time-limited.",
+        "explanation": "Vague deletion obligations and indefinite retention of 'anonymized' data are regulatory risks. Combined with the Output co-ownership clause, Vendor could argue that retained anonymized data and Output are legitimately held indefinitely as joint property."
+      },
+      {
+        "clause": "Term and Termination (Section 9.5)",
+        "issue": "No post-termination data export obligation; Vendor has no duty to provide Customer Data in usable format",
+        "issue_type": "missing_provision",
+        "severity": 7,
+        "market_standard": "30-day post-termination data export window in machine-readable format is market standard.",
+        "explanation": "Customer could lose access to its own data records upon termination. Combined with the 10-day unilateral modification window and Vendor's one-sided termination-for-convenience right, this creates a scenario where Vendor can exit the relationship with minimal notice and no obligation to return Customer's data in usable form."
+      }
+    ]
+  }
+]

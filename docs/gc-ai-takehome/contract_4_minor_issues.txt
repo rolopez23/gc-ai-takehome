@@ -1,0 +1,165 @@
+MASTER SERVICE AGREEMENT
+
+This Master Service Agreement ("Agreement") is entered into as of March 1, 2026 ("Effective Date") by and between:
+
+Vendor: Cloudpath Dynamics, Inc., a Delaware corporation with its principal place of business at 1450 Harbor View Drive, Suite 300, Seattle, WA 98101 ("Vendor"), and
+
+Customer: Vantage Point Logistics, Inc., a Delaware corporation with its principal place of business at 800 Congress Avenue, Suite 1100, Austin, TX 78701 ("Customer").
+
+---
+
+1. DEFINITIONS
+
+1.1 "Authorized Users" means Customer's employees, contractors, and agents who are authorized to access the Services under this Agreement.
+
+1.2 "Customer Data" means all data, content, and information submitted to or collected by the Services on behalf of Customer, including Personal Data.
+
+1.3 "Documentation" means the user guides, technical documentation, and related written materials describing the Services.
+
+1.4 "Order Form" means a written ordering document executed by both parties that incorporates this Agreement and specifies the applicable Services, fees, and Subscription Term.
+
+1.5 "Personal Data" has the meaning given under applicable data protection laws.
+
+1.6 "Services" means the software-as-a-service platform and related services described in the applicable Order Form.
+
+1.7 "Subscription Term" means the initial and any renewal period during which Customer is authorized to access the Services.
+
+---
+
+2. SERVICES
+
+2.1 Provision of Services. Vendor will make the Services available to Customer and its Authorized Users during the Subscription Term in accordance with this Agreement, the applicable Order Form, and the Documentation.
+
+2.2 Availability. Vendor will use commercially reasonable efforts to make the Services available on a 24/7 basis, subject to scheduled maintenance. Vendor does not guarantee any specific uptime percentage and makes no representations regarding service availability or response times. Scheduled maintenance windows will be communicated to Customer via email at least 24 hours in advance.
+
+2.3 Support. Vendor will provide standard technical support by email during business hours (8:00 AM – 5:00 PM Pacific Time, Monday through Friday, excluding public holidays). Premium support is available as an add-on.
+
+2.4 Modifications. Vendor reserves the right to modify, suspend, or discontinue any features or functionality of the Services at any time upon 15 days' prior written notice to Customer. Such changes will not entitle Customer to a refund of prepaid fees.
+
+---
+
+3. FEES AND PAYMENT
+
+3.1 Fees. Customer will pay Vendor the fees specified in the applicable Order Form. All fees are due in U.S. dollars and are non-refundable except as expressly provided in this Agreement.
+
+3.2 Invoicing and Payment. Vendor will invoice Customer per the billing schedule in the Order Form. Customer will pay undisputed invoices within 30 days of the invoice date. Overdue amounts accrue interest at 1.5% per month.
+
+3.3 Taxes. Customer is responsible for all applicable taxes, excluding taxes on Vendor's net income.
+
+3.4 Fee Adjustments. Vendor may increase fees for any renewal Subscription Term upon at least 60 days' prior written notice to Customer. In addition, Vendor may modify fees, features, or policies during a Subscription Term upon 15 days' prior written notice.
+
+---
+
+4. INTELLECTUAL PROPERTY OWNERSHIP
+
+4.1 Vendor IP. Vendor retains all rights, title, and interest in and to the Services, Documentation, underlying technology, and all improvements and derivative works thereof.
+
+4.2 Customer Data. As between the parties, Customer retains all rights, title, and interest in and to Customer Data. Vendor acquires no ownership interest in Customer Data.
+
+4.3 License to Customer Data. Customer grants Vendor a limited, non-exclusive, non-transferable license to access and use Customer Data solely to provide the Services during the Subscription Term.
+
+4.4 Restrictions. Vendor will not use Customer Data for training AI or machine learning models or for any purpose other than providing the Services, except as required by applicable law.
+
+4.5 Feedback. If Customer provides feedback regarding the Services, Vendor may freely use such feedback without restriction or obligation to Customer.
+
+---
+
+5. CONFIDENTIALITY
+
+5.1 Definition. "Confidential Information" means any non-public information disclosed by one party to the other that is designated as confidential or that reasonably should be understood as confidential.
+
+5.2 Obligations. The Receiving Party will: (a) protect Confidential Information using at least the same care it uses for its own similar information, but no less than reasonable care; (b) use Confidential Information only to perform obligations or exercise rights under this Agreement; and (c) limit disclosure to employees and contractors with a need to know who are bound by obligations at least as protective as those herein.
+
+5.3 Exceptions. Confidentiality obligations do not apply to information that: (a) is or becomes public through no fault of the Receiving Party; (b) was already known without restriction; (c) is independently developed; or (d) must be disclosed by law, with reasonable prior notice to the Disclosing Party where permitted.
+
+5.4 Duration. The confidentiality obligations in this Section 5 will terminate upon expiration or termination of this Agreement.
+
+---
+
+6. DATA PROCESSING AND PRIVACY
+
+6.1 Data Processing Agreement. The parties acknowledge that Vendor may process Personal Data in the course of providing the Services. The terms governing such processing are set forth in the Data Processing Agreement attached hereto as Exhibit A and incorporated by reference.
+
+6.2 Data Deletion. Upon expiration or termination of this Agreement, Vendor will use commercially reasonable efforts to delete Customer Data from its systems. Vendor makes no commitment regarding the timeline for such deletion.
+
+6.3 Compliance. Each party will comply with applicable data protection laws in connection with its activities under this Agreement.
+
+---
+
+7. LIMITATION OF LIABILITY
+
+7.1 Exclusion of Consequential Damages. EXCEPT FOR BREACHES OF SECTION 5 (CONFIDENTIALITY) OR APPLICABLE DATA PROTECTION LAW, NEITHER PARTY WILL BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, PUNITIVE, OR CONSEQUENTIAL DAMAGES, INCLUDING LOSS OF PROFITS OR DATA, EVEN IF ADVISED OF THE POSSIBILITY.
+
+7.2 Aggregate Cap. EACH PARTY'S TOTAL CUMULATIVE LIABILITY ARISING OUT OF OR RELATED TO THIS AGREEMENT WILL NOT EXCEED THE FEES PAID BY CUSTOMER IN THE THREE (3) MONTHS IMMEDIATELY PRECEDING THE EVENT GIVING RISE TO THE CLAIM.
+
+7.3 Essential Basis. The parties acknowledge that the limitations in this Section 7 reflect a reasonable allocation of risk and are an essential element of the basis of the bargain between the parties.
+
+---
+
+8. INDEMNIFICATION
+
+8.1 Customer Indemnification. Customer will defend, indemnify, and hold harmless Vendor and its officers, directors, and employees from any third-party claim arising out of or relating to: (a) Customer Data; (b) Customer's use of the Services in violation of this Agreement or applicable law; or (c) Customer's products or services.
+
+8.2 No Vendor Indemnification. This Agreement does not include indemnification obligations on the part of Vendor with respect to third-party intellectual property claims. Customer acknowledges that it has evaluated the risk accordingly.
+
+8.3 Procedure. The indemnified party must promptly notify the indemnifying party of any claim and cooperate reasonably in its defense.
+
+---
+
+9. TERM AND TERMINATION
+
+9.1 Agreement Term. This Agreement begins on the Effective Date and continues until all Order Forms have expired or been terminated.
+
+9.2 Subscription Renewal. Unless either party provides written notice of non-renewal at least 30 days before the end of the then-current Subscription Term, each Order Form will automatically renew for successive one-year terms at then-current rates.
+
+9.3 Termination for Cause. Either party may terminate this Agreement or any Order Form upon 30 days' written notice of a material breach, if the breach is not cured within that period.
+
+9.4 Termination for Convenience. Vendor may terminate this Agreement for any reason upon 60 days' written notice to Customer.
+
+9.5 Effect of Termination. Upon termination, Customer's access to the Services will cease. Customer Data deletion will be handled in accordance with Section 6.2. Vendor has no obligation to provide Customer Data in an exportable format following termination.
+
+9.6 Survival. Sections 1, 4.1, 4.2, 7, 8, and 10 will survive termination of this Agreement.
+
+---
+
+10. GENERAL
+
+10.1 Governing Law and Venue. This Agreement is governed by the laws of the State of Washington, without regard to conflicts of law principles. Disputes will be resolved in the state or federal courts of King County, Washington.
+
+10.2 Entire Agreement. This Agreement, together with all Order Forms and Exhibits, constitutes the entire agreement between the parties.
+
+10.3 Amendment. Vendor may amend this Agreement by providing 15 days' prior written notice to Customer. Customer's continued use of the Services after the notice period constitutes acceptance of the amended terms.
+
+10.4 Waiver. No waiver of any breach will constitute a waiver of any subsequent breach.
+
+10.5 Severability. If any provision is found unenforceable, the remaining provisions will continue in full force.
+
+10.6 Assignment. Neither party may assign this Agreement without the other party's written consent, except in connection with a merger or acquisition.
+
+10.7 Notices. Notices must be in writing and delivered to the addresses specified in the Order Form.
+
+10.8 Force Majeure. Neither party will be liable for delays or failures resulting from causes beyond its reasonable control.
+
+---
+
+EXHIBIT A: DATA PROCESSING AGREEMENT
+
+[Full Data Processing Agreement is attached hereto and incorporated by reference.]
+
+---
+
+IN WITNESS WHEREOF, the parties have executed this Agreement as of the Effective Date.
+
+CLOUDPATH DYNAMICS, INC.
+
+Signature: _______________________
+Name: Rachel Kim
+Title: Vice President, Sales
+Date: March 1, 2026
+
+VANTAGE POINT LOGISTICS, INC.
+
+Signature: _______________________
+Name: Gregory Osei
+Title: Senior Counsel
+Date: March 1, 2026
