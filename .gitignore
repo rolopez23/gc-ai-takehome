@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+.venv/
+
+# Build output
+frontend/.next/
+frontend/out/
+__pycache__/
+*.pyc
+
+# Environment
+.env
+backend/.env
+
+# Claude Code
+.claude/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Test / cache
+.pytest_cache/
+test.db
+*.egg-info/
+
+# uv
+uv.lock
+
+# Alembic
+backend/migrations/versions/
+
+# Entire
+.entire/
