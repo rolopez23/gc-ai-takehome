@@ -91,3 +91,7 @@ Signed off! Nice job.
 ---
 
 Great job handling it I will no more on next step since then I can test E2E.  I would say one other piece is that at this point lets create a FrontendTesting.md file and reference in the main agents.md.  Include the corrections made uring the tests by the user there, ad RTL testing best practies.
+
+---
+
+yes do it
