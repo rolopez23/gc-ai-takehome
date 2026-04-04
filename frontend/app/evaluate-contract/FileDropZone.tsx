@@ -1,7 +1,11 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { validateFileExtension, validateFileSize } from './validation';
+import {
+  ALLOWED_EXTENSIONS,
+  validateFileExtension,
+  validateFileSize,
+} from './validation';
 
 interface FileDropZoneProps {
   onFileChange: (file: File | null) => void;
@@ -23,7 +27,9 @@ export function FileDropZone({ onFileChange }: FileDropZoneProps) {
     setError(null);
 
     if (!validateFileExtension(file.name)) {
-      setError('File type not allowed. Accepted formats: .pdf, .txt, .doc, .docx');
+      setError(
+        `File type not allowed. Accepted formats: ${ALLOWED_EXTENSIONS.join(', ')}`,
+      );
       return;
     }
 
@@ -41,31 +47,15 @@ export function FileDropZone({ onFileChange }: FileDropZoneProps) {
     if (file) processFile(file);
   }
 
-  if (stagedFile) {
-    return (
-      <div className="flex items-center justify-between rounded-lg border border-foreground/20 p-4">
-        <div>
-          <p className="font-medium">{stagedFile.name}</p>
-          <p className="text-sm text-foreground/60">{formatFileSize(stagedFile.size)}</p>
-        </div>
-        <button
-          type="button"
-          onClick={() => {
-            setStagedFile(null);
-            onFileChange(null);
-            if (inputRef.current) inputRef.current.value = '';
-          }}
-          className="rounded-md px-3 py-1 text-sm text-foreground/60 hover:bg-foreground/10"
-        >
-          Remove
-        </button>
-      </div>
-    );
+  function handleRemove() {
+    setStagedFile(null);
+    onFileChange(null);
+    if (inputRef.current) inputRef.current.value = '';
   }
 
   function handleDragOver(e: React.DragEvent) {
     e.preventDefault();
-    setIsDragging(true);
+    if (!isDragging) setIsDragging(true);
   }
 
   function handleDragLeave() {
@@ -77,6 +67,26 @@ export function FileDropZone({ onFileChange }: FileDropZoneProps) {
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
     if (file) processFile(file);
+  }
+
+  if (stagedFile) {
+    return (
+      <div className="flex items-center justify-between rounded-lg border border-foreground/20 p-4">
+        <div>
+          <p className="font-medium">{stagedFile.name}</p>
+          <p className="text-sm text-foreground/60">
+            {formatFileSize(stagedFile.size)}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleRemove}
+          className="rounded-md px-3 py-1 text-sm text-foreground/60 hover:bg-foreground/10"
+        >
+          Remove
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -101,7 +111,7 @@ export function FileDropZone({ onFileChange }: FileDropZoneProps) {
       <input
         ref={inputRef}
         type="file"
-        accept=".pdf,.txt,.doc,.docx"
+        accept={ALLOWED_EXTENSIONS.join(',')}
         className="hidden"
         onChange={handleInputChange}
       />
