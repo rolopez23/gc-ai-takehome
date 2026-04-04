@@ -43,3 +43,7 @@ That is in case there are . in the name like rob.lopez.resume.doc I think in gen
 ---
 
 Simple happy and unhappy test path.  The lastindex of is backed in to both files.
+
+---
+
+Signoff, but when should we run learnings?
