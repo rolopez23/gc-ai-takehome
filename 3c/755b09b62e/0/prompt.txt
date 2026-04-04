@@ -63,3 +63,7 @@ yes!
 ---
 
 hmm /mcp does not list it
+
+---
+
+/publish-session
