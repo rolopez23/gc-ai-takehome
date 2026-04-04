@@ -121,6 +121,7 @@ export function FileDropZone({ onFileChange }: FileDropZoneProps) {
       <input
         ref={inputRef}
         type="file"
+        aria-label="Upload contract file"
         accept={ALLOWED_EXTENSIONS.join(',')}
         className="hidden"
         onChange={handleInputChange}
