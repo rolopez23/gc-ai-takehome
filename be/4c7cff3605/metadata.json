@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "be4c7cff3605",
+  "strategy": "manual-commit",
+  "branch": "rl/frontend-upload",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "frontend/app/evaluate-contract/FileDropZone.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/be/4c7cff3605/0/metadata.json",
+      "transcript": "/be/4c7cff3605/0/full.jsonl",
+      "content_hash": "/be/4c7cff3605/0/content_hash.txt",
+      "prompt": "/be/4c7cff3605/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 208,
+    "cache_creation_tokens": 138878,
+    "cache_read_tokens": 12680717,
+    "output_tokens": 55543,
+    "api_call_count": 159
+  }
+}
