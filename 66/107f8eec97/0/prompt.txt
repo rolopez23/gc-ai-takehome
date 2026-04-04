@@ -163,3 +163,7 @@ Yes good job on confirming! I feel good all sections are human and agent reviewe
 ---
 
 YEs!
+
+---
+
+Ok lets also update the gitigonre to handle test coverage, lets move playwright files to the verify folder if screenshots ignore otehrewise.
