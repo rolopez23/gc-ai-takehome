@@ -167,3 +167,7 @@ YEs!
 ---
 
 Ok lets also update the gitigonre to handle test coverage, lets move playwright files to the verify folder if screenshots ignore otehrewise.
+
+---
+
+Ok lets commit our documentation you can commit that with branches going foward
