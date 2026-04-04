@@ -29,16 +29,22 @@ For non-trivial features, follow this order:
 /problem-spec   →  define the problem, produce docs/<feature>/spec.md
 /plan           →  break into TDD chunks, produce docs/<feature>/plan.md
 
-  For each step:
-    write tests (red) → write code (green) → refactor → commit
-    /verify    →  E2E check against live system
-    /simplify  →  clean up staged code
-    /review    →  correctness and edge case check
-    /pr-interactive-walkthrough  →  cognitive understanding check
-    human      →  sign off
-
-/learn-from-mistakes  →  log corrections; updates .claude/learnings.md
+  For each step (EVERY column, in order, no skipping):
+    1. write tests (red) → write code (green) → refactor → commit
+    2. /verify              →  E2E check against live system
+    3. /simplify            →  clean up staged code
+    4. /review              →  correctness and edge case check
+    5. /pr-interactive-walkthrough  →  cognitive understanding check
+    6. human sign-off       →  developer approves
+    7. /learn-from-mistakes →  log corrections; updates .claude/learnings.md
+    8. Update plan.md dashboard after EACH column completes
+    ── then proceed to the next step ──
 ```
+
+**CRITICAL**: Do not skip steps or reorder them. Do not start the next step until
+all columns are complete and the plan dashboard is updated. /learn-from-mistakes
+runs AFTER human sign-off, BEFORE the next step — it is part of the per-step loop,
+not a one-time post-feature task.
 
 ---
 
@@ -80,6 +86,14 @@ Setup/infra work (deps, config, tooling, CI, Makefile, docker-compose, env files
 ### TypeScript type annotations
 
 Use implicit return types for simple helpers and when the type is obvious (e.g., a function returning a boolean comparison). Use explicit types for exported utilities with complex return types, public API contracts, or when the type isn't immediately clear from the implementation.
+
+### Frontend testing
+
+Follow [FrontendTesting.md](FrontendTesting.md) for all frontend test code. Key rules:
+- Use RTL accessibility queries (`getByRole`, `getByLabelText`, `getByText`) — **never** `document.querySelector`
+- Avoid `as` type casts on RTL queries unless accessing element-specific properties
+- Use `userEvent` by default, `fireEvent` only to bypass browser behavior (e.g., testing validation of disallowed file types)
+- No comments that explain what the code already shows
 
 ---
 
