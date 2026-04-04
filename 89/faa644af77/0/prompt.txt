@@ -63,3 +63,7 @@ Hmm lets check how the workflow is referenced in Agents.md I do want to highligh
 ---
 
 can we just have Claude.md be @AGENTS.md
+
+---
+
+yes!
