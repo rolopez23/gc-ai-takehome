@@ -1,0 +1,65 @@
+Can you verify my normal coding harness is installed in this takehome with a bunch of skills?
+
+---
+
+Great lets sets this repo up.  Run the next-react-boot.  After you can boot the react app run the python-psql-boot
+
+---
+
+Is this all reflected in the Readme.md
+
+---
+
+Yes!
+
+---
+
+Ok are the endpoints actually implemented yet? Apply YAGNI to the readme.  Only have working features referenced
+
+---
+
+Ok you can commit the boot up phase
+
+---
+
+Actually first lets update the .gitignore.  We have lots of issues with way too many changes
+
+---
+
+How about .claude should we ignore?
+
+---
+
+I think most of the skills are me specific too not repo scoped.
+
+---
+
+Is the Readme.Md referenced in the Agent.Md I would add if you need more app context on tech stack, api-routes, or purposes go to Readme.md
+
+---
+
+Greate can we also move to portless
+
+---
+
+Can we reference contract-evaluator in the frontend without a port and contract-evaluator-server as the two names.  I want them to be as readable as possible with portless
+
+---
+
+do we the .localhost or can we just do .local
+
+---
+
+Great to know! Can you boot frontend and do a simple smoke test with playwright
+
+---
+
+actually use the playwright mcp server not install it
+
+---
+
+yes!
+
+---
+
+hmm /mcp does not list it

@@ -1,0 +1,55 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "3c755b09b62e",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 13,
+  "files_touched": [
+    ".gitignore",
+    ".mcp.json",
+    "AGENTS.md",
+    "Readme.Md",
+    "backend/alembic.ini",
+    "backend/database.py",
+    "backend/main.py",
+    "backend/migrations/env.py",
+    "backend/migrations/script.py.mako",
+    "backend/models.py",
+    "backend/pyproject.toml",
+    "backend/routers/__init__.py",
+    "backend/routers/contracts.py",
+    "backend/routers/reviews.py",
+    "backend/schemas.py",
+    "backend/services/__init__.py",
+    "backend/tests/__init__.py",
+    "backend/tests/conftest.py",
+    "backend/tests/test_contracts.py",
+    "backend/tests/test_reviews.py",
+    "docker-compose.yml",
+    "frontend/app/globals.css",
+    "frontend/app/layout.tsx",
+    "frontend/app/page.tsx",
+    "frontend/next-env.d.ts",
+    "frontend/next.config.ts",
+    "frontend/package-lock.json",
+    "frontend/package.json",
+    "frontend/postcss.config.mjs",
+    "frontend/tsconfig.json",
+    "portless.yml"
+  ],
+  "sessions": [
+    {
+      "metadata": "/3c/755b09b62e/0/metadata.json",
+      "transcript": "/3c/755b09b62e/0/full.jsonl",
+      "content_hash": "/3c/755b09b62e/0/content_hash.txt",
+      "prompt": "/3c/755b09b62e/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 216,
+    "cache_creation_tokens": 209168,
+    "cache_read_tokens": 4983130,
+    "output_tokens": 20289,
+    "api_call_count": 79
+  }
+}
