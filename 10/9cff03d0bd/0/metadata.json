@@ -1,0 +1,38 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "109cff03d0bd",
+  "session_id": "2a9862ff-e032-4eaf-86d9-07cf76cd2acc",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-04T19:07:47.754905Z",
+  "branch": "rl/frontend-upload",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "frontend/__tests__/FileDropZone.test.tsx",
+    "frontend/app/evaluate-contract/FileDropZone.tsx"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-6[1m]",
+  "turn_id": "ac7c9e6a2e05",
+  "token_usage": {
+    "input_tokens": 1870,
+    "cache_creation_tokens": 198184,
+    "cache_read_tokens": 31740286,
+    "output_tokens": 85433,
+    "api_call_count": 271
+  },
+  "session_metrics": {
+    "turn_count": 28
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-04T19:07:47.374433Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 14,
+    "human_modified": 51,
+    "human_removed": 0,
+    "total_committed": 14,
+    "total_lines_changed": 65,
+    "agent_percentage": 0,
+    "metric_version": 2
+  }
+}
