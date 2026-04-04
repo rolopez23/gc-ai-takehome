@@ -17,7 +17,7 @@ describe('FileDropZone', () => {
 
   it('has a hidden file input with correct accept types', () => {
     render(<FileDropZone onFileChange={vi.fn()} />);
-    const input = screen.getByLabelText(/upload contract file/i) as HTMLInputElement;
+    const input = screen.getByLabelText<HTMLInputElement>(/upload contract file/i);
     expect(input).toBeInTheDocument();
     expect(input.accept).toBe('.pdf,.txt,.doc,.docx');
   });
@@ -27,7 +27,7 @@ describe('FileDropZone', () => {
     render(<FileDropZone onFileChange={onFileChange} />);
 
     const file = new File(['content'], 'contract.pdf', { type: 'application/pdf' });
-    const input = screen.getByLabelText(/upload contract file/i) as HTMLInputElement;
+    const input = screen.getByLabelText(/upload contract file/i);
     await userEvent.upload(input, file);
 
     expect(onFileChange).toHaveBeenCalledWith(file);
@@ -39,8 +39,7 @@ describe('FileDropZone', () => {
     render(<FileDropZone onFileChange={onFileChange} />);
 
     const file = new File(['content'], 'image.png', { type: 'image/png' });
-    const input = screen.getByLabelText(/upload contract file/i) as HTMLInputElement;
-    // Use fireEvent to bypass the accept attribute filtering
+    const input = screen.getByLabelText(/upload contract file/i);
     fireEvent.change(input, { target: { files: [file] } });
 
     expect(screen.getByText(/file type not allowed/i)).toBeInTheDocument();
@@ -53,7 +52,7 @@ describe('FileDropZone', () => {
 
     const bigContent = new ArrayBuffer(6 * 1024 * 1024);
     const file = new File([bigContent], 'big.pdf', { type: 'application/pdf' });
-    const input = screen.getByLabelText(/upload contract file/i) as HTMLInputElement;
+    const input = screen.getByLabelText(/upload contract file/i);
     fireEvent.change(input, { target: { files: [file] } });
 
     expect(screen.getByText(/5 MB/i)).toBeInTheDocument();
@@ -65,7 +64,7 @@ describe('FileDropZone', () => {
     render(<FileDropZone onFileChange={onFileChange} />);
 
     const file = new File(['content'], 'contract.pdf', { type: 'application/pdf' });
-    const input = screen.getByLabelText(/upload contract file/i) as HTMLInputElement;
+    const input = screen.getByLabelText(/upload contract file/i);
     await userEvent.upload(input, file);
     expect(screen.getByText('contract.pdf')).toBeInTheDocument();
 
@@ -81,16 +80,13 @@ describe('FileDropZone', () => {
 
     const file1 = new File(['a'], 'first.pdf', { type: 'application/pdf' });
     const file2 = new File(['b'], 'second.docx', { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-    const input = screen.getByLabelText(/upload contract file/i) as HTMLInputElement;
+    const input = screen.getByLabelText(/upload contract file/i);
 
     await userEvent.upload(input, file1);
     expect(screen.getByText('first.pdf')).toBeInTheDocument();
 
-    // Need to re-query input since component re-renders to staged state
-    // Use fireEvent to replace - the staged view needs a replace mechanism
     await userEvent.click(screen.getByRole('button', { name: /remove/i }));
-    const input2 = screen.getByLabelText(/upload contract file/i) as HTMLInputElement;
-    await userEvent.upload(input2, file2);
+    await userEvent.upload(screen.getByLabelText(/upload contract file/i), file2);
 
     expect(screen.queryByText('first.pdf')).not.toBeInTheDocument();
     expect(screen.getByText('second.docx')).toBeInTheDocument();
