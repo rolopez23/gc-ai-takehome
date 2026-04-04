@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "77a1cec30d61",
+  "strategy": "manual-commit",
+  "branch": "rl/frontend-upload",
+  "checkpoints_count": 5,
+  "files_touched": [
+    "frontend/__tests__/evaluate-contract-page.test.tsx",
+    "frontend/app/evaluate-contract/FileDropZone.tsx",
+    "frontend/app/evaluate-contract/page.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/77/a1cec30d61/0/metadata.json",
+      "transcript": "/77/a1cec30d61/0/full.jsonl",
+      "content_hash": "/77/a1cec30d61/0/content_hash.txt",
+      "prompt": "/77/a1cec30d61/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 1672,
+    "cache_creation_tokens": 186778,
+    "cache_read_tokens": 29772815,
+    "output_tokens": 80434,
+    "api_call_count": 261
+  }
+}
