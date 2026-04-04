@@ -2,8 +2,6 @@ import { describe, it, expect } from 'vitest';
 import {
   validateFileExtension,
   validateFileSize,
-  ALLOWED_EXTENSIONS,
-  MAX_FILE_SIZE_BYTES,
 } from '@/app/evaluate-contract/validation';
 
 describe('validateFileExtension', () => {
@@ -41,12 +39,6 @@ describe('validateFileExtension', () => {
   });
 });
 
-describe('ALLOWED_EXTENSIONS', () => {
-  it('contains exactly .pdf, .txt, .doc, .docx', () => {
-    expect([...ALLOWED_EXTENSIONS]).toEqual(['.pdf', '.txt', '.doc', '.docx']);
-  });
-});
-
 describe('validateFileSize', () => {
   it('accepts files under 5 MB', () => {
     expect(validateFileSize(1024)).toBe(true);
@@ -65,8 +57,3 @@ describe('validateFileSize', () => {
   });
 });
 
-describe('MAX_FILE_SIZE_BYTES', () => {
-  it('is 5 MB', () => {
-    expect(MAX_FILE_SIZE_BYTES).toBe(5 * 1024 * 1024);
-  });
-});

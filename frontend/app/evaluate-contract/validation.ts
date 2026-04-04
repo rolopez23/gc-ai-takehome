@@ -5,7 +5,7 @@ export function validateFileExtension(fileName: string): boolean {
   const dotIndex = fileName.lastIndexOf('.');
   if (dotIndex === -1) return false;
   const ext = fileName.slice(dotIndex).toLowerCase();
-  return (ALLOWED_EXTENSIONS as readonly string[]).includes(ext);
+  return ALLOWED_EXTENSIONS.includes(ext as typeof ALLOWED_EXTENSIONS[number]);
 }
 
 export function validateFileSize(sizeInBytes: number): boolean {
