@@ -1,0 +1,36 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "c6f77f034568",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "CLAUDE.md",
+    "Process.md",
+    "docs/contract-upload-ui/plan.md",
+    "docs/contract-upload-ui/spec.md",
+    "docs/contract-upload-ui/steps/file-drop-zone.md",
+    "docs/contract-upload-ui/steps/file-validation.md",
+    "docs/contract-upload-ui/steps/upload-page.md",
+    "docs/learnings/contract-upload-ui-file-validation-2026-04-04.md",
+    "docs/learnings/contract-upload-ui-upload-page-2026-04-04.md",
+    "docs/reviews/file-drop-zone-2026-04-04.md",
+    "docs/reviews/file-validation-2026-04-04.md",
+    "docs/reviews/upload-page-2026-04-04.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/c6/f77f034568/0/metadata.json",
+      "transcript": "/c6/f77f034568/0/full.jsonl",
+      "content_hash": "/c6/f77f034568/0/content_hash.txt",
+      "prompt": "/c6/f77f034568/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 1931,
+    "cache_creation_tokens": 212108,
+    "cache_read_tokens": 40369990,
+    "output_tokens": 91518,
+    "api_call_count": 312
+  }
+}

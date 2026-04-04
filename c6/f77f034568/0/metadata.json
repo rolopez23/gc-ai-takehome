@@ -1,0 +1,48 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "c6f77f034568",
+  "session_id": "2a9862ff-e032-4eaf-86d9-07cf76cd2acc",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-04T19:16:48.874624Z",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "CLAUDE.md",
+    "Process.md",
+    "docs/contract-upload-ui/plan.md",
+    "docs/contract-upload-ui/spec.md",
+    "docs/contract-upload-ui/steps/file-drop-zone.md",
+    "docs/contract-upload-ui/steps/file-validation.md",
+    "docs/contract-upload-ui/steps/upload-page.md",
+    "docs/learnings/contract-upload-ui-file-validation-2026-04-04.md",
+    "docs/learnings/contract-upload-ui-upload-page-2026-04-04.md",
+    "docs/reviews/file-drop-zone-2026-04-04.md",
+    "docs/reviews/file-validation-2026-04-04.md",
+    "docs/reviews/upload-page-2026-04-04.md"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-6[1m]",
+  "turn_id": "1c6a1dad1dc2",
+  "token_usage": {
+    "input_tokens": 1931,
+    "cache_creation_tokens": 212108,
+    "cache_read_tokens": 40369990,
+    "output_tokens": 91518,
+    "api_call_count": 312
+  },
+  "session_metrics": {
+    "turn_count": 38
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-04T19:16:48.468328Z",
+    "agent_lines": 927,
+    "agent_removed": 63,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 927,
+    "total_lines_changed": 990,
+    "agent_percentage": 100,
+    "metric_version": 2
+  }
+}
