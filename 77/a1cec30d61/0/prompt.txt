@@ -123,3 +123,7 @@ instructions is user entered into a text box.  File is handled by the eaclier bu
 ---
 
 verifying the submit shape matches our epxectabitions.
+
+---
+
+One minor miss, handle submit should clear out state too!
