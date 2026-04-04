@@ -1,0 +1,18 @@
+{
+  "skill_name": "problem-spec",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to add notifications to my app so users know when something happens",
+      "expected_output": "A spec file at docs/<feature-name>/spec.md with a well-defined problem statement, in/out-of-scope items, actors and triggers, success criteria, and interfaces. The skill should have asked clarifying questions before writing the spec.",
+      "files": [],
+      "assertions": [
+        "A spec.md file was produced",
+        "The transcript shows at least 2 clarifying questions were asked before the spec was written",
+        "The spec contains a 'What We Are NOT Solving' section with at least one item",
+        "The spec contains an Interfaces section that names at least one schema or contract",
+        "The spec does not prescribe specific implementation technologies (e.g. no specific gems, queue systems, or libraries recommended)"
+      ]
+    }
+  ]
+}

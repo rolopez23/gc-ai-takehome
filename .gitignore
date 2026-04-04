@@ -12,8 +12,8 @@ __pycache__/
 .env
 backend/.env
 
-# Claude Code
-.claude/
+# Claude Code (keep settings.local.json private)
+.claude/settings.local.json
 
 # IDE
 .idea/

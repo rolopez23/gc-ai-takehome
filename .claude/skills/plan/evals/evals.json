@@ -1,0 +1,23 @@
+{
+  "skill_name": "plan",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Make a plan for the notifications feature",
+      "expected_output": "A plan.md with a status dashboard table and chunk descriptions, plus a sub-plan markdown file for each chunk containing a TDD plan with tests-first, implementation steps, and LLM verification.",
+      "files": [
+        "skills/problem-spec-workspace/iteration-1/eval-notifications/with_skill/outputs/spec.md"
+      ],
+      "assertions": [
+        "A plan.md file was produced at docs/notifications/plan.md or similar",
+        "The plan contains a status dashboard table with columns for Auto Tests, LLM Verify, Human, Simplify, and Review",
+        "The plan identifies at least 3 chunks",
+        "Each chunk in the plan lists which other chunks it blocks (or explicitly notes it blocks none)",
+        "A sub-plan markdown file exists for every chunk listed in the main plan",
+        "Each sub-plan lists tests to write before implementation",
+        "Each sub-plan describes an LLM verification step or marks it N/A with a reason",
+        "The plan includes a branching strategy recommendation"
+      ]
+    }
+  ]
+}
