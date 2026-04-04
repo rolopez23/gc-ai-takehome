@@ -77,6 +77,10 @@ Before pushing to `main` any commit that is **not** general setup or infrastruct
 
 Setup/infra work (deps, config, tooling, CI, Makefile, docker-compose, env files) may be pushed without this gate.
 
+### TypeScript type annotations
+
+Use implicit return types for simple helpers and when the type is obvious (e.g., a function returning a boolean comparison). Use explicit types for exported utilities with complex return types, public API contracts, or when the type isn't immediately clear from the implementation.
+
 ---
 
 Rules added by `/learn-from-mistakes` when a pattern recurs 3+ times.
