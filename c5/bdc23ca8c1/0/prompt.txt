@@ -79,3 +79,7 @@ It allows the re-use because they need the same checks, so it is DRy.  So refs g
 ---
 
 The querySelector is a bad code smell.  Can we use the react testing library functions instead like getBy, document.querySelector is a bad code smell for RTL testing.
+
+---
+
+One other follow up I see a bunch of type casting, that is another code smell, andy way to clean up.  and I swear I am not dodging the question.  I would say also we are looking at fireEvent.change, to catch the error state.  You can drop the comments though asking me a question that matches a comment is not the best test of my comprehension. Whomp whomp.
