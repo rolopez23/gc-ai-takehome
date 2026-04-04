@@ -1,0 +1,81 @@
+Ok lets use /problem-spec to start planning the first section of M1.  Feel free to reference the milestone planning I want a /evaluate-contract route in the next app where I user can upload a contract with a fairly standard ui both allowing drag and drop of a contract and also file selection form the computer.  Out of scope is the anthropic call I just want to test the upload.  Also a text box for chat for user specific instructions.
+
+---
+
+Do add a very high max size maybe 5 megabytes, just to have one.  Also do support .doc and .docx.  Lets limit to those.  2. Lets only support one file to minimze complexity.  3. You can disable the submit, or console.log the files attached as a summary and the user message.  Don't worry about it too much and use your taste.
+
+---
+
+That works lets do file extension, as the simplest. 2. We will need a handler feel free to have it so we can change the logic as a direct handler.  this is only for testing.  3. Feel free to have a link for now, we can url navigate to test.  4.  Textarea and files are indpenedant.  I think these are good questions to validate the specification.
+
+---
+
+lets move on to plan it out
+
+---
+
+Make it so!
+
+---
+
+hmm where in the plan are we?
+
+---
+
+Ok file validation is done but the plan has not been updated we have not gone through verify simplify review and understand.  And I don'y see the master plan updated.  Can we respect the workflow?
+
+---
+
+Do the walkthrough with all code and tests
+
+---
+
+This is a test configuration file, we are using jsdom since we are testing the frontend.  It also handles resolution for the test mocking.
+
+---
+
+I am actually not sure off the top of my head good deeping of my knowledge can you explain?
+
+---
+
+That is in case there are . in the name like rob.lopez.resume.doc I think in general we can drop the explict type definition on the typescript.  For validate functions we can infer the return type. Not a big deal but lets clean up that since it is obvious.  Add that as a rule to agents.md use implicit types for non-exported simple helpers, or when the type is ovbious.  Use explicit types for exported utities that have more complex types.
+
+---
+
+Simple happy and unhappy test path.  The lastindex of is backed in to both files.
+
+---
+
+Signoff, but when should we run learnings?
+
+---
+
+No lets run it before moving on to the next step it is just before you said sign-off => step 2, it shoudl default to sign-off=>learn=>step2
+
+---
+
+Great job catching those! I think those are the main issues at this point and understanable for an early session.
+
+---
+
+Hmm lets check how the workflow is referenced in Agents.md I do want to highlight that since it is so important
+
+---
+
+can we just have Claude.md be @AGENTS.md
+
+---
+
+yes!
+
+---
+
+yes code snippets and tests!
+
+---
+
+It allows the re-use because they need the same checks, so it is DRy.  So refs give component a memory that does not trigger re-renders.  It is a state in the classical comp sci sense without being state in the react sense which has other meaning.  I would say a number is more durable than an is dragging boolean, and it maps to the state.  The ref could be a boolean though.
+
+---
+
+The querySelector is a bad code smell.  Can we use the react testing library functions instead like getBy, document.querySelector is a bad code smell for RTL testing.
