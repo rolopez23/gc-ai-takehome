@@ -19,3 +19,7 @@ Make it so!
 ---
 
 hmm where in the plan are we?
+
+---
+
+Ok file validation is done but the plan has not been updated we have not gone through verify simplify review and understand.  And I don'y see the master plan updated.  Can we respect the workflow?
