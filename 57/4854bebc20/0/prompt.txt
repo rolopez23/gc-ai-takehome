@@ -1,0 +1,33 @@
+Ok some cleanup, portles is in a 1/2 state I want all boot scripts in dev to use portless.  Can you update?
+
+---
+
+https://github.com/vercel-labs/portless
+
+---
+
+Ok frontend works but getting this on the backend /bin/sh: uvicorn: command not found
+
+---
+
+That works but is a moutful do a simple mapping to some configuration file so I can do a very simple command
+
+---
+
+Make file great choice.
+
+---
+
+Can you also do a a make setup command for setting up the repo and a make db for initialize the databse
+
+---
+
+Ok reference in Readme.md
+
+---
+
+Ok I think we are setup.  This is a takehome so speed / cq / polish is more important the true dx best practices but make a rule in Agents.md to ask for user confirmation and elict exact improvement if there are any pushes to main that are not general setup / infrastructure.
+
+---
+
+Ok commit our current status! Boot done, you have no long how onerous this was before you :)

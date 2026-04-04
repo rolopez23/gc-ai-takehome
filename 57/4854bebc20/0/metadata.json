@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "574854bebc20",
+  "session_id": "d365846f-4cc7-4352-8c06-6cae18195e0e",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-04T17:16:53.099601Z",
+  "branch": "main",
+  "checkpoints_count": 7,
+  "files_touched": [
+    "AGENTS.md",
+    "Process.md",
+    "Readme.Md",
+    "backend/Makefile",
+    "backend/main.py",
+    "frontend/package.json",
+    "portless.yml"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-6[1m]",
+  "turn_id": "89a2a61f2a9f",
+  "token_usage": {
+    "input_tokens": 68,
+    "cache_creation_tokens": 42327,
+    "cache_read_tokens": 1924893,
+    "output_tokens": 9444,
+    "api_call_count": 48
+  },
+  "session_metrics": {
+    "turn_count": 7
+  }
+}
