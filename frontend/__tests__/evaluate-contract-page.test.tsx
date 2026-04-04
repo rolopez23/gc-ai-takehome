@@ -34,7 +34,7 @@ describe('EvaluateContractPage', () => {
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     render(<EvaluateContractPage />);
 
-    const file = new File(['content'], 'contract.pdf', { type: 'application/pdf' });
+    const file = new File(['content'], 'contract.txt', { type: 'text/plain' });
     await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
 
     await userEvent.type(
@@ -46,8 +46,8 @@ describe('EvaluateContractPage', () => {
 
     expect(consoleSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        fileName: 'contract.pdf',
-        fileType: '.pdf',
+        fileName: 'contract.txt',
+        fileType: '.txt',
         instructions: 'Focus on IP clauses',
       }),
     );
@@ -62,7 +62,7 @@ describe('EvaluateContractPage', () => {
       'Check indemnification',
     );
 
-    const file = new File(['content'], 'contract.pdf', { type: 'application/pdf' });
+    const file = new File(['content'], 'contract.txt', { type: 'text/plain' });
     await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
     await userEvent.click(screen.getByRole('button', { name: /remove/i }));
 
@@ -74,21 +74,21 @@ describe('EvaluateContractPage', () => {
   it('does not clear file when instructions are cleared', async () => {
     render(<EvaluateContractPage />);
 
-    const file = new File(['content'], 'contract.pdf', { type: 'application/pdf' });
+    const file = new File(['content'], 'contract.txt', { type: 'text/plain' });
     await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
 
     const textarea = screen.getByPlaceholderText(/instruction/i);
     await userEvent.type(textarea, 'Some text');
     await userEvent.clear(textarea);
 
-    expect(screen.getByText('contract.pdf')).toBeInTheDocument();
+    expect(screen.getByText('contract.txt')).toBeInTheDocument();
   });
 
   it('clears file and instructions after submit', async () => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     render(<EvaluateContractPage />);
 
-    const file = new File(['content'], 'contract.pdf', { type: 'application/pdf' });
+    const file = new File(['content'], 'contract.txt', { type: 'text/plain' });
     await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
     await userEvent.type(
       screen.getByPlaceholderText(/instruction/i),

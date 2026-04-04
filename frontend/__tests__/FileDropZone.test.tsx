@@ -33,25 +33,25 @@ describe('FileDropZone', () => {
     render(<FileDropZone file={null} onFileChange={vi.fn()} />);
     const input = screen.getByLabelText<HTMLInputElement>(/upload contract file/i);
     expect(input).toBeInTheDocument();
-    expect(input.accept).toBe('.pdf,.txt,.doc,.docx');
+    expect(input.accept).toBe('.txt');
   });
 
   it('renders staged file when file prop is provided', () => {
-    const file = new File(['content'], 'contract.pdf', { type: 'application/pdf' });
+    const file = new File(['content'], 'contract.txt', { type: 'text/plain' });
     render(<FileDropZone file={file} onFileChange={vi.fn()} />);
 
-    expect(screen.getByText('contract.pdf')).toBeInTheDocument();
+    expect(screen.getByText('contract.txt')).toBeInTheDocument();
   });
 
   it('stages a valid file and calls onFileChange', async () => {
     const spy = vi.fn();
     render(<ControlledDropZone onFileChangeSpy={spy} />);
 
-    const file = new File(['content'], 'contract.pdf', { type: 'application/pdf' });
+    const file = new File(['content'], 'contract.txt', { type: 'text/plain' });
     await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
 
     expect(spy).toHaveBeenCalledWith(file);
-    expect(screen.getByText('contract.pdf')).toBeInTheDocument();
+    expect(screen.getByText('contract.txt')).toBeInTheDocument();
   });
 
   it('shows error for invalid file extension', () => {
@@ -72,7 +72,7 @@ describe('FileDropZone', () => {
     render(<ControlledDropZone onFileChangeSpy={spy} />);
 
     const bigContent = new ArrayBuffer(6 * 1024 * 1024);
-    const file = new File([bigContent], 'big.pdf', { type: 'application/pdf' });
+    const file = new File([bigContent], 'big.txt', { type: 'text/plain' });
     fireEvent.change(screen.getByLabelText(/upload contract file/i), {
       target: { files: [file] },
     });
@@ -85,12 +85,12 @@ describe('FileDropZone', () => {
     const spy = vi.fn();
     render(<ControlledDropZone onFileChangeSpy={spy} />);
 
-    const file = new File(['content'], 'contract.pdf', { type: 'application/pdf' });
+    const file = new File(['content'], 'contract.txt', { type: 'text/plain' });
     await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
-    expect(screen.getByText('contract.pdf')).toBeInTheDocument();
+    expect(screen.getByText('contract.txt')).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: /remove/i }));
-    expect(screen.queryByText('contract.pdf')).not.toBeInTheDocument();
+    expect(screen.queryByText('contract.txt')).not.toBeInTheDocument();
     expect(screen.getByText(/drag.+drop/i)).toBeInTheDocument();
     expect(spy).toHaveBeenLastCalledWith(null);
   });
@@ -98,17 +98,17 @@ describe('FileDropZone', () => {
   it('replaces staged file when a new file is selected', async () => {
     render(<ControlledDropZone />);
 
-    const file1 = new File(['a'], 'first.pdf', { type: 'application/pdf' });
-    const file2 = new File(['b'], 'second.docx', { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    const file1 = new File(['a'], 'first.txt', { type: 'text/plain' });
+    const file2 = new File(['b'], 'second.txt', { type: 'text/plain' });
 
     await userEvent.upload(screen.getByLabelText(/upload contract file/i), file1);
-    expect(screen.getByText('first.pdf')).toBeInTheDocument();
+    expect(screen.getByText('first.txt')).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: /remove/i }));
     await userEvent.upload(screen.getByLabelText(/upload contract file/i), file2);
 
-    expect(screen.queryByText('first.pdf')).not.toBeInTheDocument();
-    expect(screen.getByText('second.docx')).toBeInTheDocument();
+    expect(screen.queryByText('first.txt')).not.toBeInTheDocument();
+    expect(screen.getByText('second.txt')).toBeInTheDocument();
   });
 
   it('accepts a valid file via drag and drop', () => {

@@ -1,4 +1,4 @@
-export const ALLOWED_EXTENSIONS = ['.pdf', '.txt', '.doc', '.docx'] as const;
+export const ALLOWED_EXTENSIONS = ['.txt'] as const;
 export const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 
 export function getFileExtension(fileName: string) {

@@ -5,20 +5,20 @@ import {
 } from '@/app/evaluate-contract/validation';
 
 describe('validateFileExtension', () => {
-  it('accepts .pdf files', () => {
-    expect(validateFileExtension('contract.pdf')).toBe(true);
-  });
-
   it('accepts .txt files', () => {
     expect(validateFileExtension('contract.txt')).toBe(true);
   });
 
-  it('accepts .doc files', () => {
-    expect(validateFileExtension('contract.doc')).toBe(true);
+  it('rejects .pdf files', () => {
+    expect(validateFileExtension('contract.pdf')).toBe(false);
   });
 
-  it('accepts .docx files', () => {
-    expect(validateFileExtension('contract.docx')).toBe(true);
+  it('rejects .doc files', () => {
+    expect(validateFileExtension('contract.doc')).toBe(false);
+  });
+
+  it('rejects .docx files', () => {
+    expect(validateFileExtension('contract.docx')).toBe(false);
   });
 
   it('rejects .png files', () => {
@@ -30,12 +30,12 @@ describe('validateFileExtension', () => {
   });
 
   it('is case-insensitive', () => {
-    expect(validateFileExtension('CONTRACT.PDF')).toBe(true);
+    expect(validateFileExtension('CONTRACT.TXT')).toBe(true);
   });
 
   it('checks the last extension only', () => {
-    expect(validateFileExtension('file.tar.pdf')).toBe(true);
-    expect(validateFileExtension('file.pdf.exe')).toBe(false);
+    expect(validateFileExtension('file.tar.txt')).toBe(true);
+    expect(validateFileExtension('file.txt.exe')).toBe(false);
   });
 });
 
