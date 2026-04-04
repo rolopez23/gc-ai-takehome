@@ -8,7 +8,7 @@ import {
 } from './validation';
 
 interface FileDropZoneProps {
-  file?: File | null;
+  file: File | null;
   onFileChange: (file: File | null) => void;
 }
 
@@ -18,41 +18,36 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function FileDropZone({ file: controlledFile, onFileChange }: FileDropZoneProps) {
+export function FileDropZone({ file, onFileChange }: FileDropZoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [stagedFile, setStagedFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const dragCounter = useRef(0);
 
-  const displayFile = controlledFile !== undefined ? controlledFile : stagedFile;
-
-  function processFile(file: File) {
+  function processFile(incoming: File) {
     setError(null);
 
-    if (!validateFileExtension(file.name)) {
+    if (!validateFileExtension(incoming.name)) {
       setError(
         `File type not allowed. Accepted formats: ${ALLOWED_EXTENSIONS.join(', ')}`,
       );
       return;
     }
 
-    if (!validateFileSize(file.size)) {
+    if (!validateFileSize(incoming.size)) {
       setError('File is too large. Maximum size is 5 MB.');
       return;
     }
 
-    setStagedFile(file);
-    onFileChange(file);
+    onFileChange(incoming);
   }
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) processFile(file);
+    const selected = e.target.files?.[0];
+    if (selected) processFile(selected);
   }
 
   function handleRemove() {
-    setStagedFile(null);
     onFileChange(null);
     if (inputRef.current) inputRef.current.value = '';
   }
@@ -77,17 +72,17 @@ export function FileDropZone({ file: controlledFile, onFileChange }: FileDropZon
     e.preventDefault();
     dragCounter.current = 0;
     setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file) processFile(file);
+    const dropped = e.dataTransfer.files[0];
+    if (dropped) processFile(dropped);
   }
 
-  if (displayFile) {
+  if (file) {
     return (
       <div className="flex items-center justify-between rounded-lg border border-foreground/20 p-4">
         <div>
-          <p className="font-medium">{displayFile.name}</p>
+          <p className="font-medium">{file.name}</p>
           <p className="text-sm text-foreground/60">
-            {formatFileSize(displayFile.size)}
+            {formatFileSize(file.size)}
           </p>
         </div>
         <button
