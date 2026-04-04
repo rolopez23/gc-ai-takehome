@@ -94,6 +94,7 @@ Follow [FrontendTesting.md](FrontendTesting.md) for all frontend test code. Key 
 - Avoid `as` type casts on RTL queries unless accessing element-specific properties
 - Use `userEvent` by default, `fireEvent` only to bypass browser behavior (e.g., testing validation of disallowed file types)
 - No comments that explain what the code already shows
+- Maintain **75% line coverage** minimum — run `npm run test:coverage` before PRs
 
 ---
 

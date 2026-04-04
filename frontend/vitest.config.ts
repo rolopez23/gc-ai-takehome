@@ -7,6 +7,14 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    coverage: {
+      provider: 'v8',
+      include: ['app/**/*.{ts,tsx}'],
+      exclude: ['app/layout.tsx', 'app/page.tsx'],
+      thresholds: {
+        lines: 75,
+      },
+    },
   },
   resolve: {
     alias: { '@': path.resolve(__dirname, '.') },
