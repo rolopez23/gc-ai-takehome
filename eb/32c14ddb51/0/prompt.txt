@@ -1,0 +1,21 @@
+Ok lets use /problem-spec to start planning the first section of M1.  Feel free to reference the milestone planning I want a /evaluate-contract route in the next app where I user can upload a contract with a fairly standard ui both allowing drag and drop of a contract and also file selection form the computer.  Out of scope is the anthropic call I just want to test the upload.  Also a text box for chat for user specific instructions.
+
+---
+
+Do add a very high max size maybe 5 megabytes, just to have one.  Also do support .doc and .docx.  Lets limit to those.  2. Lets only support one file to minimze complexity.  3. You can disable the submit, or console.log the files attached as a summary and the user message.  Don't worry about it too much and use your taste.
+
+---
+
+That works lets do file extension, as the simplest. 2. We will need a handler feel free to have it so we can change the logic as a direct handler.  this is only for testing.  3. Feel free to have a link for now, we can url navigate to test.  4.  Textarea and files are indpenedant.  I think these are good questions to validate the specification.
+
+---
+
+lets move on to plan it out
+
+---
+
+Make it so!
+
+---
+
+hmm where in the plan are we?
