@@ -147,3 +147,7 @@ Can vi-test generate code cov easily?
 ---
 
 hmmm any better way without out nxp, can we install it in this repo?
+
+---
+
+I think this is good for now, lets set a target of 75 % and make sure all PRs are ~above that
