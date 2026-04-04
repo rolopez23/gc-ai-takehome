@@ -1,0 +1,37 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "c65599bf5a25",
+  "session_id": "2a9862ff-e032-4eaf-86d9-07cf76cd2acc",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-04T19:21:37.640787Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".claude/learnings.md"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-haiku-4-5-20251001",
+  "turn_id": "5a504b902400",
+  "token_usage": {
+    "input_tokens": 2022,
+    "cache_creation_tokens": 264824,
+    "cache_read_tokens": 40938635,
+    "output_tokens": 92964,
+    "api_call_count": 321
+  },
+  "session_metrics": {
+    "turn_count": 40
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-04T19:21:37.211054Z",
+    "agent_lines": 73,
+    "agent_removed": 0,
+    "human_added": 9976,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 10049,
+    "total_lines_changed": 10051,
+    "agent_percentage": 0.7262958909561238,
+    "metric_version": 2
+  }
+}
