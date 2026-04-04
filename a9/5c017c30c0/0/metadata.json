@@ -1,0 +1,22 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "a95c017c30c0",
+  "session_id": "db9a7e60-e713-472e-be43-80d7391d90e5",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-04T23:06:17.442016Z",
+  "branch": "rl/mvp-contract-eval",
+  "checkpoints_count": 1,
+  "files_touched": [],
+  "agent": "Claude Code",
+  "turn_id": "82f98c1296fe",
+  "token_usage": {
+    "input_tokens": 801,
+    "cache_creation_tokens": 93719,
+    "cache_read_tokens": 6204010,
+    "output_tokens": 12100,
+    "api_call_count": 92
+  },
+  "session_metrics": {
+    "turn_count": 25
+  }
+}
