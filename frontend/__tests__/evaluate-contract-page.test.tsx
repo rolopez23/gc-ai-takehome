@@ -83,4 +83,23 @@ describe('EvaluateContractPage', () => {
 
     expect(screen.getByText('contract.pdf')).toBeInTheDocument();
   });
+
+  it('clears file and instructions after submit', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    render(<EvaluateContractPage />);
+
+    const file = new File(['content'], 'contract.pdf', { type: 'application/pdf' });
+    await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
+    await userEvent.type(
+      screen.getByPlaceholderText(/instruction/i),
+      'Focus on IP clauses',
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: /evaluate/i }));
+
+    expect(screen.getByText(/drag.+drop/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/instruction/i)).toHaveValue('');
+    expect(screen.getByRole('button', { name: /evaluate/i })).toBeDisabled();
+    vi.restoreAllMocks();
+  });
 });

@@ -24,7 +24,7 @@ export default function EvaluateContractPage() {
     <div className="mx-auto max-w-2xl space-y-6 px-4 py-12">
       <h1 className="text-3xl font-bold tracking-tight">Evaluate Contract</h1>
 
-      <FileDropZone onFileChange={setFile} />
+      <FileDropZone file={file} onFileChange={setFile} />
 
       <textarea
         value={instructions}
@@ -46,6 +46,8 @@ export default function EvaluateContractPage() {
             fileType: getFileExtension(file.name),
             instructions,
           });
+          setFile(null);
+          setInstructions('');
         }}
         className="rounded-lg bg-foreground px-6 py-3 text-sm font-medium text-background disabled:opacity-40"
       >

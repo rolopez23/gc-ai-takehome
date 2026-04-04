@@ -8,6 +8,7 @@ import {
 } from './validation';
 
 interface FileDropZoneProps {
+  file?: File | null;
   onFileChange: (file: File | null) => void;
 }
 
@@ -17,12 +18,14 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function FileDropZone({ onFileChange }: FileDropZoneProps) {
+export function FileDropZone({ file: controlledFile, onFileChange }: FileDropZoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [stagedFile, setStagedFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const dragCounter = useRef(0);
+
+  const displayFile = controlledFile !== undefined ? controlledFile : stagedFile;
 
   function processFile(file: File) {
     setError(null);
@@ -78,13 +81,13 @@ export function FileDropZone({ onFileChange }: FileDropZoneProps) {
     if (file) processFile(file);
   }
 
-  if (stagedFile) {
+  if (displayFile) {
     return (
       <div className="flex items-center justify-between rounded-lg border border-foreground/20 p-4">
         <div>
-          <p className="font-medium">{stagedFile.name}</p>
+          <p className="font-medium">{displayFile.name}</p>
           <p className="text-sm text-foreground/60">
-            {formatFileSize(stagedFile.size)}
+            {formatFileSize(displayFile.size)}
           </p>
         </div>
         <button
