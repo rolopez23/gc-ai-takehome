@@ -4,12 +4,12 @@ AI-powered contract analysis tool that evaluates vendor contracts against a defi
 
 ## Stack
 
-| Layer    | Tech                                                        |
-|----------|-------------------------------------------------------------|
+| Layer    | Tech                                                         |
+| -------- | ------------------------------------------------------------ |
 | Frontend | Next.js 15, React 19, TypeScript, Tailwind CSS v4, Turbopack |
-| Backend  | Python 3.11+, FastAPI, SQLAlchemy 2.0 (async), Alembic     |
-| Database | PostgreSQL 16 (asyncpg)                                     |
-| Package  | npm (frontend), uv (backend)                                |
+| Backend  | Python 3.11+, FastAPI, SQLAlchemy 2.0 (async), Alembic       |
+| Database | PostgreSQL 16 (asyncpg)                                      |
+| Package  | npm (frontend), uv (backend)                                 |
 
 ## Prerequisites
 
@@ -20,27 +20,18 @@ AI-powered contract analysis tool that evaluates vendor contracts against a defi
 
 ## Setup
 
-### 1. Database
-
-```bash
-docker compose up -d db
-```
-
-Starts PostgreSQL on `localhost:5432` with user/password/db all set to `app`.
-
-### 2. Backend
+### 1. Backend
 
 ```bash
 cd backend
-uv sync --extra dev
-uv run alembic revision --autogenerate -m "initial"
-uv run alembic upgrade head
-uv run uvicorn main:app --reload
+make setup    # install Python deps
+make db       # start Postgres + run migrations
+make dev      # start API server
 ```
 
-API runs at `http://localhost:8000`. Interactive docs at `http://localhost:8000/docs`.
+API runs at `https://contract-evaluator-server.localhost`.
 
-### 3. Frontend
+### 2. Frontend
 
 ```bash
 cd frontend
@@ -48,20 +39,18 @@ npm install
 npm run dev
 ```
 
-Dev server runs at `http://localhost:3000`.
+Dev server runs at `https://contract-evaluator.localhost`.
 
-### 4. Portless (local dev URLs)
+### Portless
 
-```bash
-portless
-```
+All dev commands use [portless](https://github.com/vercel-labs/portless) for stable `.localhost` URLs with auto-assigned ports and HTTPS.
 
-This proxies both services through friendly local URLs:
+| Service  | URL                                           |
+| -------- | --------------------------------------------- |
+| Frontend | `https://contract-evaluator.localhost`        |
+| Backend  | `https://contract-evaluator-server.localhost` |
 
-| Service  | URL                                          |
-|----------|----------------------------------------------|
-| Frontend | `http://contract-evaluator.localhost`         |
-| Backend  | `http://contract-evaluator-server.localhost`  |
+First-time setup: `portless trust` to install the local CA.
 
 ## Running Tests
 

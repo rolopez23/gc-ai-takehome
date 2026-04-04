@@ -65,6 +65,20 @@ For non-trivial features, follow this order:
 
 ## Behavioral Rules
 
+### Takehome mode
+
+This is a takehome project — optimize for speed, code quality, and polish over DX best practices. Ship fast, keep it clean.
+
+### Main branch protection
+
+Before pushing to `main` any commit that is **not** general setup or infrastructure, you MUST:
+1. Ask the user for explicit confirmation to push.
+2. Elicit the exact improvement or change being made and get sign-off.
+
+Setup/infra work (deps, config, tooling, CI, Makefile, docker-compose, env files) may be pushed without this gate.
+
+---
+
 Rules added by `/learn-from-mistakes` when a pattern recurs 3+ times.
 
 <!-- learned-rules -->

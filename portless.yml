@@ -1,5 +1,0 @@
-apps:
-  - name: contract-evaluator
-    target: http://localhost:3000
-  - name: contract-evaluator-server
-    target: http://localhost:8000
