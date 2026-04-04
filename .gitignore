@@ -21,10 +21,14 @@ backend/.env
 *.swp
 .DS_Store
 
-# Test / cache
+# Test / cache / coverage
 .pytest_cache/
 test.db
 *.egg-info/
+frontend/coverage/
+
+# Playwright MCP
+.playwright-mcp/
 
 # uv
 uv.lock
