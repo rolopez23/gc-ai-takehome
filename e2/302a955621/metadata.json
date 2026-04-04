@@ -1,0 +1,28 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "e2302a955621",
+  "strategy": "manual-commit",
+  "branch": "rl/frontend-upload",
+  "checkpoints_count": 6,
+  "files_touched": [
+    "AGENTS.md",
+    "frontend/package-lock.json",
+    "frontend/package.json",
+    "frontend/vitest.config.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/e2/302a955621/0/metadata.json",
+      "transcript": "/e2/302a955621/0/full.jsonl",
+      "content_hash": "/e2/302a955621/0/content_hash.txt",
+      "prompt": "/e2/302a955621/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 1903,
+    "cache_creation_tokens": 206291,
+    "cache_read_tokens": 36520365,
+    "output_tokens": 89690,
+    "api_call_count": 294
+  }
+}
