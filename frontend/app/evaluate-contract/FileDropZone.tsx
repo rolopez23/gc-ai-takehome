@@ -22,6 +22,7 @@ export function FileDropZone({ onFileChange }: FileDropZoneProps) {
   const [stagedFile, setStagedFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const dragCounter = useRef(0);
 
   function processFile(file: File) {
     setError(null);
@@ -53,17 +54,25 @@ export function FileDropZone({ onFileChange }: FileDropZoneProps) {
     if (inputRef.current) inputRef.current.value = '';
   }
 
-  function handleDragOver(e: React.DragEvent) {
+  function handleDragEnter(e: React.DragEvent) {
     e.preventDefault();
+    dragCounter.current++;
     if (!isDragging) setIsDragging(true);
   }
 
-  function handleDragLeave() {
-    setIsDragging(false);
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault();
+  }
+
+  function handleDragLeave(e: React.DragEvent) {
+    e.preventDefault();
+    dragCounter.current--;
+    if (dragCounter.current === 0) setIsDragging(false);
   }
 
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
+    dragCounter.current = 0;
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
     if (file) processFile(file);
@@ -91,6 +100,7 @@ export function FileDropZone({ onFileChange }: FileDropZoneProps) {
 
   return (
     <div
+      onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
