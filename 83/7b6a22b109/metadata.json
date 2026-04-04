@@ -1,0 +1,23 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "837b6a22b109",
+  "strategy": "manual-commit",
+  "branch": "rl/mvp-contract-eval",
+  "checkpoints_count": 25,
+  "files_touched": null,
+  "sessions": [
+    {
+      "metadata": "/83/7b6a22b109/0/metadata.json",
+      "transcript": "/83/7b6a22b109/0/full.jsonl",
+      "content_hash": "/83/7b6a22b109/0/content_hash.txt",
+      "prompt": "/83/7b6a22b109/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 785,
+    "cache_creation_tokens": 87079,
+    "cache_read_tokens": 4590689,
+    "output_tokens": 9890,
+    "api_call_count": 76
+  }
+}
