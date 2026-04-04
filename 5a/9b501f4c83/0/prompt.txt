@@ -75,3 +75,7 @@ yes code snippets and tests!
 ---
 
 It allows the re-use because they need the same checks, so it is DRy.  So refs give component a memory that does not trigger re-renders.  It is a state in the classical comp sci sense without being state in the react sense which has other meaning.  I would say a number is more durable than an is dragging boolean, and it maps to the state.  The ref could be a boolean though.
+
+---
+
+The querySelector is a bad code smell.  Can we use the react testing library functions instead like getBy, document.querySelector is a bad code smell for RTL testing.
