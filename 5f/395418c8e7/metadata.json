@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "5f395418c8e7",
+  "strategy": "manual-commit",
+  "branch": "rl/mvp-contract-eval",
+  "checkpoints_count": 12,
+  "files_touched": [
+    ".claude/learnings.md",
+    ".claude/skills/simplify/SKILL.md",
+    "AGENTS.md",
+    "docs/mvp-contract-eval/plan.md",
+    "docs/reviews/rl-mvp-contract-eval-api-route-2026-04-04.md",
+    "frontend/__tests__/api-evaluate.test.ts",
+    "frontend/app/api/evaluate/route.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/5f/395418c8e7/0/metadata.json",
+      "transcript": "/5f/395418c8e7/0/full.jsonl",
+      "content_hash": "/5f/395418c8e7/0/content_hash.txt",
+      "prompt": "/5f/395418c8e7/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 1339,
+    "cache_creation_tokens": 273543,
+    "cache_read_tokens": 21631582,
+    "output_tokens": 85315,
+    "api_call_count": 191
+  }
+}
