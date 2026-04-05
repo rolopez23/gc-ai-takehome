@@ -27,8 +27,23 @@ def get_upload_type(filename: str) -> str:
     return ext_lower
 
 
+def _find_libreoffice() -> str:
+    """Find the LibreOffice binary, checking common paths."""
+    for path in [
+        "libreoffice",
+        "/Applications/LibreOffice.app/Contents/MacOS/soffice",
+        "soffice",
+    ]:
+        if os.path.isfile(path) or subprocess.run(
+            ["which", path], capture_output=True
+        ).returncode == 0:
+            return path
+    raise RuntimeError("LibreOffice not found. Install with: brew install --cask libreoffice")
+
+
 def _convert_to_pdf(file_bytes: bytes, extension: str) -> bytes:
     """Convert DOC/DOCX to PDF via LibreOffice headless."""
+    libre_bin = _find_libreoffice()
     with tempfile.TemporaryDirectory() as tmpdir:
         input_filename = f"input{extension}"  # e.g. "input.docx"
         input_path = os.path.join(tmpdir, input_filename)
@@ -36,7 +51,7 @@ def _convert_to_pdf(file_bytes: bytes, extension: str) -> bytes:
             f.write(file_bytes)
 
         result = subprocess.run(
-            ["libreoffice", "--headless", "--convert-to", "pdf", "--outdir", tmpdir, input_path],
+            [libre_bin, "--headless", "--convert-to", "pdf", "--outdir", tmpdir, input_path],
             capture_output=True,
             timeout=60,
         )

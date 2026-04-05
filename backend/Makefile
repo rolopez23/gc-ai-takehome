@@ -1,5 +1,6 @@
 setup:
 	uv sync --extra dev
+	@command -v libreoffice >/dev/null 2>&1 || (echo "Installing LibreOffice (required for DOC/DOCX conversion)..." && brew install --cask libreoffice)
 
 db:
 	docker compose -f ../docker-compose.yml up -d db
