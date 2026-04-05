@@ -1,0 +1,209 @@
+Ok I want to specify out M2, I lot should be used. I want to use the eval-context to show the data.  Render A topline score, summary and then handle 3 sections egregious, unfair, fair.  Each should be collapsible and state the number of items.  Lets use the /problem-spec skill
+
+---
+
+I think we should have section number, clause_type and explanation.  Lets keep it out for now.
+
+---
+
+yes! Map to the user labels.  All can start collapsed for now.
+
+---
+
+If it is Egregious / Unfair Have a Celebratory Icon and say no x.  If the Fair is zero have a warning icon and say it is zero.  We want to acknowledge it thought.  Use a placeholder instead of the normal component (no collapsing)
+
+---
+
+Refresh issue will be fixed in M3, Zero fair clauses found means it is egregious, but it conveys more so I would keep.  I do look the scroll constraint limit each section to 1/2 of the page.  3. Label mapping as a util is great!
+
+---
+
+Lets have a link back to upload contract page.
+
+---
+
+/plan
+
+---
+
+Ok like lots of mini cycles.
+
+---
+
+Ok I want you to run independently as I sign off.  Some notes.  Make sure to handle all the steps.  Add an extra learn-from-mistakes on your behavior only before signing, moving to next cycle.  Make sure you are running simplify and review consistently and tracking the sections.  Do not mark human comprehension or verification.  I will handle those when I sign back on.  I am bypassing permissions, remember with great power comes great responsibility.  Any questions?
+
+---
+
+Is there a text file save for contract 1.5 the simple version
+
+---
+
+It is the simple test contract
+
+---
+
+Can you create a tiny 5 clause contract and save as contract_test for me to use
+
+---
+
+Right now I am getting a 400 when I try to hit evaluate endpoint[Image #1]
+
+---
+
+what is the path to the .env.local
+
+---
+
+Ok ran end to end some bugs, shimmer is not showing up, We flicker the original screen before returning to the page.  Some worries pieces were missed, since the E2E flow was not running well
+
+---
+
+Why don't you do an E2E with cypress ;)
+
+---
+
+Why don't you do an E2E with playwright ;)
+
+---
+
+Add to to the TODO list we are tracking
+
+---
+
+Ok you can mark verify complete/Users/robertlopez/repos/gc-ai-takehome/docs/eval-results-display/plan.md for that. Lets go through the understand and human signoff steps.
+
+---
+
+code execution also lets review test files
+
+---
+
+We should not be changing the array it is really a list of constants nd the order we do.  The display handles the label mapping, Can we make the classes better named, make then named fail, warning, pass and make to the actual data.
+
+---
+
+We would flicker the original page before navigating.  We only need to reshow page when we got an error otherwise we are going to a new page.
+
+---
+
+lets bull out that class to a readable name, maybe badgestyling.  This is a presentational component no state that displays the score badge for each section.
+
+---
+
+Way too many divs.  Can we update to more semantic html than div/span.  Like headings etc.
+
+---
+
+Hmm article may be overkill for a clause. It needs context of the entire area.
+
+---
+
+Lets have an no-clauses component that handles all the language for zero, also a more self contained compent clean up the classes too to have semantic meaning.
+
+---
+
+show me the new code
+
+---
+
+you did not show it just read it ;)
+
+---
+
+Lets create an Expandable clauses section for everything in the return.  Then we can move the state down,
+
+---
+
+Ok show me the new code.
+
+---
+
+Ok it makes sense this is a presentational component now that has a router between empty and clauses.  The clauses is stateful to allow expansion.  Quick pass lets add an aria label and also is the div => ClauseCard using a list under the hood we want that for semantics.
+
+---
+
+clause sections number should be unique for a key.
+
+---
+
+continue
+
+---
+
+Lets move teh nor evaluation found to a sub component.  Same for the evaluation component make it a semantic component.  A for loop is fine for groupByFairness but really is should be a reduce transformation, that reads cleaner, not really a perforamcne difference.  lets also move long classes to names.  short ones are fine I am looking at mt-6 inline-block text-sm text-foreground/60 underline hover:text-foreground".  As for purposes this is the next page defining what is rendered onthe route.  I pulls data from context and handles the error.  asSuccess parses teh result to see if we did not get and error and have the infromation we need.  As above group by fairness is a dreudction of an array to object. We have a constant of the three types so we know we will render them on the screen in order.
+
+---
+
+show me the code for file 6 in its new state
+
+---
+
+An earlier piece I do like using article for evaluation result that is decent semantics.
+
+---
+
+show me the code
+
+---
+
+for file 7 show me the code
+
+---
+
+section order prevents order from changing not sure on the toContain, can there be multiple classes?
+
+---
+
+can we not test on the color but on the name of the asssinged class for both of the last too that will be less brittle.  Testing a color class seems very brittle
+
+---
+
+do the tests still pass?
+
+---
+
+yes
+
+---
+
+again lets remove teh class assertion tests either map it to a name or just drop.  Scroll cosontraint is making sure we have some scrolling set up
+
+---
+
+skip
+
+---
+
+this documented the bug we found of loading => enter contract => result flicker
+
+---
+
+nope
+
+---
+
+yes
+
+---
+
+Sign off on all steps and move to learnings across the steps
+
+---
+
+I see you also skipped verification steps (really bad).  Worked on main for git rather than checking out a feature branch.  Also lets sit on and improve our workflow here too.
+
+---
+
+Lets move into digesting.  I think first lets update the Agents.md to say if on main, before commiting code check out a feature branch. Only write code on main if the user confirms they explicitly want it.  Verification lets add to the learnings, and sit on it.  I think my context to just run with it may have been a partial cause.  I think we also need a sub-skill for frontend-cleanup on the simplificaiton page.  Have the main skill call if we are dealing with a React component and then encapsulate all the fixes we mad (sub-components, where shate should live, readable class names to replace long classe names. Reduce / Map / For loop. etc.
+
+---
+
+Lets also add a verification check on the simplify skill, make the verificaiton skill save a verification report and the simplify skill either needs to confirm that the plan does not exist or verify is checked and that there is a verificaton report.
+
+---
+
+Ok lets change teh location of reviews and verify lets have them located inside the docs directory for each feature branch.  ie contract-upload-ui should have a reviews and verifications sub folder that contain those relevant to them.  Update both the skills are are file structure.
+
+---
+
+Ok is everything commited?
