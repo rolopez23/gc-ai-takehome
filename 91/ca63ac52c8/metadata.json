@@ -1,0 +1,28 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "91ca63ac52c8",
+  "strategy": "manual-commit",
+  "branch": "m3-backend-eval-pipeline",
+  "checkpoints_count": 40,
+  "files_touched": [
+    ".claude/learnings.md",
+    ".claude/skills/pr-interactive-walkthrough/SKILL.md",
+    "TODO.md",
+    "docs/backend-eval-pipeline/plan.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/91/ca63ac52c8/0/metadata.json",
+      "transcript": "/91/ca63ac52c8/0/full.jsonl",
+      "content_hash": "/91/ca63ac52c8/0/content_hash.txt",
+      "prompt": "/91/ca63ac52c8/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 2592,
+    "cache_creation_tokens": 383344,
+    "cache_read_tokens": 107183877,
+    "output_tokens": 186135,
+    "api_call_count": 474
+  }
+}
