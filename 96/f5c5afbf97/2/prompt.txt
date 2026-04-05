@@ -1,0 +1,124 @@
+OK I want to start planning rest of M1 look for milestones file.  I now want submit to sent to anthropic the contract for review.  kick off the /problem-spec sk I ll.  some pieces
+.1.  make a prompt
+2. indicate an output structure
+3 loading experience and then structure in state. interview me till there is no ambiguity
+
+---
+
+Yes. That is correct.
+
+---
+
+Feel free to use that prompt. It didn't do great. In testing, so I might just use it as a reference and write a new one for scratch. A big part of this new prompt is I want to make sure it is indicated to both return structured output and also a avoid, error early in return error structured output. If a user uploads a noncontract
+
+---
+
+I like the error. True. This does not appear to be a contract. I would and then I think if it's successful, just have error null.
+
+---
+
+Can Claude not auto extract The text
+
+---
+
+Can we server side, or quickly convert the docx's to PDFs through any extensions, That's what I'd explore. Otherwise, knock it out of scope and only support PDF and text for
+
+---
+
+For those questions, I think, yeah, that's fine. Let's just do a and pack and narrow it down for now. And then, on the next one, let's just have a simple skeleton loading shimmer screen.
+
+---
+
+Can I move it? The server, I don't wanna touch the server right now with pulling or any
+
+---
+
+Yes. I already have the, antelope API key in the dotemv in that local repo. So feel free to use that for setting up the Pingdom.
+
+---
+
+That shape looks good.
+
+---
+
+I would say for simple streaming, if, how does Claude send back responses? Does it do ACCP streaming? Or does it wait for the entire response?
+
+---
+
+Okay. Let's do the full response.
+
+---
+
+I agree. Very minimal. Just say, Either error or no error. That's all I need to know.
+
+---
+
+2 other things. I wanna make sure the claud model is configurable. I wanna test on a really cheap model for, like, the error and the very simple low hanging fruit. The other thing is I do want to create a new next route redirect to on, like, success, on failure. You can just show an error screen on the evaluate contract page. Something went wrong. But, try again. But on success, do navigate to, like, new page for contract with some contract number.
+
+---
+
+Yeah. Generate a random u I UID is fine. Yeah. Generate a random u I UID is fine.
+
+---
+
+The library downstairs On the web, can you ask me one question at a time?
+
+---
+
+Would say get this to ever work. This is a transitory step I wouldn't worry too much about it. I think we are getting the response back, and, yeah, a thin next proxy is fine.
+
+---
+
+Again, these are transitory. Let's discover issues, I would say, if it it anytime feels difficult handling PDF, let's just get this working with text files We'll end handle file support as we move to the back end. API key is fine. This can only run locally now.
+
+---
+
+Best effort is good. I would say that tell Claude to on over accepting other other than overrejecting. No. It's not perfect since he's doing that. Yeah. It's not I just want a simple edge case to be able to test. I don't care if it's
+
+---
+
+I don't care, friend.
+
+---
+
+Let's just do something went wrong.
+
+---
+
+Don't need to fully lock market as There's
+
+---
+
+You can cancel it
+
+---
+
+plan it
+
+---
+
+are you using the plan skill
+
+---
+
+where do we define prom prompt I prefer more steps is this the most modular?  some steps seem big / compound
+
+---
+
+give prompt it's own folder in front-end for now.  it will move later.  I like the higher granularity
+
+---
+
+OK begin doing
+
+---
+
+I am home again can I continue the session locally?
+
+---
+
+Ok what is the command to restart locally
+
+---
+
+No to pass off this session to a local machine like claude resume x
