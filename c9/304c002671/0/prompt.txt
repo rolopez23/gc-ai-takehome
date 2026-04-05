@@ -83,3 +83,7 @@ We should not be changing the array it is really a list of constants nd the orde
 ---
 
 We would flicker the original page before navigating.  We only need to reshow page when we got an error otherwise we are going to a new page.
+
+---
+
+lets bull out that class to a readable name, maybe badgestyling.  This is a presentational component no state that displays the score badge for each section.
