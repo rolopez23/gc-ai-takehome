@@ -8,10 +8,14 @@ import ScoreBadge from './ScoreBadge';
 
 const PAGE_CONTAINER = 'mx-auto max-w-2xl px-4 py-12';
 
+function asSuccess(raw: ReturnType<ReturnType<typeof useEvalResult>['getResult']>): EvalSuccess | undefined {
+  return raw && raw.error === null ? raw : undefined;
+}
+
 export default function ContractPage() {
   const { id } = useParams<{ id: string }>();
   const { getResult } = useEvalResult();
-  const result = getResult(id) as EvalSuccess | undefined;
+  const result = asSuccess(getResult(id));
 
   if (!result) {
     return (
