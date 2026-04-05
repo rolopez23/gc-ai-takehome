@@ -1,17 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FileDropZone } from './FileDropZone';
 import { EvalErrorSchema, EvalSuccessSchema, type EvalSuccess } from './types';
 import { useEvalResult } from './eval-result-context';
 
-async function evaluateContract(file: File, instructions: string): Promise<EvalSuccess> {
+async function evaluateContract(file: File, instructions: string, signal: AbortSignal): Promise<EvalSuccess> {
   const text = await file.text();
   const res = await fetch('/api/evaluate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text, instructions }),
+    signal,
   });
   if (!res.ok) throw new Error('evaluation failed');
   const data = await res.json();
@@ -72,17 +73,26 @@ export default function EvaluateContractPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { setResult } = useEvalResult();
+  const controllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => controllerRef.current?.abort();
+  }, []);
 
   async function handleSubmit() {
     if (!file) return;
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
     setError(null);
     setIsLoading(true);
     try {
-      const result = await evaluateContract(file, instructions);
+      const result = await evaluateContract(file, instructions, controller.signal);
       const id = crypto.randomUUID();
       setResult(id, result);
       router.push(`/contract/${id}`);
-    } catch {
+    } catch (e) {
+      if (e instanceof DOMException && e.name === 'AbortError') return;
       setError('Something went wrong. Try again.');
     } finally {
       setIsLoading(false);
