@@ -207,3 +207,7 @@ Ok lets change teh location of reviews and verify lets have them located inside 
 ---
 
 Ok is everything commited?
+
+---
+
+yes
