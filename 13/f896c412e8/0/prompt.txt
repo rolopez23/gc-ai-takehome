@@ -242,3 +242,7 @@ that the error would not be caught and we would bubble up
 ---
 
 yes
+
+---
+
+I think we are missing pulling in aria context in general, not a blocker given MVP takehome but useful to note.
