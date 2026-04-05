@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "c9304c002671",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "frontend/app/contract/[id]/ScoreBadge.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/c9/304c002671/0/metadata.json",
+      "transcript": "/c9/304c002671/0/full.jsonl",
+      "content_hash": "/c9/304c002671/0/content_hash.txt",
+      "prompt": "/c9/304c002671/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 2750,
+    "cache_creation_tokens": 442589,
+    "cache_read_tokens": 24593236,
+    "output_tokens": 66169,
+    "api_call_count": 231
+  }
+}
