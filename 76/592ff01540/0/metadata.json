@@ -1,0 +1,46 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "76592ff01540",
+  "session_id": "738e9457-3c2c-403a-8fe7-7afdd1993cc1",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-05T09:12:05.310413Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".claude/learnings.md",
+    "docs/eval-results-display/plan.md",
+    "docs/eval-results-display/spec.md",
+    "docs/eval-results-display/steps/clause-sections.md",
+    "docs/eval-results-display/steps/label-mapping.md",
+    "docs/eval-results-display/steps/topline-score.md",
+    "docs/learnings/eval-results-display-label-mapping-2026-04-04.md",
+    "docs/learnings/eval-results-display-topline-score-2026-04-04.md",
+    "docs/reviews/label-mapping-2026-04-04.md",
+    "docs/reviews/topline-score-2026-04-04.md"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-6[1m]",
+  "turn_id": "791ac5de59e5",
+  "token_usage": {
+    "input_tokens": 2634,
+    "cache_creation_tokens": 279078,
+    "cache_read_tokens": 13058624,
+    "output_tokens": 55149,
+    "api_call_count": 155
+  },
+  "session_metrics": {
+    "turn_count": 8
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-05T09:12:05.021962Z",
+    "agent_lines": 622,
+    "agent_removed": 0,
+    "human_added": 41,
+    "human_modified": 1,
+    "human_removed": 0,
+    "total_committed": 664,
+    "total_lines_changed": 664,
+    "agent_percentage": 93.67469879518072,
+    "metric_version": 2
+  }
+}
