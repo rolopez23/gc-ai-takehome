@@ -278,3 +278,7 @@ We don't need to anymore since we are using the router (for clear file).  We get
 ---
 
 Well the url is not blocked right, now that is transitory, it could be a fetch error in the future but now if we went to a random id that is what we expect, also after page referesh
+
+---
+
+yes
