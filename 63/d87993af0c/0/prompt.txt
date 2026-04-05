@@ -87,3 +87,7 @@ We would flicker the original page before navigating.  We only need to reshow pa
 ---
 
 lets bull out that class to a readable name, maybe badgestyling.  This is a presentational component no state that displays the score badge for each section.
+
+---
+
+Way too many divs.  Can we update to more semantic html than div/span.  Like headings etc.
