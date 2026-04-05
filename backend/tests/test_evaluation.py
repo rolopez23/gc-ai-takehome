@@ -90,3 +90,206 @@ def test_parse_wrong_schema():
     status, data = parse_response(raw)
     assert status == "parse_error"
     assert "message" in data
+
+
+# ── run_evaluation integration tests ──────────────────────────────────────────
+
+import anthropic
+import httpx
+import pytest_asyncio
+from datetime import UTC, datetime
+from unittest.mock import MagicMock, patch
+
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+
+from database import get_db
+from main import app
+from models import Contract, ContractReview, ReviewClause
+from services.evaluation import run_evaluation
+
+
+@pytest_asyncio.fixture
+async def db():
+    async for session in app.dependency_overrides[get_db]():
+        yield session
+
+
+async def _create_contract_and_review(db, text="Contract text"):
+    contract = Contract(name="test.txt", upload_type="txt", original_blob=b"test", text=text)
+    db.add(contract)
+    await db.flush()
+    review = ContractReview(contract_id=contract.id, status="pending")
+    db.add(review)
+    await db.commit()
+    await db.refresh(contract)
+    await db.refresh(review)
+    return contract, review
+
+
+def _mock_success_response():
+    """Mock Anthropic response with EvalSuccess JSON."""
+    mock_msg = MagicMock()
+    mock_msg.stop_reason = "end_turn"
+    mock_content = MagicMock()
+    mock_content.type = "text"
+    mock_content.text = json.dumps({
+        "error": None,
+        "overall_fairness": "fair",
+        "summary": "2 fair clauses",
+        "call_to_action": ["No action needed"],
+        "clauses": [
+            {
+                "section_number": "1",
+                "clause_type": "Term",
+                "purpose": "Sets duration",
+                "fairness": "fair",
+                "market_standard": "Standard 12-month term",
+                "explanation": "Standard term",
+            },
+            {
+                "section_number": "2",
+                "clause_type": "Liability",
+                "purpose": "Limits damages",
+                "fairness": "fair",
+                "market_standard": "Standard cap",
+                "explanation": "Reasonable cap",
+            },
+        ],
+    })
+    mock_msg.content = [mock_content]
+    return mock_msg
+
+
+def _mock_not_a_contract_response():
+    mock_msg = MagicMock()
+    mock_msg.stop_reason = "end_turn"
+    mock_content = MagicMock()
+    mock_content.type = "text"
+    mock_content.text = json.dumps({"error": True, "reason": "This is a recipe, not a contract"})
+    mock_msg.content = [mock_content]
+    return mock_msg
+
+
+def _mock_max_tokens_response():
+    mock_msg = MagicMock()
+    mock_msg.stop_reason = "max_tokens"
+    mock_msg.content = []
+    return mock_msg
+
+
+def _mock_garbage_response():
+    mock_msg = MagicMock()
+    mock_msg.stop_reason = "end_turn"
+    mock_content = MagicMock()
+    mock_content.type = "text"
+    mock_content.text = "not valid json at all {{{"
+    mock_msg.content = [mock_content]
+    return mock_msg
+
+
+@pytest.mark.asyncio
+async def test_run_eval_success(db):
+    contract, review = await _create_contract_and_review(db)
+
+    with patch("services.evaluation.anthropic.Anthropic") as MockClient:
+        mock_instance = MockClient.return_value
+        mock_instance.messages.create.return_value = _mock_success_response()
+        await run_evaluation(review.id, contract, db)
+
+    await db.refresh(review)
+    assert review.status == "completed"
+    assert review.overall_fairness == "fair"
+    assert review.summary == "2 fair clauses"
+    assert review.call_to_action == ["No action needed"]
+    assert review.completed_at is not None
+
+    result = await db.execute(
+        select(ReviewClause).where(ReviewClause.review_id == review.id)
+    )
+    clauses = result.scalars().all()
+    assert len(clauses) == 2
+
+
+@pytest.mark.asyncio
+async def test_run_eval_not_a_contract(db):
+    contract, review = await _create_contract_and_review(db)
+
+    with patch("services.evaluation.anthropic.Anthropic") as MockClient:
+        mock_instance = MockClient.return_value
+        mock_instance.messages.create.return_value = _mock_not_a_contract_response()
+        await run_evaluation(review.id, contract, db)
+
+    await db.refresh(review)
+    assert review.status == "completed"
+    assert review.overall_fairness is None
+    assert "recipe" in review.summary.lower()
+
+    result = await db.execute(
+        select(ReviewClause).where(ReviewClause.review_id == review.id)
+    )
+    clauses = result.scalars().all()
+    assert len(clauses) == 0
+
+
+@pytest.mark.asyncio
+async def test_run_eval_api_error(db):
+    contract, review = await _create_contract_and_review(db)
+
+    with patch("services.evaluation.anthropic.Anthropic") as MockClient:
+        mock_instance = MockClient.return_value
+        mock_instance.messages.create.side_effect = anthropic.APIError(
+            message="test error",
+            request=httpx.Request("POST", "https://api.anthropic.com"),
+            body=None,
+        )
+        await run_evaluation(review.id, contract, db)
+
+    await db.refresh(review)
+    assert review.status == "failed"
+    assert review.failure_message is not None
+    assert "API error" in review.failure_message
+
+
+@pytest.mark.asyncio
+async def test_run_eval_timeout(db):
+    contract, review = await _create_contract_and_review(db)
+
+    with patch("services.evaluation.anthropic.Anthropic") as MockClient:
+        mock_instance = MockClient.return_value
+        mock_instance.messages.create.side_effect = anthropic.APITimeoutError(
+            request=httpx.Request("POST", "https://api.anthropic.com"),
+        )
+        await run_evaluation(review.id, contract, db)
+
+    await db.refresh(review)
+    assert review.status == "failed"
+    assert "timed out" in review.failure_message.lower()
+
+
+@pytest.mark.asyncio
+async def test_run_eval_max_tokens(db):
+    contract, review = await _create_contract_and_review(db)
+
+    with patch("services.evaluation.anthropic.Anthropic") as MockClient:
+        mock_instance = MockClient.return_value
+        mock_instance.messages.create.return_value = _mock_max_tokens_response()
+        await run_evaluation(review.id, contract, db)
+
+    await db.refresh(review)
+    assert review.status == "failed"
+    assert "too large" in review.failure_message.lower()
+
+
+@pytest.mark.asyncio
+async def test_run_eval_parse_failure(db):
+    contract, review = await _create_contract_and_review(db)
+
+    with patch("services.evaluation.anthropic.Anthropic") as MockClient:
+        mock_instance = MockClient.return_value
+        mock_instance.messages.create.return_value = _mock_garbage_response()
+        await run_evaluation(review.id, contract, db)
+
+    await db.refresh(review)
+    assert review.status == "failed"
+    assert "invalid response" in review.failure_message.lower()
