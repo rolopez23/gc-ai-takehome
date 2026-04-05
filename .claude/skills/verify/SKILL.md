@@ -121,6 +121,9 @@ block Simplify/Review.
 
 ## Save the Output
 
+**The verification report is a required artifact.** Downstream skills (simplify, review) check
+for its existence before proceeding. Always save the report, even for N/A or incomplete results.
+
 Save the report to `docs/verify/<branch-name>-<YYYY-MM-DD>.md` (`git branch --show-current`
 for the branch name). If no `docs/` directory exists, save to `.claude/verify/` instead.
 Tell the user where the file was saved.

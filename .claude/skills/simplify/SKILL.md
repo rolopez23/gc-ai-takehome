@@ -20,6 +20,22 @@ are removing everything that doesn't need to be there.
 
 This skill can never touch tests. You can only refactor code covered by the tests.
 
+## Verification Gate
+
+Before running simplify, check that verification has been completed:
+
+1. Look for a plan at `docs/<feature>/plan.md`. If one exists, check the Verify column for
+   the current step — it must be ✅ or ➖ (N/A).
+2. Look for a verification report at `docs/verify/<branch>-*.md`. If the plan shows Verify
+   should have run, a report must exist.
+
+**If the plan exists and Verify is still ⬜ (pending) with no report:**
+Stop and say: "Verification has not been run for this step. Run `/verify` first — simplify
+runs after verify in the workflow (make it work → make it work well → make it beautiful)."
+Do not proceed with the simplify pass.
+
+**If no plan exists** (ad-hoc simplify, not part of a step workflow): skip this gate.
+
 ## Sub-Skills
 
 If the diff touches React components (`.tsx` files that export JSX), also run the frontend
