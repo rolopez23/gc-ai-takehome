@@ -1,0 +1,38 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "e93b3ac108cf",
+  "session_id": "56f744d5-cb1d-417f-a2c9-fb761f958299",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-05T18:47:51.885903Z",
+  "branch": "m3-backend-eval-pipeline",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "backend/services/evaluation.py",
+    "backend/tests/test_evaluation.py"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-6[1m]",
+  "turn_id": "ba99c1277dcd",
+  "token_usage": {
+    "input_tokens": 531,
+    "cache_creation_tokens": 201045,
+    "cache_read_tokens": 24059256,
+    "output_tokens": 101063,
+    "api_call_count": 187
+  },
+  "session_metrics": {
+    "turn_count": 26
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-05T18:47:51.159072Z",
+    "agent_lines": 172,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 172,
+    "total_lines_changed": 172,
+    "agent_percentage": 100,
+    "metric_version": 2
+  }
+}
