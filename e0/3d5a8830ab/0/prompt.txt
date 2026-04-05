@@ -191,3 +191,7 @@ Sign off on all steps and move to learnings across the steps
 ---
 
 I see you also skipped verification steps (really bad).  Worked on main for git rather than checking out a feature branch.  Also lets sit on and improve our workflow here too.
+
+---
+
+Lets move into digesting.  I think first lets update the Agents.md to say if on main, before commiting code check out a feature branch. Only write code on main if the user confirms they explicitly want it.  Verification lets add to the learnings, and sit on it.  I think my context to just run with it may have been a partial cause.  I think we also need a sub-skill for frontend-cleanup on the simplificaiton page.  Have the main skill call if we are dealing with a React component and then encapsulate all the fixes we mad (sub-components, where shate should live, readable class names to replace long classe names. Reduce / Map / For loop. etc.
