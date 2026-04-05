@@ -1,3 +1,4 @@
+import logging
 import os
 from contextlib import asynccontextmanager
 
@@ -11,9 +12,19 @@ from database import engine
 load_dotenv()
 
 
+def _check_api_key():
+    key = os.getenv("ANTHROPIC_API_KEY", "")
+    if not key:
+        raise RuntimeError("ANTHROPIC_API_KEY is not set. Add it to your .env file.")
+    if not key.startswith("sk-ant-"):
+        raise RuntimeError(f"ANTHROPIC_API_KEY looks invalid (starts with '{key[:6]}...'). Expected 'sk-ant-...'.")
+    logger = logging.getLogger("uvicorn.error")
+    logger.info("Valid Anthropic API key found (sk-ant-...)")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Verify DB connectivity on startup
+    _check_api_key()
     async with engine.begin() as conn:
         await conn.execute(text("SELECT 1"))
     yield
@@ -24,7 +35,7 @@ app = FastAPI(title="GC AI Takehome", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[os.getenv("FRONTEND_URL", "https://contract-evaluator.localhost")],
+    allow_origin_regex=os.getenv("CORS_ORIGIN_REGEX", r"https?://contract-evaluator\.localhost(:\d+)?"),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

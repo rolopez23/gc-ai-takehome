@@ -1,5 +1,5 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 
@@ -10,74 +10,46 @@ vi.mock('next/navigation', () => ({
   useParams: () => ({ id: 'test-uuid' }),
 }));
 
-const SUCCESS_RESPONSE = {
-  error: null,
+const CONTRACT_ID = 'a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d';
+const REVIEW_ID = 'f6e5d4c3-b2a1-4f9e-8d7c-6b5a4c3d2e1f';
+
+const UPLOAD_RESPONSE = {
+  contract_id: CONTRACT_ID,
+  review_id: REVIEW_ID,
+  status: 'pending',
+};
+
+const REVIEW_COMPLETED = {
+  id: REVIEW_ID,
+  contract_id: CONTRACT_ID,
+  status: 'completed',
   overall_fairness: 'fair',
   summary: 'All clauses are market standard.',
   call_to_action: [],
   clauses: [],
+  completed_at: '2026-01-01T00:00:00Z',
 };
 
+let mockFetch: ReturnType<typeof vi.fn>;
+
 beforeEach(() => {
+  mockFetch = vi.fn();
+  vi.stubGlobal('fetch', mockFetch);
   mockPush.mockReset();
-  vi.stubGlobal('fetch', vi.fn(() =>
-    Promise.resolve(new Response(JSON.stringify(SUCCESS_RESPONSE), { status: 200 })),
-  ));
 });
 
-describe('EvalResultContext', () => {
-  test('stores and retrieves a result by UUID', async () => {
-    const { useEvalResult, EvalResultProvider } = await import('@/app/evaluate-contract/eval-result-context');
-
-    let storedResult: unknown;
-    function TestHarness() {
-      const { setResult, getResult } = useEvalResult();
-      return (
-        <button onClick={() => {
-          setResult('abc', SUCCESS_RESPONSE);
-          storedResult = getResult('abc');
-        }}>Store</button>
-      );
-    }
-
-    render(
-      <EvalResultProvider>
-        <TestHarness />
-      </EvalResultProvider>,
-    );
-
-    await userEvent.click(screen.getByText('Store'));
-    expect(storedResult).toEqual(SUCCESS_RESPONSE);
-  });
-
-  test('returns undefined for unknown UUID', async () => {
-    const { useEvalResult, EvalResultProvider } = await import('@/app/evaluate-contract/eval-result-context');
-
-    function TestHarness() {
-      const { getResult } = useEvalResult();
-      return <span data-testid="result">{String(getResult('nonexistent'))}</span>;
-    }
-
-    render(
-      <EvalResultProvider>
-        <TestHarness />
-      </EvalResultProvider>,
-    );
-
-    expect(screen.getByTestId('result').textContent).toBe('undefined');
-  });
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 describe('Navigate on success', () => {
   test('navigates to /contract/[uuid] on success', async () => {
-    const { EvalResultProvider } = await import('@/app/evaluate-contract/eval-result-context');
-    const EvaluateContractPage = (await import('@/app/evaluate-contract/page')).default;
+    mockFetch
+      .mockResolvedValueOnce(new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(REVIEW_COMPLETED), { status: 200 }));
 
-    render(
-      <EvalResultProvider>
-        <EvaluateContractPage />
-      </EvalResultProvider>,
-    );
+    const EvaluateContractPage = (await import('@/app/evaluate-contract/page')).default;
+    render(<EvaluateContractPage />);
 
     const file = new File(['contract text'], 'contract.txt', { type: 'text/plain' });
     await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
@@ -89,14 +61,12 @@ describe('Navigate on success', () => {
   });
 
   test('UUID is a valid format', async () => {
-    const { EvalResultProvider } = await import('@/app/evaluate-contract/eval-result-context');
-    const EvaluateContractPage = (await import('@/app/evaluate-contract/page')).default;
+    mockFetch
+      .mockResolvedValueOnce(new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(REVIEW_COMPLETED), { status: 200 }));
 
-    render(
-      <EvalResultProvider>
-        <EvaluateContractPage />
-      </EvalResultProvider>,
-    );
+    const EvaluateContractPage = (await import('@/app/evaluate-contract/page')).default;
+    render(<EvaluateContractPage />);
 
     const file = new File(['contract text'], 'contract.txt', { type: 'text/plain' });
     await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
@@ -110,55 +80,49 @@ describe('Navigate on success', () => {
   });
 });
 
-describe('Results page', () => {
+describe('Results page via backend', () => {
   test('shows evaluation complete for valid result', async () => {
-    const { EvalResultProvider, useEvalResult } = await import('@/app/evaluate-contract/eval-result-context');
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve(REVIEW_COMPLETED),
+    });
+
     const ContractPage = (await import('@/app/contract/[id]/page')).default;
+    render(<ContractPage />);
 
-    function Wrapper() {
-      const { setResult } = useEvalResult();
-      setResult('test-uuid', SUCCESS_RESPONSE);
-      return <ContractPage />;
-    }
-
-    render(
-      <EvalResultProvider>
-        <Wrapper />
-      </EvalResultProvider>,
-    );
-
-    expect(screen.getByText(/evaluation complete/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/evaluation complete/i)).toBeInTheDocument();
+    });
   });
 
   test('shows overall fairness value', async () => {
-    const { EvalResultProvider, useEvalResult } = await import('@/app/evaluate-contract/eval-result-context');
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve(REVIEW_COMPLETED),
+    });
+
     const ContractPage = (await import('@/app/contract/[id]/page')).default;
+    render(<ContractPage />);
 
-    function Wrapper() {
-      const { setResult } = useEvalResult();
-      setResult('test-uuid', SUCCESS_RESPONSE);
-      return <ContractPage />;
-    }
-
-    render(
-      <EvalResultProvider>
-        <Wrapper />
-      </EvalResultProvider>,
-    );
-
-    expect(screen.getByText('fair')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Fair')).toBeInTheDocument();
+    });
   });
 
-  test('shows no evaluation found when result missing', async () => {
-    const { EvalResultProvider } = await import('@/app/evaluate-contract/eval-result-context');
+  test('shows no evaluation found on 404', async () => {
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 404,
+      json: () => Promise.resolve({}),
+    });
+
     const ContractPage = (await import('@/app/contract/[id]/page')).default;
+    render(<ContractPage />);
 
-    render(
-      <EvalResultProvider>
-        <ContractPage />
-      </EvalResultProvider>,
-    );
-
-    expect(screen.getByText(/no evaluation found/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/no evaluation found/i)).toBeInTheDocument();
+    });
   });
 });

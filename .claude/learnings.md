@@ -88,6 +88,14 @@
 **Where it surfaced**: PR walkthrough (human review)
 **Pattern tag**: `unnecessary-type-cast`
 
+### 2026-04-04 · eval-results-display/topline-score
+
+**Category**: Skill gap
+**Error class**: Skill
+**What happened**: Inherited `as EvalSuccess | undefined` cast from M1 stub was not flagged during initial page read. The cast silently skipped the `EvalError` variant, meaning error responses would render broken UI instead of the fallback. Correctness review caught it, but I should have noticed it when first reading the file — this is the same `as` cast anti-pattern flagged twice before.
+**Where it surfaced**: Review step (correctness reviewer)
+**Pattern tag**: `unnecessary-type-cast`
+
 ### 2026-04-04 · mvp-contract-eval/eval-schema
 
 **Category**: Human correction
@@ -215,3 +223,115 @@
 **What happened**: No automated step considered ARIA/accessibility patterns. The review caught the live region mounting issue but only because the adversarial reviewer was casting a wide net. Simplify, standard review, and edge-case hunter all ignored accessibility. User noted this as a general gap — not a blocker for MVP but should be part of the review checklist.
 **Where it surfaced**: Human review
 **Pattern tag**: `accessibility-not-reviewed`
+
+### 2026-04-05 · eval-results-display/all-steps (post-human)
+
+**Category**: Skill gap
+**Error class**: Skill
+**What happened**: Simplify pass said "code is clean" on all three steps, but the human walkthrough drove 9 significant refactors: NoClauses extraction, ExpandableClauses (state-down), NoEvaluation/EvaluationResults extraction, semantic HTML (h4, section, article, ul/li), named class constants (BADGE_STYLING, SECTION_BORDER, etc.), semantic COLORS (fail/warning/pass), reduce instead of for-loop, aria-label/aria-expanded, and less brittle test assertions. The simplify skill has no frontend-specific checklist.
+**Where it surfaced**: PR walkthrough (human review)
+**Pattern tag**: `simplify-missed-frontend-cleanup`
+
+### 2026-04-05 · eval-results-display/all-steps (post-human)
+
+**Category**: Skill gap
+**Error class**: Skill
+**What happened**: Tests asserted on raw Tailwind class names (e.g., `toContain('text-red-600')`). Human flagged as brittle — should test against semantic constant names (`COLORS.fail`) or roles (`getByRole('list')`), not implementation details. Neither review nor simplify caught this.
+**Where it surfaced**: PR walkthrough (human review)
+**Pattern tag**: `brittle-style-assertions`
+
+### 2026-04-05 · eval-results-display/all-steps (post-human)
+
+**Category**: Human correction
+**Error class**: Context
+**What happened**: All M2 feature commits (20+) went directly to main instead of a feature branch. User had to point this out. AGENTS.md had main branch push protection but no rule requiring a feature branch before writing code.
+**Where it surfaced**: Human review
+**Pattern tag**: `committed-to-main`
+
+### 2026-04-05 · eval-results-display/all-steps (post-human)
+
+**Category**: Skill gap
+**Error class**: Context
+**What happened**: Verification was skipped on steps 2 and 3 despite both having browser-verifiable surfaces. The shimmer flicker bug was found by the user during manual E2E, not by the agent. AGENTS.md already had a rule that verify always runs after tests, but the "run independently" instruction was interpreted as license to skip it.
+**Where it surfaced**: Human review
+**Pattern tag**: `verify-not-automatic`
+
+### 2026-04-05 · eval-results-display/all-steps (post-human)
+
+**Category**: Skill gap
+**Error class**: Skill
+**What happened**: Missing aria-label on section elements, missing aria-expanded on toggle buttons, div-based clause list instead of ul/li. Neither simplify nor review flagged accessibility gaps. This is the second time accessibility has been missed across features.
+**Where it surfaced**: PR walkthrough (human review)
+**Pattern tag**: `accessibility-not-reviewed`
+
+### 2026-04-05 · backend-eval-pipeline/all-steps
+
+**Category**: Skill gap
+**Error class**: Skill
+**What happened**: Agent ran unit tests for all steps but skipped live verification (curl, DB inspection, browser) until user called it out: "are you doing independent verification?" This was immediately after updating the verify skill to say "never skip."
+**Where it surfaced**: Human review
+**Pattern tag**: `verification-skipped`
+
+### 2026-04-05 · backend-eval-pipeline/step-9
+
+**Category**: Missed edge case
+**Error class**: Context
+**What happened**: CORS used exact origin match. Frontend runs on random ports via portless. All 67 backend tests passed — test client bypasses CORS middleware. Only caught by browser verification.
+**Where it surfaced**: Browser E2E verification
+**Pattern tag**: `cors-not-tested`
+
+### 2026-04-05 · backend-eval-pipeline/step-9
+
+**Category**: Bad assumption
+**Error class**: Context
+**What happened**: Route path mismatch — spec said `/api/contracts/{id}/review` but implementation put endpoint on reviews router at `/api/reviews/contracts/{id}/review`. Frontend and backend tested independently.
+**Where it surfaced**: Browser E2E verification
+**Pattern tag**: `cross-boundary-contract-mismatch`
+
+### 2026-04-05 · backend-eval-pipeline/step-9
+
+**Category**: Bad assumption
+**Error class**: Context
+**What happened**: API key in root `.env` but not `backend/.env`. Agent's E2E worked (manually exported), user hit "auth failed" in normal usage.
+**Where it surfaced**: Human review (user screenshot)
+**Pattern tag**: `env-config-mismatch`
+
+### 2026-04-05 · backend-eval-pipeline/step-2
+
+**Category**: Missed edge case
+**Error class**: Skill
+**What happened**: `datetime.now(UTC)` (timezone-aware) vs `TIMESTAMP WITHOUT TIME ZONE`. SQLite tests passed, PostgreSQL rejected. Only caught by live DB verification.
+**Where it surfaced**: Live DB verification
+**Pattern tag**: `sqlite-vs-postgres-divergence`
+
+### 2026-04-05 · backend-eval-pipeline/simplify
+
+**Category**: Large refactor
+**Error class**: Skill
+**What happened**: Used synchronous `anthropic.Anthropic` inside `async` function, blocking event loop for up to 90s. Should have used `AsyncAnthropic`. Only caught by simplify.
+**Where it surfaced**: Simplify (efficiency review)
+**Pattern tag**: `sync-in-async`
+
+### 2026-04-05 · backend-eval-pipeline/simplify
+
+**Category**: Implementation hole
+**Error class**: Context
+**What happened**: DOC/DOCX converted at upload time AND again in background task. Double LibreOffice invocation.
+**Where it surfaced**: Simplify (code reuse review)
+**Pattern tag**: `duplicate-work`
+
+### 2026-04-05 · backend-eval-pipeline/walkthrough
+
+**Category**: Skill gap
+**Error class**: Skill
+**What happened**: Walkthrough rated Python concepts as High when user needed corrections on core mechanisms (deferred, from_attributes, selectinload). User flagged ratings as too generous.
+**Where it surfaced**: Human review
+**Pattern tag**: `walkthrough-calibration-inflated`
+
+### 2026-04-05 · backend-eval-pipeline/walkthrough
+
+**Category**: Skill gap
+**Error class**: Skill
+**What happened**: PR walkthrough covered 18 file groups across full milestone. Too large for deep comprehension — skill works better at step-level granularity.
+**Where it surfaced**: Human review
+**Pattern tag**: `walkthrough-scope-too-large`

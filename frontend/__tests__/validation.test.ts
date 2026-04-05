@@ -9,16 +9,16 @@ describe('validateFileExtension', () => {
     expect(validateFileExtension('contract.txt')).toBe(true);
   });
 
-  it('rejects .pdf files', () => {
-    expect(validateFileExtension('contract.pdf')).toBe(false);
+  it('accepts .pdf files', () => {
+    expect(validateFileExtension('contract.pdf')).toBe(true);
   });
 
-  it('rejects .doc files', () => {
-    expect(validateFileExtension('contract.doc')).toBe(false);
+  it('accepts .doc files', () => {
+    expect(validateFileExtension('contract.doc')).toBe(true);
   });
 
-  it('rejects .docx files', () => {
-    expect(validateFileExtension('contract.docx')).toBe(false);
+  it('accepts .docx files', () => {
+    expect(validateFileExtension('contract.docx')).toBe(true);
   });
 
   it('rejects .png files', () => {
@@ -40,20 +40,19 @@ describe('validateFileExtension', () => {
 });
 
 describe('validateFileSize', () => {
-  it('accepts files under 5 MB', () => {
+  it('accepts files under 10 MB', () => {
     expect(validateFileSize(1024)).toBe(true);
   });
 
-  it('accepts files exactly at 5 MB', () => {
-    expect(validateFileSize(5 * 1024 * 1024)).toBe(true);
+  it('accepts files exactly at 10 MB', () => {
+    expect(validateFileSize(10 * 1024 * 1024)).toBe(true);
   });
 
-  it('rejects files over 5 MB', () => {
-    expect(validateFileSize(5 * 1024 * 1024 + 1)).toBe(false);
+  it('rejects files over 10 MB', () => {
+    expect(validateFileSize(10 * 1024 * 1024 + 1)).toBe(false);
   });
 
   it('accepts zero-byte files', () => {
     expect(validateFileSize(0)).toBe(true);
   });
 });
-

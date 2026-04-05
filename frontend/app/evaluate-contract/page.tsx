@@ -2,68 +2,42 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FileDropZone } from './FileDropZone';
-import { EvalErrorSchema, EvalSuccessSchema, type EvalSuccess } from './types';
-import { useEvalResult } from './eval-result-context';
+import { FileDropZone } from '@/app/evaluate-contract/FileDropZone';
+import { LoadingShimmer } from '@/app/evaluate-contract/LoadingShimmer';
+import { BACKEND_URL, POLL_INTERVAL, POLL_TIMEOUT, STATUS_TEXT } from '@/app/evaluate-contract/constants';
+import { UploadResponseSchema, ReviewResponseSchema } from '@/app/evaluate-contract/types';
 
-async function evaluateContract(file: File, instructions: string, signal: AbortSignal): Promise<EvalSuccess> {
-  const text = await file.text();
-  const res = await fetch('/api/evaluate', {
+async function uploadContract(file: File, instructions: string, signal: AbortSignal) {
+  const form = new FormData();
+  form.append('file', file);
+  if (instructions.trim()) form.append('instructions', instructions);
+  const res = await fetch(`${BACKEND_URL}/api/contracts/upload`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, instructions }),
+    body: form,
     signal,
   });
-  if (!res.ok) throw new Error('evaluation failed');
-  const data = await res.json();
-  if (EvalErrorSchema.safeParse(data).success) throw new Error('eval error');
-  const parsed = EvalSuccessSchema.safeParse(data);
-  if (!parsed.success) throw new Error('unexpected response shape');
-  return parsed.data;
+  if (!res.ok) {
+    if (res.status === 413) throw new Error('File too large (max 10MB)');
+    if (res.status === 400) {
+      const data = await res.json();
+      throw new Error(data.detail || 'Invalid file');
+    }
+    throw new Error('Upload failed');
+  }
+  return UploadResponseSchema.parse(await res.json());
 }
 
-const HEIGHT = { '3.5': 'h-3.5', '4': 'h-4', '5': 'h-5', '8': 'h-8' } as const;
-const WIDTH = { '14': 'w-14', '20': 'w-20', '28': 'w-28', '32': 'w-32', '2/3': 'w-2/3', '3/4': 'w-3/4', '4/5': 'w-4/5', '5/6': 'w-5/6', 'full': 'w-full' } as const;
-
-function ShimmerBar({ h, w, pill }: { h: keyof typeof HEIGHT; w: keyof typeof WIDTH; pill?: boolean }) {
-  return (
-    <div className={`animate-pulse bg-foreground/[0.06] ${HEIGHT[h]} ${WIDTH[w]} ${pill ? 'rounded-full' : 'rounded'}`} />
-  );
-}
-
-function LoadingShimmer() {
-  return (
-    <div data-testid="loading-shimmer" className="space-y-6" role="status">
-      <p className="sr-only">Evaluating contract, please wait...</p>
-      <div className="space-y-3">
-        <ShimmerBar h="8" w="28" pill />
-        <ShimmerBar h="4" w="full" />
-        <ShimmerBar h="4" w="4/5" />
-      </div>
-
-      <div className="space-y-2 border-l-2 border-foreground/[0.06] pl-4">
-        <ShimmerBar h="3.5" w="3/4" />
-        <ShimmerBar h="3.5" w="2/3" />
-      </div>
-
-      {[1, 2, 3].map((i) => (
-        <div
-          key={i}
-          className="space-y-2.5 rounded-lg border border-foreground/[0.06] p-4"
-        >
-          <div className="flex items-center gap-3">
-            <ShimmerBar h="5" w="14" />
-            <ShimmerBar h="5" w="32" />
-            <div className="ml-auto">
-              <ShimmerBar h="5" w="20" pill />
-            </div>
-          </div>
-          <ShimmerBar h="3.5" w="full" />
-          <ShimmerBar h="3.5" w="5/6" />
-        </div>
-      ))}
-    </div>
-  );
+async function pollReview(reviewId: string, signal: AbortSignal, onStatus?: (s: string) => void) {
+  const start = Date.now();
+  while (Date.now() - start < POLL_TIMEOUT) {
+    const res = await fetch(`${BACKEND_URL}/api/reviews/${reviewId}`, { signal });
+    if (!res.ok) throw new Error('Failed to check review status');
+    const data = ReviewResponseSchema.parse(await res.json());
+    if (data.status === 'completed' || data.status === 'failed') return data;
+    onStatus?.(data.status);
+    await new Promise((r) => setTimeout(r, POLL_INTERVAL));
+  }
+  throw new Error('Evaluation timed out — please try again');
 }
 
 export default function EvaluateContractPage() {
@@ -71,8 +45,8 @@ export default function EvaluateContractPage() {
   const [instructions, setInstructions] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [statusText, setStatusText] = useState('Preparing evaluation...');
   const router = useRouter();
-  const { setResult } = useEvalResult();
   const controllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -86,15 +60,21 @@ export default function EvaluateContractPage() {
     controllerRef.current = controller;
     setError(null);
     setIsLoading(true);
+    setStatusText('Preparing evaluation...');
     try {
-      const result = await evaluateContract(file, instructions, controller.signal);
-      const id = crypto.randomUUID();
-      setResult(id, result);
-      router.push(`/contract/${id}`);
+      const { contract_id, review_id } = await uploadContract(file, instructions, controller.signal);
+      const result = await pollReview(review_id, controller.signal, (s) =>
+        setStatusText(STATUS_TEXT[s] || 'Processing...'),
+      );
+      if (result.status === 'completed') {
+        router.push(`/contract/${contract_id}`);
+      } else {
+        setError(result.failure_message);
+        setIsLoading(false);
+      }
     } catch (e) {
       if (e instanceof DOMException && e.name === 'AbortError') return;
-      setError('Something went wrong. Try again.');
-    } finally {
+      setError(e instanceof Error ? e.message : 'Something went wrong');
       setIsLoading(false);
     }
   }
@@ -104,7 +84,7 @@ export default function EvaluateContractPage() {
       <h1 className="text-3xl font-bold tracking-tight">Evaluate Contract</h1>
 
       {isLoading ? (
-        <LoadingShimmer />
+        <LoadingShimmer statusText={statusText} />
       ) : (
         <>
           <FileDropZone file={file} onFileChange={setFile} />

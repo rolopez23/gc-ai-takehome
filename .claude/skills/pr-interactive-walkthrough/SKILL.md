@@ -86,9 +86,11 @@ After all files are covered, **always** produce an understanding assessment.
 
 **Calibration (use consistently):**
 
-- **High:** **Highly accurate** restatement in the user’s own words—either a **simple, precise** summary (including a **terse one-liner** when it is genuinely strong: correct mechanism, not vague) **or** that accuracy **plus** edge cases, failure modes, or non-obvious connections (or a probing follow-up answered with that depth). **Either** path can be High; length is not the criterion—**accuracy and specificity** are.
-- **Medium:** **Any** correction from you was needed (imprecise terms, wrong mechanism, missing nuance)—even a small fix—or the grasp is **hand-wavy / generic** (correct direction but could apply to anything). **Early wiring files** (`go.work`, `go.mod` / `replace` blocks): default **Medium** when vague; use **High** if even a short answer nails **what** changed and **why it matters** for the build.
-- **Low:** Mostly **copying/parroting** your wording, **major** errors, or repeated confusion about the main idea.
+- **High:** User demonstrates the concept **without correction** — accurately explains the mechanism, not just the intent. A terse answer can be High if it names the right mechanism specifically. Saying "it loads data" is not High; saying "deferred means the column is excluded from SELECT until explicitly accessed" is High.
+- **Medium:** User understands the **intent/direction** but needed correction on the **mechanism** — wrong term, imprecise explanation, confused about how it works internally. Also: hand-wavy answers that are correct but generic (could apply to anything). This is the default when the user gets the "what" but not the "how."
+- **Low:** Mostly **copying/parroting** your wording, **major** errors, or repeated confusion about the main idea. Also: guessing incorrectly about what something does (not just imprecise — actually wrong).
+
+**Bias toward strictness.** When in doubt between High and Medium, choose Medium. When in doubt between Medium and Low, consider whether the user needed a *correction* (Medium) or was *wrong* (Low). Check user memory for self-reported experience levels — a user who says they’re new to a language/framework should be assessed against whether they’re *building understanding*, not whether they already have it. But don’t inflate ratings out of politeness. The assessment is a learning tool, not a grade — accurate calibration helps the user know where to focus.
 
 Produce a short table: file (or file group), level, and one-line note—**only for files that belong in the rubric** (product code, shared libraries, request path, meaningful config).
 

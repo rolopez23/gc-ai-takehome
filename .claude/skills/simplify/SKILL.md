@@ -20,6 +20,29 @@ are removing everything that doesn't need to be there.
 
 This skill can never touch tests. You can only refactor code covered by the tests.
 
+## Verification Gate
+
+Before running simplify, check that verification has been completed:
+
+1. Look for a plan at `docs/<feature>/plan.md`. If one exists, check the Verify column for
+   the current step — it must be ✅ or ➖ (N/A).
+2. Look for a verification report at `docs/<feature>/verify/<step>-*.md`. If the plan shows
+   Verify should have run, a report must exist.
+
+**If the plan exists and Verify is still ⬜ (pending) with no report:**
+Stop and say: "Verification has not been run for this step. Run `/verify` first — simplify
+runs after verify in the workflow (make it work → make it work well → make it beautiful)."
+Do not proceed with the simplify pass.
+
+**If no plan exists** (ad-hoc simplify, not part of a step workflow): skip this gate.
+
+## Sub-Skills
+
+If the diff touches React components (`.tsx` files that export JSX), also run the frontend
+cleanup sub-skill after the main simplify pass:
+- [`sub-skills/frontend-cleanup.md`](sub-skills/frontend-cleanup.md) — component extraction,
+  semantic HTML, accessibility, readable class names, data transformations, style constants
+
 ## Get the Diff
 
 ```bash
@@ -243,8 +266,9 @@ If nothing was applied and nothing was suggested, only show the Result line.
 
 ## Save the Output
 
-Save the report to `docs/simplify/<branch-name>-<YYYY-MM-DD>.md` (use `git branch --show-current`
-for the branch name). If no `docs/` directory exists, save to `.claude/simplify/` instead.
+Save the report to `docs/<feature>/simplify/<step-name>-<YYYY-MM-DD>.md`. Determine `<feature>`
+from the plan path (e.g., `docs/eval-results-display/plan.md` → `eval-results-display`).
+If no plan exists, use `docs/simplify/<branch-name>-<YYYY-MM-DD>.md` as fallback.
 Tell the user where the file was saved.
 
 ## Commit the Changes
@@ -252,7 +276,7 @@ Tell the user where the file was saved.
 Stage all modified files (including the report) and create a commit:
 
 ```bash
-git add <modified files> docs/simplify/<report file>
+git add <modified files> docs/<feature>/simplify/<report file>
 git commit -m "Simplify <chunk label>: <one-line description of what changed>
 
 <optional body: key refactors applied>

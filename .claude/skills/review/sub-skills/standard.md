@@ -41,6 +41,17 @@ Valid inputs or states not handled correctly. Ask what happens when:
 - Migrations that are irreversible or leave orphaned state
 - Shared resources (DB connections, file handles, event loops) not properly scoped
 
+### TypeScript-Specific (when reviewing .ts/.tsx files)
+
+Flag these patterns — they bypass the type system or signal design issues:
+- **`as` type casts** — prefer type guards, Zod parsing, or narrowing. Casts hide bugs by silencing the compiler. The only acceptable use is test fixtures where the shape is intentionally partial.
+- **`any` types** — explicit `any` defeats the point of TypeScript. Use `unknown` and narrow, or define the actual shape.
+- **Non-null assertions (`!`)** — `foo!.bar` hides potential nulls. Prefer optional chaining (`foo?.bar`) or an explicit guard.
+- **Stringly-typed unions** — raw string comparisons (`if (status === "pending")`) when a discriminated union or `as const` array already defines the valid values.
+- **Implicit `any` from untyped imports** — missing `@types/*` or hand-rolled `declare module` that types everything as `any`.
+- **`querySelector` in tests** — use Testing Library queries (`getByRole`, `getByLabelText`) instead of DOM selectors. Selectors are brittle and don't test accessibility.
+- **Style assertions in tests** — don't assert on Tailwind classes or CSS values. Assert on semantic state (role, aria attributes, text content, presence/absence).
+
 ### Contract Violations
 - API response shape differs from the documented contract (check field names AND casing)
 - A required side effect isn't atomic

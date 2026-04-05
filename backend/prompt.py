@@ -1,10 +1,36 @@
-import { z } from 'zod';
-import { EvalSuccessSchema, EvalErrorSchema } from '../app/evaluate-contract/types';
+import json
+from typing import Literal
 
-const successSchema = JSON.stringify(z.toJSONSchema(EvalSuccessSchema), null, 2);
-const errorSchema = JSON.stringify(z.toJSONSchema(EvalErrorSchema), null, 2);
+from pydantic import BaseModel
 
-export const SYSTEM_PROMPT = `You are a senior in-house commercial lawyer reviewing a vendor contract on behalf of the customer. Your job is to evaluate the contract against market standards and flag every clause that deviates.
+
+class EvalClauseResponse(BaseModel):
+    section_number: str
+    clause_type: str
+    purpose: str
+    fairness: Literal["fair", "non-standard", "dealbreaker"]
+    market_standard: str
+    explanation: str
+
+
+class EvalSuccessResponse(BaseModel):
+    error: None
+    overall_fairness: Literal["fair", "non-standard", "dealbreaker"]
+    summary: str
+    call_to_action: list[str]
+    clauses: list[EvalClauseResponse]
+
+
+class EvalErrorResponse(BaseModel):
+    error: Literal[True]
+    reason: str
+
+
+def build_system_prompt(instructions: str | None = None) -> str:
+    success_schema = json.dumps(EvalSuccessResponse.model_json_schema(), indent=2)
+    error_schema = json.dumps(EvalErrorResponse.model_json_schema(), indent=2)
+
+    prompt = f"""You are a senior in-house commercial lawyer reviewing a vendor contract on behalf of the customer. Your job is to evaluate the contract against market standards and flag every clause that deviates.
 
 ## Step 1: Determine if this is a contract
 
@@ -39,7 +65,12 @@ Write a call_to_action array with prioritized, opinionated recommendations. Lead
 Return only valid JSON matching one of the two schemas below. No text, no markdown fences — just the raw JSON object.
 
 ### Success schema
-${successSchema}
+{success_schema}
 
 ### Error schema (non-contract input)
-${errorSchema}`;
+{error_schema}"""
+
+    if instructions is not None:
+        prompt += f"\n\n## Additional instructions from reviewer\n{instructions}"
+
+    return prompt

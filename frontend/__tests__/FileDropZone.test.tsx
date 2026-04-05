@@ -33,7 +33,7 @@ describe('FileDropZone', () => {
     render(<FileDropZone file={null} onFileChange={vi.fn()} />);
     const input = screen.getByLabelText<HTMLInputElement>(/upload contract file/i);
     expect(input).toBeInTheDocument();
-    expect(input.accept).toBe('.txt');
+    expect(input.accept).toBe('.txt,.pdf,.doc,.docx');
   });
 
   it('renders staged file when file prop is provided', () => {
@@ -71,13 +71,13 @@ describe('FileDropZone', () => {
     const spy = vi.fn();
     render(<ControlledDropZone onFileChangeSpy={spy} />);
 
-    const bigContent = new ArrayBuffer(6 * 1024 * 1024);
+    const bigContent = new ArrayBuffer(11 * 1024 * 1024);
     const file = new File([bigContent], 'big.txt', { type: 'text/plain' });
     fireEvent.change(screen.getByLabelText(/upload contract file/i), {
       target: { files: [file] },
     });
 
-    expect(screen.getByText(/5 MB/i)).toBeInTheDocument();
+    expect(screen.getByText(/10 MB/i)).toBeInTheDocument();
     expect(spy).not.toHaveBeenCalled();
   });
 

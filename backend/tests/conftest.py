@@ -23,6 +23,13 @@ async def override_get_db() -> AsyncGenerator[AsyncSession]:
 app.dependency_overrides[get_db] = override_get_db
 
 
+@pytest.fixture(autouse=True)
+def _patch_bg_session(monkeypatch):
+    """Ensure the background task uses the test database, not the real one."""
+    import services.evaluation
+    monkeypatch.setattr(services.evaluation, "AsyncSessionLocal", TestSessionLocal)
+
+
 @pytest.fixture(scope="session")
 def event_loop():
     loop = asyncio.new_event_loop()

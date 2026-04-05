@@ -2,7 +2,8 @@ import { z } from 'zod';
 
 export const FairnessRatingSchema = z.enum(['fair', 'non-standard', 'dealbreaker']);
 
-export const EvalClauseSchema = z.object({
+export const ReviewClauseSchema = z.object({
+  id: z.string().uuid(),
   section_number: z.string(),
   clause_type: z.string(),
   purpose: z.string(),
@@ -11,26 +12,45 @@ export const EvalClauseSchema = z.object({
   explanation: z.string(),
 });
 
-export const EvalSuccessSchema = z.object({
-  error: z.null(),
-  overall_fairness: FairnessRatingSchema,
-  summary: z.string(),
-  call_to_action: z.array(z.string()),
-  clauses: z.array(EvalClauseSchema),
+export const UploadResponseSchema = z.object({
+  contract_id: z.string().uuid(),
+  review_id: z.string().uuid(),
+  status: z.literal('pending'),
 });
 
-export const EvalErrorSchema = z.object({
-  error: z.literal(true),
-  reason: z.string(),
+export const ReviewPollingSchema = z.object({
+  id: z.string().uuid(),
+  contract_id: z.string().uuid(),
+  status: z.enum(['pending', 'reading', 'evaluating']),
 });
 
-export const EvalResponseSchema = z.discriminatedUnion('error', [
-  EvalSuccessSchema,
-  EvalErrorSchema,
+export const ReviewCompletedSchema = z.object({
+  id: z.string().uuid(),
+  contract_id: z.string().uuid(),
+  status: z.literal('completed'),
+  overall_fairness: FairnessRatingSchema.nullable(),
+  summary: z.string().nullable(),
+  call_to_action: z.array(z.string()).nullable(),
+  clauses: z.array(ReviewClauseSchema),
+  completed_at: z.string(),
+});
+
+export const ReviewFailedSchema = z.object({
+  id: z.string().uuid(),
+  status: z.literal('failed'),
+  failure_message: z.string().nullable(),
+});
+
+export const ReviewResponseSchema = z.discriminatedUnion('status', [
+  ReviewPollingSchema,
+  ReviewCompletedSchema,
+  ReviewFailedSchema,
 ]);
 
 export type FairnessRating = z.infer<typeof FairnessRatingSchema>;
-export type EvalClause = z.infer<typeof EvalClauseSchema>;
-export type EvalSuccess = z.infer<typeof EvalSuccessSchema>;
-export type EvalError = z.infer<typeof EvalErrorSchema>;
-export type EvalResponse = z.infer<typeof EvalResponseSchema>;
+export type ReviewClause = z.infer<typeof ReviewClauseSchema>;
+export type UploadResponse = z.infer<typeof UploadResponseSchema>;
+export type ReviewPolling = z.infer<typeof ReviewPollingSchema>;
+export type ReviewCompleted = z.infer<typeof ReviewCompletedSchema>;
+export type ReviewFailed = z.infer<typeof ReviewFailedSchema>;
+export type ReviewResponse = z.infer<typeof ReviewResponseSchema>;

@@ -30,9 +30,9 @@ The post-human run is the most important. Do not skip it or treat it as optional
 
 Read all output files for this step:
 
-1. `docs/verify/<branch>-*.md` — failures, incomplete checks, issues discovered
-2. `docs/simplify/<branch>-*.md` — what was applied, what was suggested, any regressions
-3. `docs/reviews/<branch>-*.md` — bugs, edge cases, contract violations found (or clean bill)
+1. `docs/<feature>/verify/<step>-*.md` — failures, incomplete checks, issues discovered
+2. `docs/<feature>/simplify/<step>-*.md` — what was applied, what was suggested, any regressions
+3. `docs/<feature>/reviews/<step>-*.md` — bugs, edge cases, contract violations found (or clean bill)
 4. The step plan (`docs/<feature>/steps/<step-name>.md`) — compare planned vs. actual
 
 For each file, ask: **did this step catch everything it should have?** A clean bill of health

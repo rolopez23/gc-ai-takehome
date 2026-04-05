@@ -50,6 +50,23 @@ Test:    tests/jobs/digest-sender.ts
 This structure informs step decomposition. Each step should produce self-contained file changes
 that make sense independently.
 
+## Verification-First Planning
+
+> "Your job is to deliver code you have proven to work."
+> — [Simon Willison](https://simonwillison.net/2025/Dec/18/code-proven-to-work/)
+
+Every step in the plan must define how it will be **proven to work** — not "should work", not
+"tests pass", but concrete evidence: command output, database state, browser behavior, curl
+responses. A step without a verification strategy is incomplete.
+
+When decomposing steps, ask: "How will I prove this step works to someone who can't read the
+code?" If you can't answer that, the step is either too abstract or missing an observable surface.
+
+**Verification is not optional.** The plan-step template requires an LLM Verification section.
+➖ (N/A) is only valid when there is genuinely no observable effect — not when verification is
+merely inconvenient. Before marking ➖, exhaust all paths: database inspection, file output,
+log checking, API responses, process side effects.
+
 ## Step 2: Decompose the Spec into Steps
 
 Read the "What We Are Solving" and "Interfaces" sections. Using the file map from Step 1, identify
@@ -113,7 +130,7 @@ Write to `docs/<feature-name>/plan.md`:
 **Workflow order per step:** Auto Tests → Verify → Simplify → Review → Understand → Human
 
 - **Auto Tests**: unit/integration tests passing (red-green-refactor, committed clean)
-- **Verify**: E2E check — real curl or browser automation against a live system; ➖ if no external surface
+- **Verify**: Proof the code works ([ref](https://simonwillison.net/2025/Dec/18/code-proven-to-work/)) — real curl, browser automation, DB inspection, file output. ➖ only when genuinely no observable effect exists.
 - **Simplify**: code has been through a simplify/refactor pass
 - **Review**: correctness review — bugs, edge cases, error handling
 - **Understand**: human passes `/pr-interactive-walkthrough` — all files rated Medium or High in the

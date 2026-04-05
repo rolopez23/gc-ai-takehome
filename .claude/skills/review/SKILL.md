@@ -77,7 +77,9 @@ reason so the human doesn't have to stop and investigate them.
 
 ## Output Format
 
-Save to `docs/reviews/<branch-name>-<YYYY-MM-DD>.md`. If no `docs/` exists, use `.claude/reviews/`.
+Save to `docs/<feature>/reviews/<step-name>-<YYYY-MM-DD>.md`. Determine `<feature>` from
+the plan path (e.g., `docs/eval-results-display/plan.md` → `eval-results-display`).
+If no plan exists, use `docs/reviews/<branch-name>-<YYYY-MM-DD>.md` as fallback.
 
 ```markdown
 ## Review: <branch or "staged changes">

@@ -3,21 +3,18 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import EvaluateContractPage from '@/app/evaluate-contract/page';
-import { EvalResultProvider } from '@/app/evaluate-contract/eval-result-context';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
 }));
 
-const ERROR_MESSAGE = /something went wrong/i;
-
 beforeEach(() => {
   vi.restoreAllMocks();
 });
 
-async function stageFileAndSubmit(fetchMock: () => Promise<Response>) {
-  vi.stubGlobal('fetch', vi.fn(fetchMock));
-  render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
+async function stageFileAndSubmit(fetchImpl: typeof fetch) {
+  vi.stubGlobal('fetch', vi.fn(fetchImpl));
+  render(<EvaluateContractPage />);
 
   const file = new File(['contract text'], 'contract.txt', { type: 'text/plain' });
   await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
@@ -29,48 +26,45 @@ describe('Error display', () => {
     await stageFileAndSubmit(() => Promise.reject(new Error('network error')));
 
     await waitFor(() => {
-      expect(screen.getByText(ERROR_MESSAGE)).toBeInTheDocument();
+      expect(screen.getByRole('alert')).toBeInTheDocument();
     });
   });
 
-  test('shows error on non-200 response', async () => {
+  test('shows error on 400 response', async () => {
     await stageFileAndSubmit(() =>
-      Promise.resolve(new Response(JSON.stringify({ error: 'server error' }), { status: 500 })),
+      Promise.resolve(new Response(JSON.stringify({ detail: 'Unsupported file type' }), { status: 400 })),
     );
 
     await waitFor(() => {
-      expect(screen.getByText(ERROR_MESSAGE)).toBeInTheDocument();
+      expect(screen.getByRole('alert')).toBeInTheDocument();
     });
   });
 
-  test('shows error when Claude returns eval error', async () => {
-    const evalError = { error: true, reason: 'This does not appear to be a contract.' };
+  test('shows error on 413 response', async () => {
     await stageFileAndSubmit(() =>
-      Promise.resolve(new Response(JSON.stringify(evalError), { status: 200 })),
+      Promise.resolve(new Response('', { status: 413 })),
     );
 
     await waitFor(() => {
-      expect(screen.getByText(ERROR_MESSAGE)).toBeInTheDocument();
+      expect(screen.getByText(/too large/i)).toBeInTheDocument();
     });
   });
 
-  test('clears error when user retries', async () => {
-    await stageFileAndSubmit(() => Promise.reject(new Error('network error')));
+  test('shows error when evaluation fails', async () => {
+    const uploadResponse = { contract_id: '452be08b-a29d-402f-8f44-6b1a0f976efa', review_id: 'a9198839-1da3-4fb3-ac30-c462cc81ee4e', status: 'pending' };
+    const failedReview = { id: 'a9198839-1da3-4fb3-ac30-c462cc81ee4e', status: 'failed', failure_message: 'API timeout' };
 
-    await waitFor(() => {
-      expect(screen.getByText(ERROR_MESSAGE)).toBeInTheDocument();
+    let callCount = 0;
+    await stageFileAndSubmit(() => {
+      callCount++;
+      if (callCount === 1) {
+        return Promise.resolve(new Response(JSON.stringify(uploadResponse), { status: 201 }));
+      }
+      return Promise.resolve(new Response(JSON.stringify(failedReview), { status: 200 }));
     });
 
-    const successResponse = { error: null, overall_fairness: 'fair', summary: '', call_to_action: [], clauses: [] };
-    vi.stubGlobal('fetch', vi.fn(() =>
-      Promise.resolve(new Response(JSON.stringify(successResponse), { status: 200 })),
-    ));
-
-    // File is preserved from the failed attempt — just retry
-    await userEvent.click(screen.getByRole('button', { name: /evaluate contract/i }));
-
     await waitFor(() => {
-      expect(screen.queryByText(ERROR_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.getByText(/API timeout/i)).toBeInTheDocument();
     });
   });
 
@@ -78,7 +72,7 @@ describe('Error display', () => {
     await stageFileAndSubmit(() => Promise.reject(new Error('network error')));
 
     await waitFor(() => {
-      expect(screen.getByText(ERROR_MESSAGE)).toBeInTheDocument();
+      expect(screen.getByRole('alert')).toBeInTheDocument();
     });
 
     expect(screen.getByText('contract.txt')).toBeInTheDocument();
