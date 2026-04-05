@@ -14,6 +14,20 @@ export default function ClauseSection({ rating, clauses }: ClauseSectionProps) {
   const [expanded, setExpanded] = useState(false);
   const { label } = getFairnessDisplay(rating);
 
+  if (clauses.length === 0) {
+    const isCelebratory = rating !== 'fair';
+    const icon = isCelebratory ? '✓' : '⚠';
+    const text = isCelebratory
+      ? `No ${label.toLowerCase()} clauses`
+      : 'No fair clauses found';
+    return (
+      <div className="flex items-center gap-2 rounded-lg border border-foreground/10 px-4 py-3 text-foreground/50">
+        <span>{icon}</span>
+        <span>{text}</span>
+      </div>
+    );
+  }
+
   return (
     <div>
       <button

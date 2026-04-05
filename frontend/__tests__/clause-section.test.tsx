@@ -62,6 +62,18 @@ describe('ClauseSection', () => {
     expect(screen.queryByText('Unlimited liability is unacceptable')).not.toBeInTheDocument();
   });
 
+  it('renders celebratory placeholder for empty egregious section', () => {
+    render(<ClauseSection rating="dealbreaker" clauses={[]} />);
+    expect(screen.getByText(/No egregious clauses/)).toBeInTheDocument();
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
+  it('renders celebratory placeholder for empty unfair section', () => {
+    render(<ClauseSection rating="non-standard" clauses={[]} />);
+    expect(screen.getByText(/No unfair clauses/)).toBeInTheDocument();
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
   it('expanded section has scroll constraint', async () => {
     const user = userEvent.setup();
     render(<ClauseSection rating="dealbreaker" clauses={[TEST_CLAUSE]} />);
