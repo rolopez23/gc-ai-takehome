@@ -28,17 +28,24 @@ function ExpandableClauses({ label, clauses }: { label: string; clauses: EvalCla
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <section>
-      <button type="button" onClick={() => setExpanded(!expanded)} className={SECTION_HEADER}>
+    <section aria-label={`${label} clauses`}>
+      <button
+        type="button"
+        onClick={() => setExpanded(!expanded)}
+        aria-expanded={expanded}
+        className={SECTION_HEADER}
+      >
         <span className="font-semibold">{label} ({clauses.length})</span>
         <span className="text-foreground/40">{expanded ? '−' : '+'}</span>
       </button>
       {expanded && (
-        <div className={CLAUSE_LIST}>
+        <ul className={CLAUSE_LIST}>
           {clauses.map((clause, index) => (
-            <ClauseCard key={`${clause.section_number}-${index}`} clause={clause} />
+            <li key={`${clause.section_number}-${index}`}>
+              <ClauseCard clause={clause} />
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </section>
   );
