@@ -1,0 +1,28 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "eb462d7dc937",
+  "strategy": "manual-commit",
+  "branch": "m3-backend-eval-pipeline",
+  "checkpoints_count": 24,
+  "files_touched": [
+    "backend/models.py",
+    "backend/services/conversion.py",
+    "backend/tests/test_conversion.py",
+    "backend/tests/test_models.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/eb/462d7dc937/0/metadata.json",
+      "transcript": "/eb/462d7dc937/0/full.jsonl",
+      "content_hash": "/eb/462d7dc937/0/content_hash.txt",
+      "prompt": "/eb/462d7dc937/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 429,
+    "cache_creation_tokens": 150878,
+    "cache_read_tokens": 7701536,
+    "output_tokens": 75142,
+    "api_call_count": 97
+  }
+}
