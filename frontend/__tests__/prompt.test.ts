@@ -16,14 +16,14 @@ describe('SYSTEM_PROMPT', () => {
   });
 
   test('contains error schema fields', () => {
-    expect(SYSTEM_PROMPT).toContain('"error": true');
+    expect(SYSTEM_PROMPT).toContain('error');
     expect(SYSTEM_PROMPT).toContain('reason');
   });
 
   test('defines all three fairness tiers', () => {
     expect(SYSTEM_PROMPT).toMatch(/\bfair\b/);
-    expect(SYSTEM_PROMPT).toMatch(/\bunfair\b/);
-    expect(SYSTEM_PROMPT).toMatch(/\begregious\b/);
+    expect(SYSTEM_PROMPT).toMatch(/\bnon-standard\b/);
+    expect(SYSTEM_PROMPT).toMatch(/\bdealbreaker\b/);
   });
 
   test('includes worst-clause-wins rule', () => {

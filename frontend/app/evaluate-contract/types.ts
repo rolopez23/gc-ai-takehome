@@ -1,44 +1,36 @@
-export interface EvalClause {
-  section_number: string;
-  clause_type: string;
-  purpose: string;
-  fairness: 'fair' | 'unfair' | 'egregious';
-  market_standard: string;
-  explanation: string;
-}
+import { z } from 'zod';
 
-export interface EvalSuccess {
-  error: null;
-  overall_fairness: 'fair' | 'unfair' | 'egregious';
-  summary: string;
-  call_to_action: string[];
-  clauses: EvalClause[];
-}
+export const FairnessRatingSchema = z.enum(['fair', 'non-standard', 'dealbreaker']);
 
-export interface EvalError {
-  error: true;
-  reason: string;
-}
+export const EvalClauseSchema = z.object({
+  section_number: z.string(),
+  clause_type: z.string(),
+  purpose: z.string(),
+  fairness: FairnessRatingSchema,
+  market_standard: z.string(),
+  explanation: z.string(),
+});
 
-export type EvalResponse = EvalSuccess | EvalError;
+export const EvalSuccessSchema = z.object({
+  error: z.null(),
+  overall_fairness: FairnessRatingSchema,
+  summary: z.string(),
+  call_to_action: z.array(z.string()),
+  clauses: z.array(EvalClauseSchema),
+});
 
-export function isEvalSuccess(res: unknown): res is EvalSuccess {
-  return (
-    typeof res === 'object' &&
-    res !== null &&
-    'error' in res &&
-    (res as EvalSuccess).error === null &&
-    'overall_fairness' in res &&
-    'clauses' in res
-  );
-}
+export const EvalErrorSchema = z.object({
+  error: z.literal(true),
+  reason: z.string(),
+});
 
-export function isEvalError(res: unknown): res is EvalError {
-  return (
-    typeof res === 'object' &&
-    res !== null &&
-    'error' in res &&
-    (res as EvalError).error === true &&
-    'reason' in res
-  );
-}
+export const EvalResponseSchema = z.discriminatedUnion('error', [
+  EvalSuccessSchema,
+  EvalErrorSchema,
+]);
+
+export type FairnessRating = z.infer<typeof FairnessRatingSchema>;
+export type EvalClause = z.infer<typeof EvalClauseSchema>;
+export type EvalSuccess = z.infer<typeof EvalSuccessSchema>;
+export type EvalError = z.infer<typeof EvalErrorSchema>;
+export type EvalResponse = z.infer<typeof EvalResponseSchema>;

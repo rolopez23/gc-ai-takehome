@@ -71,3 +71,59 @@
 **What happened**: After adding form reset, a mixed controlled/uncontrolled pattern was introduced in FileDropZone (both internal stagedFile state and external file prop). The first simplify pass did not run on this change — user had to explicitly request a re-run. The re-run correctly identified and fixed the dead state.
 **Where it surfaced**: Human-requested simplify re-run
 **Pattern tag**: `simplify-not-rerun-after-fix`
+
+### 2026-04-04 · mvp-contract-eval/eval-schema + eval-prompt
+
+**Category**: Human correction
+**Error class**: Context
+**What happened**: Plan dashboard marked all workflow columns (Verify, Simplify, Review, Understand, Human) as ✅ for steps 1-3 when none of that work had been done. User caught it immediately.
+**Where it surfaced**: Human review
+**Pattern tag**: `plan-not-updated`
+
+### 2026-04-04 · mvp-contract-eval/eval-schema
+
+**Category**: Human correction
+**Error class**: Skill
+**What happened**: User disliked `as` type casts in type guards. Neither simplify nor review flagged the cast pattern as a smell — simplify only changed from `as EvalSuccess` to `as { error: unknown }`, still using casts. User drove the Zod migration which eliminated casts entirely.
+**Where it surfaced**: PR walkthrough (human review)
+**Pattern tag**: `unnecessary-type-cast`
+
+### 2026-04-04 · mvp-contract-eval/eval-schema
+
+**Category**: Human correction
+**Error class**: Specification
+**What happened**: User proposed migrating hand-rolled type guards to Zod schemas for cleaner validation and single-source-of-truth types. No automated step suggested this architectural improvement despite it being a natural fit for parsing untrusted LLM output.
+**Where it surfaced**: PR walkthrough (human review)
+**Pattern tag**: `missed-architectural-improvement`
+
+### 2026-04-04 · mvp-contract-eval/eval-prompt
+
+**Category**: Human correction
+**Error class**: Specification
+**What happened**: User changed prompt scoring language from fair/unfair/egregious to fair/non-standard/dealbreaker to avoid biasing the LLM toward plain-English interpretations. Also added death-by-paper-cuts rule and expanded dealbreaker definition. No automated step considered prompt-level LLM bias.
+**Where it surfaced**: Human review (user edited file directly)
+**Pattern tag**: `prompt-bias-not-considered`
+
+### 2026-04-04 · mvp-contract-eval/eval-prompt
+
+**Category**: Human correction
+**Error class**: Context
+**What happened**: /learn-from-mistakes skipped again after eval-prompt sign-off. User had to remind: "two things one we missed the learning step again." This is the third occurrence of this pattern.
+**Where it surfaced**: Human review
+**Pattern tag**: `workflow-steps-skipped`
+
+### 2026-04-04 · mvp-contract-eval/eval-prompt
+
+**Category**: Skill gap
+**Error class**: Skill
+**What happened**: Verification script took 5+ failed attempts — wrong import paths, CJS vs ESM issues, env var quoting, wrong working directory. Should have been a single well-tested script run from the right directory with correct module resolution.
+**Where it surfaced**: Verify step
+**Pattern tag**: `verify-script-thrashing`
+
+### 2026-04-04 · mvp-contract-eval/eval-prompt
+
+**Category**: Bad assumption
+**Error class**: Context
+**What happened**: Used claude-haiku-4-5-20251001 without checking its max_tokens limit (8192 output), then switched to claude-3-haiku which caps at 4096 output tokens. Did not research model constraints before running verification, wasting turns and API spend on a model that couldn't produce full contract evaluations.
+**Where it surfaced**: Verify step
+**Pattern tag**: `model-constraints-not-researched`

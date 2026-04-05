@@ -83,6 +83,13 @@ Before pushing to `main` any commit that is **not** general setup or infrastruct
 
 Setup/infra work (deps, config, tooling, CI, Makefile, docker-compose, env files) may be pushed without this gate.
 
+### Remote control (web-agent) mode
+
+When operating via remote control (mobile/web), skip all interactive human verification
+steps and walkthroughs (steps 2–6 in the workflow). Instead, proceed autonomously and
+maintain a running to-do list of skipped verification/cognitive processing steps so the
+user can review them when back at their desk.
+
 ### TypeScript type annotations
 
 Use implicit return types for simple helpers and when the type is obvious (e.g., a function returning a boolean comparison). Use explicit types for exported utilities with complex return types, public API contracts, or when the type isn't immediately clear from the implementation.
@@ -101,4 +108,39 @@ Follow [FrontendTesting.md](FrontendTesting.md) for all frontend test code. Key 
 Rules added by `/learn-from-mistakes` when a pattern recurs 3+ times.
 
 <!-- learned-rules -->
+
+### Workflow: /learn-from-mistakes is mandatory after every sign-off
+
+After every Human sign-off, ALWAYS run /learn-from-mistakes before proceeding to the next step. This is a blocking requirement, not optional. The workflow order is: Auto Tests → Verify → Simplify → Review → Understand → Human → Learn-from-mistakes → next step. (Pattern `workflow-steps-skipped` — 3 occurrences as of 2026-04-04.)
+
 <!-- learned-rules-end -->
+
+---
+
+## Eval Rules
+
+Informal directional benchmarks until a full eval pipeline is built. See [eval log](docs/mvp-contract-eval/eval-log.md).
+
+### Model constraints
+
+Before using any Claude model for verification or production, document its constraints:
+- `max_tokens` output limit
+- Context window size
+- Cost per million tokens (input/output)
+- Any known behavioral differences (e.g., fence-wrapping, instruction following)
+
+Do not run verification against a model without first confirming it can handle the expected output size.
+
+### Fairness benchmarks (directional)
+
+| Contract | Expected overall_fairness |
+|---|---|
+| contract_1_clean | `fair` |
+| contract_2_egregious | `dealbreaker` |
+| contract_3_nonstandard | `non-standard` |
+| contract_4_minor_issues | `non-standard` |
+| contract_5_mixed | `dealbreaker` |
+| simple 4-clause (inline) | `fair` |
+| non-contract (cookie recipe) | `error: true` |
+
+These are directional — the LLM may reasonably disagree on edge cases. Track deviations in the eval log.
