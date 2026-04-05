@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEvalResult } from '../../evaluate-contract/eval-result-context';
 import type { EvalSuccess } from '../../evaluate-contract/types';
@@ -28,6 +29,9 @@ export default function ContractPage() {
         <ScoreBadge rating={result.overall_fairness} />
       </div>
       <p className="mt-3 text-foreground/60">{result.summary}</p>
+      <Link href="/evaluate-contract" className="mt-6 inline-block text-sm text-foreground/60 underline hover:text-foreground">
+        Evaluate another contract
+      </Link>
     </div>
   );
 }

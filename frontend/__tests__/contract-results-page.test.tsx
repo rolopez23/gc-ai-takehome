@@ -65,4 +65,12 @@ describe('ContractPage', () => {
     render(<ContractPage />);
     expect(screen.getByText(SUCCESS_RESULT.summary)).toBeInTheDocument();
   });
+
+  it('renders link back to evaluate page', async () => {
+    mockGetResult.mockReturnValue(SUCCESS_RESULT);
+    const { default: ContractPage } = await import('@/app/contract/[id]/page');
+    render(<ContractPage />);
+    const link = screen.getByRole('link', { name: /evaluate/i });
+    expect(link).toHaveAttribute('href', '/evaluate-contract');
+  });
 });
