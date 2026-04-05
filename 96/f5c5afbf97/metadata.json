@@ -3,7 +3,7 @@
   "checkpoint_id": "96f5c5afbf97",
   "strategy": "manual-commit",
   "branch": "rl/mvp-contract-eval",
-  "checkpoints_count": 25,
+  "checkpoints_count": 28,
   "files_touched": [
     ".claude/learnings.md",
     "AGENTS.md",
@@ -11,6 +11,14 @@
     "docs/gc-ai-takehome/contract_4_minor_issues.txt",
     "docs/mvp-contract-eval/eval-log.md",
     "docs/mvp-contract-eval/plan.md",
+    "docs/mvp-contract-eval/spec.md",
+    "docs/mvp-contract-eval/steps/api-route.md",
+    "docs/mvp-contract-eval/steps/cancel-on-unmount.md",
+    "docs/mvp-contract-eval/steps/error-display.md",
+    "docs/mvp-contract-eval/steps/eval-prompt.md",
+    "docs/mvp-contract-eval/steps/eval-schema.md",
+    "docs/mvp-contract-eval/steps/loading-shimmer.md",
+    "docs/mvp-contract-eval/steps/success-navigation.md",
     "docs/reviews/rl-mvp-contract-eval-eval-prompt-2026-04-04.md",
     "docs/reviews/rl-mvp-contract-eval-eval-schema-2026-04-04.md",
     "frontend/__tests__/prompt.test.ts",
@@ -32,13 +40,19 @@
       "transcript": "/96/f5c5afbf97/1/full.jsonl",
       "content_hash": "/96/f5c5afbf97/1/content_hash.txt",
       "prompt": "/96/f5c5afbf97/1/prompt.txt"
+    },
+    {
+      "metadata": "/96/f5c5afbf97/2/metadata.json",
+      "transcript": "/96/f5c5afbf97/2/full.jsonl",
+      "content_hash": "/96/f5c5afbf97/2/content_hash.txt",
+      "prompt": "/96/f5c5afbf97/2/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 1258,
-    "cache_creation_tokens": 226213,
-    "cache_read_tokens": 11576051,
-    "output_tokens": 61689,
-    "api_call_count": 135
+    "input_tokens": 2086,
+    "cache_creation_tokens": 442757,
+    "cache_read_tokens": 19957887,
+    "output_tokens": 77647,
+    "api_call_count": 248
   }
 }
