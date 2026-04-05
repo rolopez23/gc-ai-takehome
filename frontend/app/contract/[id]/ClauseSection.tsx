@@ -5,6 +5,25 @@ import type { FairnessRating, EvalClause } from '../../evaluate-contract/types';
 import { getFairnessDisplay } from '../../evaluate-contract/fairness-utils';
 import ClauseCard from './ClauseCard';
 
+const SECTION_BORDER = 'rounded-lg border border-foreground/10 px-4 py-3';
+const SECTION_HEADER = `flex w-full items-center justify-between ${SECTION_BORDER} text-left hover:bg-foreground/5`;
+const CLAUSE_LIST = 'mt-2 max-h-[50vh] space-y-2 overflow-y-auto';
+
+function NoClauses({ rating, label }: { rating: FairnessRating; label: string }) {
+  const isCelebratory = rating !== 'fair';
+  const icon = isCelebratory ? '✓' : '⚠';
+  const text = isCelebratory
+    ? `No ${label.toLowerCase()} clauses`
+    : 'No fair clauses found';
+
+  return (
+    <div className={`flex items-center gap-2 ${SECTION_BORDER} text-foreground/50`}>
+      <span>{icon}</span>
+      <span>{text}</span>
+    </div>
+  );
+}
+
 interface ClauseSectionProps {
   rating: FairnessRating;
   clauses: EvalClause[];
@@ -15,36 +34,22 @@ export default function ClauseSection({ rating, clauses }: ClauseSectionProps) {
   const { label } = getFairnessDisplay(rating);
 
   if (clauses.length === 0) {
-    const isCelebratory = rating !== 'fair';
-    const icon = isCelebratory ? '✓' : '⚠';
-    const text = isCelebratory
-      ? `No ${label.toLowerCase()} clauses`
-      : 'No fair clauses found';
-    return (
-      <div className="flex items-center gap-2 rounded-lg border border-foreground/10 px-4 py-3 text-foreground/50">
-        <span>{icon}</span>
-        <span>{text}</span>
-      </div>
-    );
+    return <NoClauses rating={rating} label={label} />;
   }
 
   return (
-    <div>
-      <button
-        type="button"
-        onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center justify-between rounded-lg border border-foreground/10 px-4 py-3 text-left hover:bg-foreground/5"
-      >
+    <section>
+      <button type="button" onClick={() => setExpanded(!expanded)} className={SECTION_HEADER}>
         <span className="font-semibold">{label} ({clauses.length})</span>
         <span className="text-foreground/40">{expanded ? '−' : '+'}</span>
       </button>
       {expanded && (
-        <div className="mt-2 max-h-[50vh] space-y-2 overflow-y-auto">
+        <div className={CLAUSE_LIST}>
           {clauses.map((clause, index) => (
             <ClauseCard key={`${clause.section_number}-${index}`} clause={clause} />
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 }
