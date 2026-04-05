@@ -167,3 +167,51 @@
 **What happened**: Asked "want me to run verify?" and "skip to walkthrough?" instead of just doing it. The workflow order is explicit — verify comes after tests, always. Asking permission for a mandatory step wastes a turn and signals uncertainty about the process.
 **Where it surfaced**: Self-review of conversation history
 **Pattern tag**: `asking-permission-for-mandatory-steps`
+
+### 2026-04-04 · mvp-contract-eval/loading-shimmer
+
+**Category**: Human correction
+**Error class**: Context
+**What happened**: Verification returned 500 because ANTHROPIC_API_KEY wasn't in frontend/.env.local. Agent said "the 500 is expected" — user corrected: "a 500 is never expected." Environment must be properly configured before verification.
+**Where it surfaced**: Verify step
+**Pattern tag**: `env-not-configured`
+
+### 2026-04-04 · mvp-contract-eval/loading-shimmer
+
+**Category**: Human correction
+**Error class**: Context
+**What happened**: Ran /frontend-design to improve shimmer visually but marked Simplify as done. User caught it: "we did a frontend design not sure about true simplify." Frontend-design and simplify are different skills with different goals.
+**Where it surfaced**: Human review
+**Pattern tag**: `skills-conflated`
+
+### 2026-04-04 · mvp-contract-eval/loading-shimmer
+
+**Category**: Skill gap
+**Error class**: Skill
+**What happened**: isLoading was checked twice — once for role="status" text, once for shimmer/form swap. User identified the duplication and suggested moving accessibility into LoadingShimmer itself. Neither simplify nor review caught this.
+**Where it surfaced**: PR walkthrough (human review)
+**Pattern tag**: `simplify-missed-readability`
+
+### 2026-04-04 · mvp-contract-eval/loading-shimmer (self-reflection)
+
+**Category**: Bad assumption
+**Error class**: Context
+**What happened**: Attempted useActionState refactor without verifying jsdom compatibility. Tests broke, tried useTransition, still broke — burned ~8 turns before user said "lets just undo." Should have validated the testing story in isolation before rewriting production code.
+**Where it surfaced**: Self-review of conversation history
+**Pattern tag**: `refactor-without-testing-validation`
+
+### 2026-04-04 · mvp-contract-eval/loading-shimmer (self-reflection)
+
+**Category**: Human correction
+**Error class**: Context
+**What happened**: Got derailed into useActionState experiment mid-walkthrough. Understand step was never completed. User had to point out: "We never completed understand uncheck it."
+**Where it surfaced**: Human review
+**Pattern tag**: `workflow-steps-skipped`
+
+### 2026-04-04 · mvp-contract-eval/loading-shimmer
+
+**Category**: Skill gap
+**Error class**: Skill
+**What happened**: No automated step considered ARIA/accessibility patterns. The review caught the live region mounting issue but only because the adversarial reviewer was casting a wide net. Simplify, standard review, and edge-case hunter all ignored accessibility. User noted this as a general gap — not a blocker for MVP but should be part of the review checklist.
+**Where it surfaced**: Human review
+**Pattern tag**: `accessibility-not-reviewed`

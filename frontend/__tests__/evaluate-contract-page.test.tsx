@@ -1,8 +1,23 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import EvaluateContractPage from '@/app/evaluate-contract/page';
+
+const VALID_RESPONSE = {
+  error: null,
+  overall_fairness: 'fair',
+  summary: '',
+  call_to_action: [],
+  clauses: [],
+};
+
+beforeEach(() => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(() => Promise.resolve(new Response(JSON.stringify(VALID_RESPONSE), { status: 200 }))),
+  );
+});
 
 describe('EvaluateContractPage', () => {
   it('renders the page heading', () => {
@@ -30,28 +45,18 @@ describe('EvaluateContractPage', () => {
     expect(screen.getByRole('button', { name: /evaluate/i })).toBeDisabled();
   });
 
-  it('logs SubmitPayload to console on submit', async () => {
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+  it('calls /api/evaluate on submit', async () => {
     render(<EvaluateContractPage />);
 
     const file = new File(['content'], 'contract.txt', { type: 'text/plain' });
     await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
-
-    await userEvent.type(
-      screen.getByPlaceholderText(/instruction/i),
-      'Focus on IP clauses',
-    );
-
     await userEvent.click(screen.getByRole('button', { name: /evaluate/i }));
 
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        fileName: 'contract.txt',
-        fileType: '.txt',
-        instructions: 'Focus on IP clauses',
-      }),
-    );
-    consoleSpy.mockRestore();
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/evaluate', expect.objectContaining({
+        method: 'POST',
+      }));
+    });
   });
 
   it('does not clear instructions when file is removed', async () => {
@@ -85,7 +90,6 @@ describe('EvaluateContractPage', () => {
   });
 
   it('clears file and instructions after submit', async () => {
-    vi.spyOn(console, 'log').mockImplementation(() => {});
     render(<EvaluateContractPage />);
 
     const file = new File(['content'], 'contract.txt', { type: 'text/plain' });
@@ -97,9 +101,10 @@ describe('EvaluateContractPage', () => {
 
     await userEvent.click(screen.getByRole('button', { name: /evaluate/i }));
 
-    expect(screen.getByText(/drag.+drop/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/drag.+drop/i)).toBeInTheDocument();
+    });
     expect(screen.getByPlaceholderText(/instruction/i)).toHaveValue('');
     expect(screen.getByRole('button', { name: /evaluate/i })).toBeDisabled();
-    vi.restoreAllMocks();
   });
 });
