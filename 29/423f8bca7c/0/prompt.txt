@@ -119,3 +119,7 @@ Ok show me the new code.
 ---
 
 Ok it makes sense this is a presentational component now that has a router between empty and clauses.  The clauses is stateful to allow expansion.  Quick pass lets add an aria label and also is the div => ClauseCard using a list under the hood we want that for semantics.
+
+---
+
+clause sections number should be unique for a key.
