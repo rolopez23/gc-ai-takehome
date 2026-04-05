@@ -95,3 +95,7 @@ Way too many divs.  Can we update to more semantic html than div/span.  Like hea
 ---
 
 Hmm article may be overkill for a clause. It needs context of the entire area.
+
+---
+
+Lets have an no-clauses component that handles all the language for zero, also a more self contained compent clean up the classes too to have semantic meaning.
