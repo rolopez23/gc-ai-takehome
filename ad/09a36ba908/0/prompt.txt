@@ -199,3 +199,7 @@ Lets move into digesting.  I think first lets update the Agents.md to say if on 
 ---
 
 Lets also add a verification check on the simplify skill, make the verificaiton skill save a verification report and the simplify skill either needs to confirm that the plan does not exist or verify is checked and that there is a verificaton report.
+
+---
+
+Ok lets change teh location of reviews and verify lets have them located inside the docs directory for each feature branch.  ie contract-upload-ui should have a reviews and verifications sub folder that contain those relevant to them.  Update both the skills are are file structure.
