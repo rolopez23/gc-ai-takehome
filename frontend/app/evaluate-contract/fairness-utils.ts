@@ -5,7 +5,7 @@ interface FairnessDisplay {
   colorClass: string;
 }
 
-const COLORS = {
+export const COLORS = {
   fail: 'text-red-600 bg-red-50 border-red-200',
   warning: 'text-yellow-600 bg-yellow-50 border-yellow-200',
   pass: 'text-green-600 bg-green-50 border-green-200',

@@ -1,23 +1,23 @@
 import { describe, it, expect } from 'vitest';
-import { getFairnessDisplay, FAIRNESS_SECTION_ORDER } from '@/app/evaluate-contract/fairness-utils';
+import { getFairnessDisplay, FAIRNESS_SECTION_ORDER, COLORS } from '@/app/evaluate-contract/fairness-utils';
 
 describe('getFairnessDisplay', () => {
-  it('maps dealbreaker to Egregious with red styling', () => {
+  it('maps dealbreaker to Egregious with fail styling', () => {
     const display = getFairnessDisplay('dealbreaker');
     expect(display.label).toBe('Egregious');
-    expect(display.colorClass).toContain('text-red-600');
+    expect(display.colorClass).toBe(COLORS.fail);
   });
 
-  it('maps non-standard to Unfair with yellow styling', () => {
+  it('maps non-standard to Unfair with warning styling', () => {
     const display = getFairnessDisplay('non-standard');
     expect(display.label).toBe('Unfair');
-    expect(display.colorClass).toContain('text-yellow-600');
+    expect(display.colorClass).toBe(COLORS.warning);
   });
 
-  it('maps fair to Fair with green styling', () => {
+  it('maps fair to Fair with pass styling', () => {
     const display = getFairnessDisplay('fair');
     expect(display.label).toBe('Fair');
-    expect(display.colorClass).toContain('text-green-600');
+    expect(display.colorClass).toBe(COLORS.pass);
   });
 });
 
