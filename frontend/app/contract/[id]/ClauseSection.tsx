@@ -24,18 +24,8 @@ function NoClauses({ rating, label }: { rating: FairnessRating; label: string })
   );
 }
 
-interface ClauseSectionProps {
-  rating: FairnessRating;
-  clauses: EvalClause[];
-}
-
-export default function ClauseSection({ rating, clauses }: ClauseSectionProps) {
+function ExpandableClauses({ label, clauses }: { label: string; clauses: EvalClause[] }) {
   const [expanded, setExpanded] = useState(false);
-  const { label } = getFairnessDisplay(rating);
-
-  if (clauses.length === 0) {
-    return <NoClauses rating={rating} label={label} />;
-  }
 
   return (
     <section>
@@ -52,4 +42,19 @@ export default function ClauseSection({ rating, clauses }: ClauseSectionProps) {
       )}
     </section>
   );
+}
+
+interface ClauseSectionProps {
+  rating: FairnessRating;
+  clauses: EvalClause[];
+}
+
+export default function ClauseSection({ rating, clauses }: ClauseSectionProps) {
+  const { label } = getFairnessDisplay(rating);
+
+  if (clauses.length === 0) {
+    return <NoClauses rating={rating} label={label} />;
+  }
+
+  return <ExpandableClauses label={label} clauses={clauses} />;
 }
