@@ -1,0 +1,304 @@
+Ok I want to pick up my last session we working through the pieces here is where we left off can you resume and have me catch up on all the pieces I need to review.  Also make sure the plan /Users/robertlopez/repos/gc-ai-takehome/docs/mvp-contract-eval/plan.md is updated[Image #1]
+
+---
+
+I never verified or did a code walk through on all the steps.
+
+---
+
+Yes lets redo all the steps restarting for 9
+
+---
+
+Yes do code but not test files
+
+---
+
+code snippets please
+
+---
+
+We dropped other files types for very minimal mvp.
+
+---
+
+it is making the array fixed this would cause issues if I tried to do ALLOWED_EXTENSIONS.push later in the code
+
+---
+
+can we avoid the cast is there a cleaner way I don't love that.
+
+---
+
+This was for the earlier code
+
+---
+
+Also can we migrate our typing to zod schema's thoughts? They work great for mcp and we have the same structured data.
+
+---
+
+I like zod, I think the cleanliness is worth it.  Lets build the zod schemas and try to minimize type case.  I don't like the changes you made ealier.
+
+---
+
+It is a more schema based approach instead of a code based approach.
+
+---
+
+yes
+
+---
+
+I also changed the prompt.  I like the user facing langauge of fair, unfair, egregious.  I made the prompt scoring, fair, non-standard, dealbreaker.  I want the split because I worried the language in the prompt may bias the llm toward plain english versions of those terms and not the more legal definitions.
+
+---
+
+json schema scoring.  Lets have a mapping object when we build the frontend code.  I would note this in relevant later plans but I should know it as well.
+
+---
+
+Yes if you can verify alwasy do it!
+
+---
+
+I did 1 can you try the new key, I think the issue may have been the quotes
+
+---
+
+Lets change model to Claude Haiku 3
+
+---
+
+Let do a simple contract for test
+
+---
+
+This is just a prompt export all the meat of prompt is the actual text
+
+---
+
+Not the most useful to ask me based on the prompt.  I like the the sharing of zod into the schema, that means we are pulling n the actual code as text through a template string.
+
+---
+
+yes
+
+---
+
+two things one we missed the learning step again.  Also I want to scrape some data from the session.  Also I want to do some updates:
+
+1. Lets use the simple contract for testing. 
+2. Create a eval log file I want to track time_to_first_token on the response, as well as if every sample contract meets our fairness benchmark.  Can you add an eval rules link to Agents.md.  This is informal and directional until we build a full eval pipeline
+
+---
+
+Also I would say v the verify on the scripts required too many turns, I would analyze how you worked there.  Also we did not pay attention to each ai model and there constraints should have researched and documented more we wasted turns and money on testing to a bad model.
+
+---
+
+yes
+
+---
+
+That looks good can you make a quick table of waht you captured so I evaluate?
+
+---
+
+Ok I think there is a prompt mismatch thank you so much for doing this can you update our prompt to better match the state.
+
+---
+
+I think actually that contract is bad, I think the prompt is better lets make the terms of the contract better rather than changing the prompt
+
+---
+
+yes
+
+---
+
+No lets handle later.
+
+---
+
+commit then move on to api-route
+
+---
+
+.env is in .gitignore.
+
+---
+
+Always verify use the simple contract on haiku!
+
+---
+
+color is off on the code can you update so it looks more like my ide?  Then I can answer quicker
+
+---
+
+hmmm Is there a way we can make the code more readable.  it all makes sense, we get the body from a request.  we validate it is an object.  We need to fence strip the conent we get back before we run JSON.parse on it.  Then we return the data.  I do wonder how we can make the code more readible, it is functional but not the cleanest.
+
+---
+
+Yes, this was probably a miss on the simplify skill it is supposed to catch these issues.
+
+---
+
+show me the code!
+
+---
+
+max tokens should be a const.  Lets also make formatting the messags through a helper, event though it is minimal.  Also make const for the http codes.
+
+---
+
+show me the code
+
+---
+
+much cleaner.  Lets add this as a before after for simplify skill along with the why for all the changes.
+
+---
+
+It can be an example case!
+
+---
+
+yes! Thanks for doing this
+
+---
+
+Great remember to also logs how you can do things better too (if you are not, if you have those already great).  I would also say you keep asking if you should verify (always verify), and you did verification to late, it should be after tests before simplify.  Remember make it work, make it work well, make it beautiful that is our prime directive.
+
+---
+
+yes! I would also say add in the learnings, look at llm conversation history and ask is there any context the human could have given me that would make me get to the right answer faster and with less tokens.
+
+---
+
+make it so
+
+---
+
+Hmmm I think we should align the .env into the next app, a 500 is never expected
+
+---
+
+lets run /simplify again we did a frontend design not sure about true simplify
+
+---
+
+Is it those classes are not super readable can't we do betteR?
+
+---
+
+happy for A)
+
+---
+
+how is the aria on this component? Are we avoiding any aria noise?
+
+---
+
+Lets create a TODO list and have aria cleanup on it, this is an improvement roadmap
+
+---
+
+yes
+
+---
+
+make it so
+
+---
+
+We have a loading state that we set.  We then overide with a loading shimmer.  The error step is still not fully handled.  Any way to clean up the loading state? Can we use suspense, I want to try that sexy new pattern more my work codebase is old, whelp.
+
+---
+
+yes, I like that pattern, that makes sense that suspense is more for SSR
+
+---
+
+lets just undo too many turns.
+
+---
+
+We never completed understand uncheck it.  lets re-run it
+
+---
+
+we should be able to clean up.  We are handling isLoading twice, lets wrap the accessibility langauge into the Loading Shimmer iteself so we don't need two loading shimmers.
+
+---
+
+We clear out the file regardless of sucess or failure right now, so wed don't want it in the finally (that would work), it also makes sure that state is gone when we have the shimmer running which is before teh finally.  Happy submit is shimmer until resolution, unhappy we are not catching the error so it bubbles up to the nearest error boundary.
+
+---
+
+that the error would not be caught and we would bubble up
+
+---
+
+yes
+
+---
+
+I think we are missing pulling in aria context in general, not a blocker given MVP takehome but useful to note.
+
+---
+
+make it so!
+
+---
+
+WE can get an error that is response, ie not a contract.  We also don't want' to make the screen noisy, and have the error during loading.  We want a clean state mapping.
+
+---
+
+yes!
+
+---
+
+Nope! You did great. I love how you verified even thought the initial plan did not ask you to, great job tweaking context to make the right decision.
+
+---
+
+yes!
+
+---
+
+useMemo keeps the value stable across re-renders.  UseRef means that it does not trigger a re-render.
+
+---
+
+We don't need to anymore since we are using the router (for clear file).  We get the file teest, fetch evaluate, if we are not ok we thrown and erro.  same if the data does not conform (at two levels.  Otherwise we return the data
+
+---
+
+Well the url is not blocked right, now that is transitory, it could be a fetch error in the future but now if we went to a random id that is what we expect, also after page referesh
+
+---
+
+yes
+
+---
+
+This makes sure we only sent one request.  It is just a cancellation so no data to return
+
+---
+
+LGTM
+
+---
+
+Ok merge it to main and push up main
+
+---
+
+Yes fully reviewed lots of green above
+
+---
+
+Ok git clean up handle all the files and we commited the .env.  Please remove it from git history and uncommit.  I am already rotating the key.
