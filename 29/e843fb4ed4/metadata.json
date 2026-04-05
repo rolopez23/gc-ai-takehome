@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "29e843fb4ed4",
+  "strategy": "manual-commit",
+  "branch": "m3-backend-eval-pipeline",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "backend/models.py",
+    "backend/routers/contracts.py",
+    "backend/services/conversion.py",
+    "backend/services/evaluation.py",
+    "frontend/app/contract/[id]/page.tsx",
+    "frontend/app/evaluate-contract/types.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/29/e843fb4ed4/0/metadata.json",
+      "transcript": "/29/e843fb4ed4/0/full.jsonl",
+      "content_hash": "/29/e843fb4ed4/0/content_hash.txt",
+      "prompt": "/29/e843fb4ed4/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 2429,
+    "cache_creation_tokens": 328259,
+    "cache_read_tokens": 78460610,
+    "output_tokens": 155828,
+    "api_call_count": 392
+  }
+}
