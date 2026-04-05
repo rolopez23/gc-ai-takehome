@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "1a0380225e1f",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 6,
+  "files_touched": [
+    "frontend/app/evaluate-contract/fairness-utils.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/1a/0380225e1f/0/metadata.json",
+      "transcript": "/1a/0380225e1f/0/full.jsonl",
+      "content_hash": "/1a/0380225e1f/0/content_hash.txt",
+      "prompt": "/1a/0380225e1f/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 2741,
+    "cache_creation_tokens": 440963,
+    "cache_read_tokens": 23734531,
+    "output_tokens": 65241,
+    "api_call_count": 226
+  }
+}
