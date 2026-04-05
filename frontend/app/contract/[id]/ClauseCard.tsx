@@ -2,12 +2,12 @@ import type { EvalClause } from '../../evaluate-contract/types';
 
 export default function ClauseCard({ clause }: { clause: EvalClause }) {
   return (
-    <article className="rounded-lg border border-foreground/10 p-4">
+    <div className="rounded-lg border border-foreground/10 p-4">
       <h4 className="flex items-baseline gap-2">
         <span className="text-sm font-medium text-foreground/50">{clause.section_number}</span>
         <span className="font-semibold">{clause.clause_type}</span>
       </h4>
       <p className="mt-2 text-sm text-foreground/70">{clause.explanation}</p>
-    </article>
+    </div>
   );
 }
