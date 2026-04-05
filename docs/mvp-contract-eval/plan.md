@@ -10,7 +10,7 @@
 | [eval-prompt](steps/eval-prompt.md)                        | api-route                       | `f244be0`       |     ✅     |   ✅   |    ✅    |   ✅   |     ✅     |  ✅   |
 | [api-route](steps/api-route.md)                            | loading-shimmer, error-display  | `c018cdf`       |     ✅     |   ✅   |    ✅    |   ✅   |     ✅     |  ✅   |
 | [loading-shimmer](steps/loading-shimmer.md)                | success-navigation              | —               |     ✅     |   ✅   |    ✅    |   ✅   |     ✅     |  ✅   |
-| [error-display](steps/error-display.md)                    | —                               | —               |     ⬜     |   ➖   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
+| [error-display](steps/error-display.md)                    | —                               | —               |     ✅     |   ✅   |    ✅    |   ✅   |     ✅     |  ✅   |
 | [success-navigation](steps/success-navigation.md)          | cancel-on-unmount               | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
 | [cancel-on-unmount](steps/cancel-on-unmount.md)            | —                               | —               |     ⬜     |   ➖   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
 

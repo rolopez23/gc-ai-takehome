@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { FileDropZone } from './FileDropZone';
+import { EvalErrorSchema } from './types';
 
 async function evaluateContract(file: File, instructions: string) {
   const text = await file.text();
@@ -11,7 +12,9 @@ async function evaluateContract(file: File, instructions: string) {
     body: JSON.stringify({ text, instructions }),
   });
   if (!res.ok) throw new Error('evaluation failed');
-  return res.json();
+  const data = await res.json();
+  if (EvalErrorSchema.safeParse(data).success) throw new Error('eval error');
+  return data;
 }
 
 const HEIGHT = { '3.5': 'h-3.5', '4': 'h-4', '5': 'h-5', '8': 'h-8' } as const;
@@ -62,16 +65,18 @@ export default function EvaluateContractPage() {
   const [file, setFile] = useState<File | null>(null);
   const [instructions, setInstructions] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit() {
     if (!file) return;
+    setError(null);
     setIsLoading(true);
     try {
       await evaluateContract(file, instructions);
       setFile(null);
       setInstructions('');
     } catch {
-      // error-display step will handle this
+      setError('Something went wrong. Try again.');
     } finally {
       setIsLoading(false);
     }
@@ -105,6 +110,10 @@ export default function EvaluateContractPage() {
       >
         Evaluate Contract
       </button>
+
+      {error && !isLoading && (
+        <p className="text-sm text-red-500" role="alert">{error}</p>
+      )}
     </div>
   );
 }
