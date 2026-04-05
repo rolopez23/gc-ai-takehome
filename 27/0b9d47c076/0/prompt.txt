@@ -1,0 +1,121 @@
+Ok now time to begin m3.  First I want to move persistance to the backend.  Lets have the uploads go through the backend and have the backend just do an api request to anthropic.  I do want support for pdf / txt files / and doc / doc.x at this point I also want to fully define the schema for contracts kick off a /problem-spec session
+
+---
+
+Lets keep what we have for now.  Document the commit where we removed playbook so we can spy on it for history.  Create a new deprecation log.  We will likely bring back pieces but it is dead code and YAGNI says ignore it.
+
+---
+
+So how will we extract text?
+
+---
+
+It is a must have lawyers love word.  Lets think about it.  I would prefer to send full document to Anthropic on API calls.  Text extraction is a nice to have but we can lose information.  Lots of tradeoff here lets dig deeper.
+
+---
+
+Ok lets pull in and use the adr skill from agent-skills. Lets save everything as a pdf.  Keep references to the original blob and pdf-blob so we don't have to convert.  PDF will have no pdf blob.  Lets also keep the upload type so we can make the absence deterministic. Record this discussion as an adr with that new skil.  So option C will be used.
+
+---
+
+Lets move to 2.  I think polling is the best websockets is too heavy for this use case.
+
+---
+
+Lets also add a status to contract review.  Reading (for when libre-office is running), Evaluating (for when Anthropic is processing), Complete for when done.  This allows more user information.
+
+---
+
+lets add a failure message
+
+---
+
+Lets add Contract/list history page to our todo, it will be a fast follow.
+
+---
+
+On thing I want to talk about is could we get around the pdf conversion by just changing our model to OpenAI?
+
+---
+
+I think OpenAI does have some support read https://developers.openai.com/api/docs/guides/file-inputs, but we would lost fidelity as tables would be lost, contracts tend to be mostly plain text though.
+
+---
+
+Are you biased? You are an instance of Anthropic / Claude
+
+---
+
+yeah but it trades a deterministic process for non-deterministic most likely.  Speed matters now.  API provider is a tiny switch, my intuition is the fidelity loss is minimal but an option.
+
+---
+
+1. sounds great.  2. Lets first rewrite frontend schemas before migration. good cllout 3. Pefect.  3. By timeout is that request level or stopping polling, I would say we should keep polling for 10 minutes at max.  Yes! It is fine, to skip a status if we go right to a state.  6. Nuke it! 7. Lets keep it one of the fields.  I think we should add it to contract_review as review_instructions thoughts
+
+---
+
+No lets preserve teh data data with review_instructions lets keep sending and save.  Lets not lose functionality.  I think that was a misunderstanidnt on 7/8.
+
+---
+
+I think add a todo to tighten up file storage, it should be AWS / GCS in production most likely so will need to wire that up across envieronments.  PSQL blob storage is fine for dev anyways.
+
+---
+
+Anything else you want to ask me, I want to be very detailed on this one. So I will ask you any specification from me.  Inteview me more if you need to
+
+---
+
+lets keep contract/[contract_id] simple until we have multiple reviews, that is a future problem. For now each review is independant.  2. Lets keep it failed but have the messaged indicate, Claude successful not a contract to not lose information, open to other options his is a weak intuition, so please challenge me if you see it differently.  3. Background tasks is fine, add a todo.  Yes migrate to backend for .env for model / tokens / api_key.  5. Good call out! Create a failure in the contract.  Lets also update frontend limit is 10MB?  so it is unlikely but possible.
+
+---
+
+That works, lets document that well.
+
+---
+
+Great like the higher degree of specification.
+
+---
+
+Can we break it down futher and keep the steps verifiable?
+
+---
+
+Great can we parrelize at all?
+
+---
+
+Yes! What is the parrelization strategy do you want one claude orchestrating or should I run a second session?  Worktrees or clear file boundaries for avoiding stepping on each other's toes?
+
+---
+
+Yes make sure to do that. Human verification and learning can be batched but most be done.  Verification by llm should never be skilped.  I think also can we add more verifcation into the plan. A schema can be verified (db snapshot) system prompt maybe not.  File conversation can be veried.  Not sure on evaluation service.  Type migration can be verieid in that we want to make sure frontend still runs.
+
+---
+
+I love adding verification to the plan.  Lets update the plan and verify skills accodingly so you always do this also reference this link in both plan and verify and use the thoughts to improve the skills https://simonwillison.net/2025/Dec/18/code-proven-to-work/
+
+---
+
+great job, thanks for diving deep.  Lets build this thang.
+
+---
+
+are you doing independint verification? Just want to make sure you are not only verifying through tests
+
+---
+
+hmm 5 is only mocked why
+
+---
+
+should you install brew or through python
+
+---
+
+yes in prod it will be part of the docker image right?
+
+---
+
+no you can install and then also update make setup to make it easy to boot in the future

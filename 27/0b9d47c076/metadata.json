@@ -1,0 +1,34 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "270b9d47c076",
+  "strategy": "manual-commit",
+  "branch": "m3-backend-eval-pipeline",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "frontend/__tests__/cancel-on-unmount.test.tsx",
+    "frontend/__tests__/contract-results-page.test.tsx",
+    "frontend/__tests__/error-display.test.tsx",
+    "frontend/__tests__/evaluate-contract-page.test.tsx",
+    "frontend/__tests__/loading-shimmer.test.tsx",
+    "frontend/__tests__/success-navigation.test.tsx",
+    "frontend/app/contract/[id]/page.tsx",
+    "frontend/app/evaluate-contract/eval-result-context.tsx",
+    "frontend/app/evaluate-contract/page.tsx",
+    "frontend/app/layout.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/27/0b9d47c076/0/metadata.json",
+      "transcript": "/27/0b9d47c076/0/full.jsonl",
+      "content_hash": "/27/0b9d47c076/0/content_hash.txt",
+      "prompt": "/27/0b9d47c076/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 583,
+    "cache_creation_tokens": 239617,
+    "cache_read_tokens": 35323543,
+    "output_tokens": 121713,
+    "api_call_count": 237
+  }
+}

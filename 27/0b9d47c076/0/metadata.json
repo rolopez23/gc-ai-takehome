@@ -1,0 +1,46 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "270b9d47c076",
+  "session_id": "56f744d5-cb1d-417f-a2c9-fb761f958299",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-05T19:11:34.900115Z",
+  "branch": "m3-backend-eval-pipeline",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "frontend/__tests__/cancel-on-unmount.test.tsx",
+    "frontend/__tests__/contract-results-page.test.tsx",
+    "frontend/__tests__/error-display.test.tsx",
+    "frontend/__tests__/evaluate-contract-page.test.tsx",
+    "frontend/__tests__/loading-shimmer.test.tsx",
+    "frontend/__tests__/success-navigation.test.tsx",
+    "frontend/app/contract/[id]/page.tsx",
+    "frontend/app/evaluate-contract/eval-result-context.tsx",
+    "frontend/app/evaluate-contract/page.tsx",
+    "frontend/app/layout.tsx"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-6[1m]",
+  "turn_id": "ba99c1277dcd",
+  "token_usage": {
+    "input_tokens": 583,
+    "cache_creation_tokens": 239617,
+    "cache_read_tokens": 35323543,
+    "output_tokens": 121713,
+    "api_call_count": 237
+  },
+  "session_metrics": {
+    "turn_count": 26
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-05T19:11:34.025933Z",
+    "agent_lines": 401,
+    "agent_removed": 285,
+    "human_added": 15,
+    "human_modified": 67,
+    "human_removed": 0,
+    "total_committed": 483,
+    "total_lines_changed": 768,
+    "agent_percentage": 89.32291666666666,
+    "metric_version": 2
+  }
+}
