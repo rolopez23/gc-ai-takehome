@@ -74,6 +74,13 @@ describe('ClauseSection', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
+  it('renders warning placeholder for empty fair section', () => {
+    render(<ClauseSection rating="fair" clauses={[]} />);
+    expect(screen.getByText(/No fair clauses found/)).toBeInTheDocument();
+    expect(screen.getByText('⚠')).toBeInTheDocument();
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
   it('expanded section has scroll constraint', async () => {
     const user = userEvent.setup();
     render(<ClauseSection rating="dealbreaker" clauses={[TEST_CLAUSE]} />);
