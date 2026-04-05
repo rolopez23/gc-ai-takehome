@@ -12,7 +12,7 @@ const PAGE_CONTAINER = 'mx-auto max-w-2xl px-4 py-12';
 const BACK_LINK = 'mt-6 inline-block text-sm text-foreground/60 underline hover:text-foreground';
 
 function asSuccess(raw: ReturnType<ReturnType<typeof useEvalResult>['getResult']>): EvalSuccess | undefined {
-  return raw && raw.error === null ? raw : undefined;
+  return raw && raw.status === 'completed' ? raw : undefined;
 }
 
 function groupByFairness(clauses: EvalClause[]) {
@@ -40,10 +40,12 @@ function EvaluationResults({ result }: { result: EvalSuccess }) {
   return (
     <article className={PAGE_CONTAINER}>
       <h1 className="text-3xl font-bold tracking-tight">Evaluation complete</h1>
-      <div className="mt-4">
-        <ScoreBadge rating={result.overall_fairness} />
-      </div>
-      <p className="mt-3 text-foreground/60">{result.summary}</p>
+      {result.overall_fairness && (
+        <div className="mt-4">
+          <ScoreBadge rating={result.overall_fairness} />
+        </div>
+      )}
+      {result.summary && <p className="mt-3 text-foreground/60">{result.summary}</p>}
       <div className="mt-6 space-y-3">
         {FAIRNESS_SECTION_ORDER.map((rating) => (
           <ClauseSection key={rating} rating={rating} clauses={grouped[rating]} />

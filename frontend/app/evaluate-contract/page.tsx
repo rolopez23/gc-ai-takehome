@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FileDropZone } from './FileDropZone';
-import { EvalErrorSchema, EvalSuccessSchema, type EvalSuccess } from './types';
+import { ReviewFailedSchema, ReviewCompletedSchema, type EvalSuccess } from './types';
 import { useEvalResult } from './eval-result-context';
 
 async function evaluateContract(file: File, instructions: string, signal: AbortSignal): Promise<EvalSuccess> {
@@ -16,8 +16,8 @@ async function evaluateContract(file: File, instructions: string, signal: AbortS
   });
   if (!res.ok) throw new Error('evaluation failed');
   const data = await res.json();
-  if (EvalErrorSchema.safeParse(data).success) throw new Error('eval error');
-  const parsed = EvalSuccessSchema.safeParse(data);
+  if (ReviewFailedSchema.safeParse(data).success) throw new Error('eval error');
+  const parsed = ReviewCompletedSchema.safeParse(data);
   if (!parsed.success) throw new Error('unexpected response shape');
   return parsed.data;
 }

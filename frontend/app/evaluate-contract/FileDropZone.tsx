@@ -35,7 +35,7 @@ export function FileDropZone({ file, onFileChange }: FileDropZoneProps) {
     }
 
     if (!validateFileSize(incoming.size)) {
-      setError('File is too large. Maximum size is 5 MB.');
+      setError('File is too large. Maximum size is 10 MB.');
       return;
     }
 
