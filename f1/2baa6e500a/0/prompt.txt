@@ -111,3 +111,11 @@ hmm 5 is only mocked why
 ---
 
 should you install brew or through python
+
+---
+
+yes in prod it will be part of the docker image right?
+
+---
+
+no you can install and then also update make setup to make it easy to boot in the future
