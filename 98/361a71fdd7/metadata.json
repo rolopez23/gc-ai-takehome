@@ -1,0 +1,23 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "98361a71fdd7",
+  "strategy": "manual-commit",
+  "branch": "m3-backend-eval-pipeline",
+  "checkpoints_count": 3,
+  "files_touched": null,
+  "sessions": [
+    {
+      "metadata": "/98/361a71fdd7/0/metadata.json",
+      "transcript": "/98/361a71fdd7/0/full.jsonl",
+      "content_hash": "/98/361a71fdd7/0/content_hash.txt",
+      "prompt": "/98/361a71fdd7/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 734,
+    "cache_creation_tokens": 308166,
+    "cache_read_tokens": 69236360,
+    "output_tokens": 147363,
+    "api_call_count": 363
+  }
+}
