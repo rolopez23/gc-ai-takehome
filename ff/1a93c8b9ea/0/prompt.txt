@@ -163,3 +163,7 @@ do the tests still pass?
 ---
 
 yes
+
+---
+
+again lets remove teh class assertion tests either map it to a name or just drop.  Scroll cosontraint is making sure we have some scrolling set up
