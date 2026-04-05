@@ -47,11 +47,22 @@ describe('Loading shimmer', () => {
     expect(screen.getByRole('button', { name: /evaluate contract/i })).toBeDisabled();
   });
 
-  test('hides shimmer when response arrives', async () => {
+  test('keeps shimmer on success until navigation', async () => {
     await stageFileAndSubmit();
     expect(screen.getByTestId('loading-shimmer')).toBeInTheDocument();
 
     resolveFetch();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('loading-shimmer')).toBeInTheDocument();
+    });
+  });
+
+  test('hides shimmer on error', async () => {
+    await stageFileAndSubmit();
+    expect(screen.getByTestId('loading-shimmer')).toBeInTheDocument();
+
+    fetchResolver(new Response(JSON.stringify({ error: true, reason: 'fail' }), { status: 200 }));
 
     await waitFor(() => {
       expect(screen.queryByTestId('loading-shimmer')).not.toBeInTheDocument();

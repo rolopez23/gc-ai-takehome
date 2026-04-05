@@ -94,7 +94,6 @@ export default function EvaluateContractPage() {
     } catch (e) {
       if (e instanceof DOMException && e.name === 'AbortError') return;
       setError('Something went wrong. Try again.');
-    } finally {
       setIsLoading(false);
     }
   }
