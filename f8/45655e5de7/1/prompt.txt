@@ -79,3 +79,7 @@ still getting an error   File "/Library/Frameworks/Python.framework/Versions/3.1
     logger = logging.getLogger("uvicorn.error")
              ^^^^^^^
 NameError: name 'logging' is not defined. not this.
+
+---
+
+Ok greate lets ship! push up latest changes to this massive PR we are at MVP and can now start doing the fun stuff. Will be kicking off two claudes for frontend / api route.
