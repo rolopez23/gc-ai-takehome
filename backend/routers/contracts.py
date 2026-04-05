@@ -78,7 +78,7 @@ async def get_contract_review(contract_id: uuid.UUID, db: AsyncSession = Depends
         .options(selectinload(ContractReview.clauses))
         .where(ContractReview.contract_id == contract_id)
     )
-    review = result.scalar_one_or_none()
+    review = result.scalars().first()
     if not review:
         raise HTTPException(status_code=404, detail="Review not found")
     return review

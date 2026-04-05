@@ -91,6 +91,8 @@ async def _fail_review(review: ContractReview, message: str, db: AsyncSession):
 
 async def run_evaluation(review_id, contract: Contract, db: AsyncSession):
     review = await db.get(ContractReview, review_id)
+    if not review:
+        return
     review.status = "evaluating"
     await db.flush()
 
@@ -109,8 +111,12 @@ async def run_evaluation(review_id, contract: Contract, db: AsyncSession):
             await _fail_review(review, "Contract too large to evaluate", db)
             return
 
+        if not message.content:
+            await _fail_review(review, "Empty response from Claude", db)
+            return
+
         content = message.content[0]
-        if not content or content.type != "text":
+        if content.type != "text":
             await _fail_review(review, "Unexpected response type from Claude", db)
             return
 

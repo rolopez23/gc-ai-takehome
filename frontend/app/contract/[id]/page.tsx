@@ -7,7 +7,7 @@ import type { ReviewResponse, ReviewCompleted, ReviewClause, FairnessRating } fr
 import { ReviewResponseSchema } from '../../evaluate-contract/types';
 import { FAIRNESS_SECTION_ORDER } from '../../evaluate-contract/fairness-utils';
 import { LoadingShimmer } from '../../evaluate-contract/LoadingShimmer';
-import { BACKEND_URL, POLL_INTERVAL, STATUS_TEXT } from '../../evaluate-contract/constants';
+import { BACKEND_URL, POLL_INTERVAL, POLL_TIMEOUT, STATUS_TEXT } from '../../evaluate-contract/constants';
 import ScoreBadge from './ScoreBadge';
 import ClauseSection from './ClauseSection';
 
@@ -104,16 +104,18 @@ export default function ContractPage() {
   const { id } = useParams<{ id: string }>();
   const [review, setReview] = useState<ReviewResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [statusText, setStatusText] = useState('Preparing evaluation...');
 
   useEffect(() => {
     let cancelled = false;
     const controller = new AbortController();
+    const start = Date.now();
 
     async function fetchAndPoll() {
       try {
-        while (!cancelled) {
+        while (!cancelled && Date.now() - start < POLL_TIMEOUT) {
           const res = await fetch(`${BACKEND_URL}/api/contracts/${id}/review`, {
             signal: controller.signal,
           });
@@ -132,9 +134,14 @@ export default function ContractPage() {
           setStatusText(STATUS_TEXT[data.status] || 'Processing...');
           await new Promise((r) => setTimeout(r, POLL_INTERVAL));
         }
+        if (!cancelled) {
+          setError('Evaluation timed out — please try again');
+          setLoading(false);
+        }
       } catch (e) {
         if (!cancelled) {
-          setNotFound(true);
+          if (e instanceof DOMException && e.name === 'AbortError') return;
+          setError('Connection error — please check your network and try again');
           setLoading(false);
         }
       }
@@ -149,8 +156,9 @@ export default function ContractPage() {
 
   if (loading) return <LoadingState statusText={statusText} />;
   if (notFound) return <NoEvaluation />;
+  if (error) return <EvaluationFailed message={error} />;
   if (!review) return <NoEvaluation />;
-  if (review.status === 'failed') return <EvaluationFailed message={review.failure_message} />;
+  if (review.status === 'failed') return <EvaluationFailed message={review.failure_message || 'Evaluation failed'} />;
   if (review.status === 'completed') {
     if (review.overall_fairness) return <EvaluationResults result={review} />;
     return <NotAContract summary={review.summary} />;

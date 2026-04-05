@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import functools
 import os
 import subprocess
 import tempfile
@@ -27,6 +28,7 @@ def get_upload_type(filename: str) -> str:
     return ext_lower
 
 
+@functools.lru_cache
 def _find_libreoffice() -> str:
     """Find the LibreOffice binary, checking common paths."""
     for path in [
@@ -71,11 +73,15 @@ def process_upload(filename: str, file_bytes: bytes) -> ConversionResult:
     upload_type = get_upload_type(filename)
 
     if upload_type == "txt":
+        try:
+            text = file_bytes.decode("utf-8")
+        except UnicodeDecodeError:
+            raise ValueError("File is not valid UTF-8 text. Save the file as UTF-8 and try again.")
         return ConversionResult(
             upload_type="txt",
             original_blob=file_bytes,
             pdf_blob=None,
-            text=file_bytes.decode("utf-8"),
+            text=text,
         )
 
     pdf_blob: bytes | None = None
