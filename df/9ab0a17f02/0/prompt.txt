@@ -1,0 +1,109 @@
+Ok I want to specify out M2, I lot should be used. I want to use the eval-context to show the data.  Render A topline score, summary and then handle 3 sections egregious, unfair, fair.  Each should be collapsible and state the number of items.  Lets use the /problem-spec skill
+
+---
+
+I think we should have section number, clause_type and explanation.  Lets keep it out for now.
+
+---
+
+yes! Map to the user labels.  All can start collapsed for now.
+
+---
+
+If it is Egregious / Unfair Have a Celebratory Icon and say no x.  If the Fair is zero have a warning icon and say it is zero.  We want to acknowledge it thought.  Use a placeholder instead of the normal component (no collapsing)
+
+---
+
+Refresh issue will be fixed in M3, Zero fair clauses found means it is egregious, but it conveys more so I would keep.  I do look the scroll constraint limit each section to 1/2 of the page.  3. Label mapping as a util is great!
+
+---
+
+Lets have a link back to upload contract page.
+
+---
+
+/plan
+
+---
+
+Ok like lots of mini cycles.
+
+---
+
+Ok I want you to run independently as I sign off.  Some notes.  Make sure to handle all the steps.  Add an extra learn-from-mistakes on your behavior only before signing, moving to next cycle.  Make sure you are running simplify and review consistently and tracking the sections.  Do not mark human comprehension or verification.  I will handle those when I sign back on.  I am bypassing permissions, remember with great power comes great responsibility.  Any questions?
+
+---
+
+Is there a text file save for contract 1.5 the simple version
+
+---
+
+It is the simple test contract
+
+---
+
+Can you create a tiny 5 clause contract and save as contract_test for me to use
+
+---
+
+Right now I am getting a 400 when I try to hit evaluate endpoint[Image #1]
+
+---
+
+what is the path to the .env.local
+
+---
+
+Ok ran end to end some bugs, shimmer is not showing up, We flicker the original screen before returning to the page.  Some worries pieces were missed, since the E2E flow was not running well
+
+---
+
+Why don't you do an E2E with cypress ;)
+
+---
+
+Why don't you do an E2E with playwright ;)
+
+---
+
+Add to to the TODO list we are tracking
+
+---
+
+Ok you can mark verify complete/Users/robertlopez/repos/gc-ai-takehome/docs/eval-results-display/plan.md for that. Lets go through the understand and human signoff steps.
+
+---
+
+code execution also lets review test files
+
+---
+
+We should not be changing the array it is really a list of constants nd the order we do.  The display handles the label mapping, Can we make the classes better named, make then named fail, warning, pass and make to the actual data.
+
+---
+
+We would flicker the original page before navigating.  We only need to reshow page when we got an error otherwise we are going to a new page.
+
+---
+
+lets bull out that class to a readable name, maybe badgestyling.  This is a presentational component no state that displays the score badge for each section.
+
+---
+
+Way too many divs.  Can we update to more semantic html than div/span.  Like headings etc.
+
+---
+
+Hmm article may be overkill for a clause. It needs context of the entire area.
+
+---
+
+Lets have an no-clauses component that handles all the language for zero, also a more self contained compent clean up the classes too to have semantic meaning.
+
+---
+
+show me the new code
+
+---
+
+you did not show it just read it ;)
