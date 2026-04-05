@@ -55,6 +55,20 @@ For each correction found, ask:
 2. Why didn't it?
 3. Is this a one-off or a pattern?
 
+## Step 2b: Self-Reflection (Agent Mistakes)
+
+Before asking the human, review your own conversation history and log what YOU could have
+done better. Look for:
+
+- **Wasted turns** — retries, thrashing, wrong assumptions that burned tokens and time
+- **Questions you shouldn't have asked** — things you should have just done (e.g., "should I verify?")
+- **Missing context you should have requested upfront** — what could the human have told you
+  at the start that would have gotten you to the right answer faster and with fewer tokens?
+- **Wrong order of operations** — did you do things in a suboptimal sequence?
+
+For each, log it the same way as human corrections. The human makes mistakes too — but the
+agent should be getting smarter over time. Both sides learning is the goal.
+
 ## Step 3: Ask the Human Directly
 
 After mining the conversation, ask the human these specific questions — do not bundle them
@@ -64,6 +78,7 @@ into one vague question:
 2. "Did any automated step give you false confidence — passed when something was actually wrong?"
 3. "Was anything in the workflow unclear or out of order?"
 4. "Is there a rule you'd want me to follow every time that I didn't follow here?"
+5. "Is there any context you could have given me upfront that would have gotten us here faster?"
 
 Wait for responses before writing the log entries. Every answer is a candidate log entry.
 

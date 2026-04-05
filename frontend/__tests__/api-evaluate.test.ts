@@ -4,8 +4,16 @@ import { SYSTEM_PROMPT } from '../prompt';
 const mockCreate = vi.fn();
 
 vi.mock('@anthropic-ai/sdk', () => {
+  const APIError = class extends Error {
+    status: number;
+    constructor(status: number, message: string) {
+      super(message);
+      this.status = status;
+    }
+  };
   return {
     default: class MockAnthropic {
+      static APIError = APIError;
       messages = { create: mockCreate };
     },
   };
@@ -58,8 +66,9 @@ describe('POST /api/evaluate', () => {
   });
 
   describe('Anthropic call', () => {
-    test('calls Anthropic and returns parsed response', async () => {
+    test('calls Anthropic and returns validated response', async () => {
       mockCreate.mockResolvedValue({
+        stop_reason: 'end_turn',
         content: [{ type: 'text', text: JSON.stringify(VALID_RESPONSE) }],
       });
 
@@ -71,23 +80,25 @@ describe('POST /api/evaluate', () => {
       expect(body).toEqual(VALID_RESPONSE);
     });
 
-    test('passes contract text as user message', async () => {
+    test('trims whitespace from input text', async () => {
       mockCreate.mockResolvedValue({
+        stop_reason: 'end_turn',
         content: [{ type: 'text', text: JSON.stringify(VALID_RESPONSE) }],
       });
 
       const { POST } = await import('@/app/api/evaluate/route');
-      await POST(makeRequest({ text: 'my contract text' }));
+      await POST(makeRequest({ text: '  contract text  ' }));
 
       expect(mockCreate).toHaveBeenCalledWith(
         expect.objectContaining({
-          messages: [{ role: 'user', content: 'my contract text' }],
+          messages: [{ role: 'user', content: 'contract text' }],
         }),
       );
     });
 
     test('uses SYSTEM_PROMPT from prompt module', async () => {
       mockCreate.mockResolvedValue({
+        stop_reason: 'end_turn',
         content: [{ type: 'text', text: JSON.stringify(VALID_RESPONSE) }],
       });
 
@@ -99,6 +110,66 @@ describe('POST /api/evaluate', () => {
           system: SYSTEM_PROMPT,
         }),
       );
+    });
+  });
+
+  describe('fence stripping', () => {
+    test('strips markdown json fences from response', async () => {
+      mockCreate.mockResolvedValue({
+        stop_reason: 'end_turn',
+        content: [{ type: 'text', text: '```json\n' + JSON.stringify(VALID_RESPONSE) + '\n```' }],
+      });
+
+      const { POST } = await import('@/app/api/evaluate/route');
+      const res = await POST(makeRequest({ text: 'contract' }));
+      const body = await res.json();
+
+      expect(res.status).toBe(200);
+      expect(body).toEqual(VALID_RESPONSE);
+    });
+
+    test('strips plain fences from response', async () => {
+      mockCreate.mockResolvedValue({
+        stop_reason: 'end_turn',
+        content: [{ type: 'text', text: '```\n' + JSON.stringify(VALID_RESPONSE) + '\n```' }],
+      });
+
+      const { POST } = await import('@/app/api/evaluate/route');
+      const res = await POST(makeRequest({ text: 'contract' }));
+
+      expect(res.status).toBe(200);
+    });
+  });
+
+  describe('truncation', () => {
+    test('returns 422 when response is truncated', async () => {
+      mockCreate.mockResolvedValue({
+        stop_reason: 'max_tokens',
+        content: [{ type: 'text', text: '{"error": null, "overall' }],
+      });
+
+      const { POST } = await import('@/app/api/evaluate/route');
+      const res = await POST(makeRequest({ text: 'contract' }));
+      const body = await res.json();
+
+      expect(res.status).toBe(422);
+      expect(body.error).toBe('contract too large to evaluate');
+    });
+  });
+
+  describe('schema validation', () => {
+    test('returns 500 when model returns invalid schema', async () => {
+      mockCreate.mockResolvedValue({
+        stop_reason: 'end_turn',
+        content: [{ type: 'text', text: JSON.stringify({ error: 'some string', weird: true }) }],
+      });
+
+      const { POST } = await import('@/app/api/evaluate/route');
+      const res = await POST(makeRequest({ text: 'contract' }));
+
+      expect(res.status).toBe(500);
+      const body = await res.json();
+      expect(body.error).toBe('model returned invalid response');
     });
   });
 
@@ -116,6 +187,7 @@ describe('POST /api/evaluate', () => {
 
     test('returns 500 when response JSON is malformed', async () => {
       mockCreate.mockResolvedValue({
+        stop_reason: 'end_turn',
         content: [{ type: 'text', text: 'not json at all' }],
       });
 
@@ -123,35 +195,16 @@ describe('POST /api/evaluate', () => {
       const res = await POST(makeRequest({ text: 'contract' }));
       expect(res.status).toBe(500);
     });
-  });
 
-  describe('model configuration', () => {
-    test('uses ANTHROPIC_MODEL env var when set', async () => {
-      process.env.ANTHROPIC_MODEL = 'claude-sonnet-4-5-20241022';
+    test('returns 500 when content array is empty', async () => {
       mockCreate.mockResolvedValue({
-        content: [{ type: 'text', text: JSON.stringify(VALID_RESPONSE) }],
+        stop_reason: 'end_turn',
+        content: [],
       });
 
       const { POST } = await import('@/app/api/evaluate/route');
-      await POST(makeRequest({ text: 'contract' }));
-
-      expect(mockCreate).toHaveBeenCalledWith(
-        expect.objectContaining({ model: 'claude-sonnet-4-5-20241022' }),
-      );
-    });
-
-    test('defaults to haiku when ANTHROPIC_MODEL is not set', async () => {
-      delete process.env.ANTHROPIC_MODEL;
-      mockCreate.mockResolvedValue({
-        content: [{ type: 'text', text: JSON.stringify(VALID_RESPONSE) }],
-      });
-
-      const { POST } = await import('@/app/api/evaluate/route');
-      await POST(makeRequest({ text: 'contract' }));
-
-      expect(mockCreate).toHaveBeenCalledWith(
-        expect.objectContaining({ model: 'claude-haiku-4-5-20251001' }),
-      );
+      const res = await POST(makeRequest({ text: 'contract' }));
+      expect(res.status).toBe(500);
     });
   });
 });

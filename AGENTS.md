@@ -111,7 +111,11 @@ Rules added by `/learn-from-mistakes` when a pattern recurs 3+ times.
 
 ### Workflow: /learn-from-mistakes is mandatory after every sign-off
 
-After every Human sign-off, ALWAYS run /learn-from-mistakes before proceeding to the next step. This is a blocking requirement, not optional. The workflow order is: Auto Tests → Verify → Simplify → Review → Understand → Human → Learn-from-mistakes → next step. (Pattern `workflow-steps-skipped` — 3 occurrences as of 2026-04-04.)
+After every Human sign-off, ALWAYS run /learn-from-mistakes before proceeding to the next step. This is a blocking requirement, not optional. (Pattern `workflow-steps-skipped` — 3 occurrences as of 2026-04-04.)
+
+### Prime directive: make it work, make it work well, make it beautiful
+
+Verify always runs immediately after tests pass — never ask, never defer, never skip. The workflow order is: make it work (tests) → make it work well (verify) → make it beautiful (simplify → review → walkthrough → human → learn). (Pattern `verify-*` — 3 occurrences as of 2026-04-04.)
 
 <!-- learned-rules-end -->
 

@@ -127,3 +127,43 @@
 **What happened**: Used claude-haiku-4-5-20251001 without checking its max_tokens limit (8192 output), then switched to claude-3-haiku which caps at 4096 output tokens. Did not research model constraints before running verification, wasting turns and API spend on a model that couldn't produce full contract evaluations.
 **Where it surfaced**: Verify step
 **Pattern tag**: `model-constraints-not-researched`
+
+### 2026-04-04 · mvp-contract-eval/api-route
+
+**Category**: Skill gap
+**Error class**: Skill
+**What happened**: Simplify pass fixed correctness issues (fence stripping, Zod validation, truncation check) but missed readability: inline validation, magic numbers (400, 422, 500, 8192), repeated `NextResponse.json({ error }, { status })` pattern ×6, and handler doing too much. User had to drive extraction of `errorResponse()`, `parseRequestBody()`, `buildMessages()`, and named constants.
+**Where it surfaced**: PR walkthrough (human review)
+**Pattern tag**: `simplify-missed-readability`
+
+### 2026-04-04 · mvp-contract-eval/api-route
+
+**Category**: Human correction
+**Error class**: Context
+**What happened**: Asked user "want me to run verify?" and "skip straight to walkthrough?" multiple times across steps. User corrected: "Always verify! Use the simple contract on haiku!" Verify should never be optional — always run it when there is a verifiable surface.
+**Where it surfaced**: Human review
+**Pattern tag**: `verify-not-automatic`
+
+### 2026-04-04 · mvp-contract-eval/api-route
+
+**Category**: Human correction
+**Error class**: Context
+**What happened**: Verification was run after Simplify and Review, but it should run immediately after tests pass (make it work → verify it works → make it clean → make it beautiful). The workflow order in the plan says Verify before Simplify, but the agent kept deferring verification to later or asking if it should be skipped. Prime directive: make it work, make it work well, make it beautiful.
+**Where it surfaced**: Human review
+**Pattern tag**: `verify-out-of-order`
+
+### 2026-04-04 · mvp-contract-eval/api-route (self-reflection)
+
+**Category**: Skill gap
+**Error class**: Context
+**What happened**: Verification script thrashed through 5+ attempts due to ESM/CJS confusion, wrong import paths, env var quoting, and wrong working directory. Should have used a simple `node -e` from the `frontend/` dir with `require()` from the start, since the SDK is a CJS dependency installed there. Wasted ~10 turns and API spend.
+**Where it surfaced**: Self-review of conversation history
+**Pattern tag**: `verify-script-thrashing`
+
+### 2026-04-04 · mvp-contract-eval/api-route (self-reflection)
+
+**Category**: Bad assumption
+**Error class**: Context
+**What happened**: Asked "want me to run verify?" and "skip to walkthrough?" instead of just doing it. The workflow order is explicit — verify comes after tests, always. Asking permission for a mandatory step wastes a turn and signals uncertainty about the process.
+**Where it surfaced**: Self-review of conversation history
+**Pattern tag**: `asking-permission-for-mandatory-steps`
