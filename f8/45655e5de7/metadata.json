@@ -3,13 +3,19 @@
   "checkpoint_id": "f845655e5de7",
   "strategy": "manual-commit",
   "branch": "m3-backend-eval-pipeline",
-  "checkpoints_count": 4,
+  "checkpoints_count": 14,
   "files_touched": [
     "Process.md",
     "backend/Makefile",
     "backend/main.py",
+    "backend/services/evaluation.py",
+    "frontend/AGENTS.md",
     "frontend/app/contract/[id]/ClauseCard.tsx",
     "frontend/app/contract/[id]/ClauseSection.tsx",
+    "frontend/app/contract/[id]/ScoreBadge.tsx",
+    "frontend/app/contract/[id]/page.tsx",
+    "frontend/app/evaluate-contract/FileDropZone.tsx",
+    "frontend/app/evaluate-contract/fairness-utils.ts",
     "frontend/app/evaluate-contract/page.tsx"
   ],
   "sessions": [
@@ -18,13 +24,19 @@
       "transcript": "/f8/45655e5de7/0/full.jsonl",
       "content_hash": "/f8/45655e5de7/0/content_hash.txt",
       "prompt": "/f8/45655e5de7/0/prompt.txt"
+    },
+    {
+      "metadata": "/f8/45655e5de7/1/metadata.json",
+      "transcript": "/f8/45655e5de7/1/full.jsonl",
+      "content_hash": "/f8/45655e5de7/1/content_hash.txt",
+      "prompt": "/f8/45655e5de7/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 2631,
-    "cache_creation_tokens": 517769,
-    "cache_read_tokens": 107942486,
-    "output_tokens": 188175,
-    "api_call_count": 485
+    "input_tokens": 3499,
+    "cache_creation_tokens": 569834,
+    "cache_read_tokens": 110163254,
+    "output_tokens": 199286,
+    "api_call_count": 533
   }
 }
