@@ -80,4 +80,37 @@ describe('ContractPage', () => {
     render(<ContractPage />);
     expect(screen.getByText('No evaluation found')).toBeInTheDocument();
   });
+
+  it('renders three sections in order: Egregious, Unfair, Fair', async () => {
+    mockGetResult.mockReturnValue(SUCCESS_RESULT);
+    const { default: ContractPage } = await import('@/app/contract/[id]/page');
+    render(<ContractPage />);
+    const buttons = screen.getAllByRole('button');
+    expect(buttons[0]).toHaveTextContent(/Egregious/);
+    expect(buttons[1]).toHaveTextContent(/Unfair/);
+    expect(buttons[2]).toHaveTextContent(/Fair/);
+  });
+
+  it('shows correct clause count per section', async () => {
+    mockGetResult.mockReturnValue(SUCCESS_RESULT);
+    const { default: ContractPage } = await import('@/app/contract/[id]/page');
+    render(<ContractPage />);
+    const buttons = screen.getAllByRole('button');
+    expect(buttons[0]).toHaveTextContent('(1)');
+    expect(buttons[1]).toHaveTextContent('(1)');
+    expect(buttons[2]).toHaveTextContent('(1)');
+  });
+
+  it('shows placeholders for empty tiers', async () => {
+    const fairOnlyResult: EvalSuccess = {
+      ...SUCCESS_RESULT,
+      overall_fairness: 'fair',
+      clauses: [SUCCESS_RESULT.clauses[2]],
+    };
+    mockGetResult.mockReturnValue(fairOnlyResult);
+    const { default: ContractPage } = await import('@/app/contract/[id]/page');
+    render(<ContractPage />);
+    expect(screen.getByText(/No egregious clauses/)).toBeInTheDocument();
+    expect(screen.getByText(/No unfair clauses/)).toBeInTheDocument();
+  });
 });

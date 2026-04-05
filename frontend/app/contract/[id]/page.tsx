@@ -3,13 +3,27 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEvalResult } from '../../evaluate-contract/eval-result-context';
-import type { EvalSuccess } from '../../evaluate-contract/types';
+import { FAIRNESS_SECTION_ORDER } from '../../evaluate-contract/fairness-utils';
+import type { EvalSuccess, EvalClause, FairnessRating } from '../../evaluate-contract/types';
 import ScoreBadge from './ScoreBadge';
+import ClauseSection from './ClauseSection';
 
 const PAGE_CONTAINER = 'mx-auto max-w-2xl px-4 py-12';
 
 function asSuccess(raw: ReturnType<ReturnType<typeof useEvalResult>['getResult']>): EvalSuccess | undefined {
   return raw && raw.error === null ? raw : undefined;
+}
+
+function groupByFairness(clauses: EvalClause[]) {
+  const groups: Record<FairnessRating, EvalClause[]> = {
+    dealbreaker: [],
+    'non-standard': [],
+    fair: [],
+  };
+  for (const clause of clauses) {
+    groups[clause.fairness].push(clause);
+  }
+  return groups;
 }
 
 export default function ContractPage() {
@@ -26,6 +40,8 @@ export default function ContractPage() {
     );
   }
 
+  const grouped = groupByFairness(result.clauses);
+
   return (
     <div className={PAGE_CONTAINER}>
       <h1 className="text-3xl font-bold tracking-tight">Evaluation complete</h1>
@@ -33,6 +49,11 @@ export default function ContractPage() {
         <ScoreBadge rating={result.overall_fairness} />
       </div>
       <p className="mt-3 text-foreground/60">{result.summary}</p>
+      <div className="mt-6 space-y-3">
+        {FAIRNESS_SECTION_ORDER.map((rating) => (
+          <ClauseSection key={rating} rating={rating} clauses={grouped[rating]} />
+        ))}
+      </div>
       <Link href="/evaluate-contract" className="mt-6 inline-block text-sm text-foreground/60 underline hover:text-foreground">
         Evaluate another contract
       </Link>
