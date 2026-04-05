@@ -54,8 +54,3 @@ export type ReviewPolling = z.infer<typeof ReviewPollingSchema>;
 export type ReviewCompleted = z.infer<typeof ReviewCompletedSchema>;
 export type ReviewFailed = z.infer<typeof ReviewFailedSchema>;
 export type ReviewResponse = z.infer<typeof ReviewResponseSchema>;
-
-// Temporary aliases for backward compatibility (removed in steps 12/13)
-export type EvalSuccess = ReviewCompleted;
-export type EvalClause = ReviewClause;
-export type EvalResponse = ReviewResponse;

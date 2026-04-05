@@ -12,15 +12,14 @@ from sqlalchemy.orm import undefer
 from database import AsyncSessionLocal
 from models import Contract, ContractReview, ReviewClause
 from prompt import EvalErrorResponse, EvalSuccessResponse, build_system_prompt
-from services.conversion import process_upload
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001")
 ANTHROPIC_MAX_TOKENS = int(os.getenv("ANTHROPIC_MAX_TOKENS", "8192"))
+EVAL_TIMEOUT = 90
 
 
 def _strip_fences(text: str) -> str:
-    """Remove leading ```json and trailing ``` markdown fences."""
     stripped = text.strip()
     stripped = re.sub(r"^```json\s*", "", stripped)
     stripped = re.sub(r"```\s*$", "", stripped)
@@ -32,7 +31,6 @@ def build_messages(
     text: str | None = None,
     instructions: str | None = None,
 ) -> dict:
-    """Build the params dict for client.messages.create."""
     if pdf_blob is None and text is None:
         raise ValueError("Either pdf_blob or text must be provided")
 
@@ -52,9 +50,7 @@ def build_messages(
                         "source": {
                             "type": "base64",
                             "media_type": "application/pdf",
-                            "data": base64.standard_b64encode(pdf_blob).decode(
-                                "ascii"
-                            ),
+                            "data": base64.standard_b64encode(pdf_blob).decode("ascii"),
                         },
                     }
                 ],
@@ -67,21 +63,18 @@ def build_messages(
 
 
 def parse_response(raw_text: str) -> tuple[str, dict]:
-    """Parse Claude's raw text response into a typed result tuple."""
     cleaned = _strip_fences(raw_text)
     try:
         data = json.loads(cleaned)
     except (json.JSONDecodeError, ValueError) as e:
         return ("parse_error", {"message": str(e)})
 
-    # Try success schema first
     try:
         validated = EvalSuccessResponse.model_validate(data)
         return ("success", validated.model_dump())
     except Exception:
         pass
 
-    # Try error schema
     try:
         validated = EvalErrorResponse.model_validate(data)
         return ("not_a_contract", {"reason": validated.reason})
@@ -89,17 +82,19 @@ def parse_response(raw_text: str) -> tuple[str, dict]:
         return ("parse_error", {"message": str(e)})
 
 
-EVAL_TIMEOUT = 90  # seconds
+async def _fail_review(review: ContractReview, message: str, db: AsyncSession):
+    review.status = "failed"
+    review.failure_message = message
+    review.completed_at = datetime.now(UTC)
+    await db.commit()
 
 
 async def run_evaluation(review_id, contract: Contract, db: AsyncSession):
-    """Run evaluation: call Anthropic, parse, persist results."""
     review = await db.get(ContractReview, review_id)
     review.status = "evaluating"
     await db.flush()
 
     try:
-        # Eagerly load deferred blob columns to avoid sync-context greenlet errors
         await db.refresh(contract, attribute_names=["pdf_blob", "text"])
         params = build_messages(
             pdf_blob=contract.pdf_blob,
@@ -107,22 +102,16 @@ async def run_evaluation(review_id, contract: Contract, db: AsyncSession):
             instructions=review.review_instructions,
         )
 
-        client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-        message = client.messages.create(**params, timeout=EVAL_TIMEOUT)
+        client = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+        message = await client.messages.create(**params, timeout=EVAL_TIMEOUT)
 
         if message.stop_reason == "max_tokens":
-            review.status = "failed"
-            review.failure_message = "Contract too large to evaluate"
-            review.completed_at = datetime.now(UTC)
-            await db.commit()
+            await _fail_review(review, "Contract too large to evaluate", db)
             return
 
         content = message.content[0]
         if not content or content.type != "text":
-            review.status = "failed"
-            review.failure_message = "Unexpected response type from Claude"
-            review.completed_at = datetime.now(UTC)
-            await db.commit()
+            await _fail_review(review, "Unexpected response type from Claude", db)
             return
 
         kind, data = parse_response(content.text)
@@ -134,7 +123,7 @@ async def run_evaluation(review_id, contract: Contract, db: AsyncSession):
             review.call_to_action = data["call_to_action"]
             review.completed_at = datetime.now(UTC)
             for clause_data in data["clauses"]:
-                clause = ReviewClause(
+                db.add(ReviewClause(
                     review_id=review_id,
                     section_number=clause_data["section_number"],
                     clause_type=clause_data["clause_type"],
@@ -142,8 +131,7 @@ async def run_evaluation(review_id, contract: Contract, db: AsyncSession):
                     fairness=clause_data["fairness"],
                     market_standard=clause_data["market_standard"],
                     explanation=clause_data["explanation"],
-                )
-                db.add(clause)
+                ))
             await db.commit()
             return
 
@@ -155,59 +143,34 @@ async def run_evaluation(review_id, contract: Contract, db: AsyncSession):
             await db.commit()
             return
 
-        # parse_error
-        review.status = "failed"
-        review.failure_message = f"Invalid response from Claude: {data['message']}"
-        review.completed_at = datetime.now(UTC)
-        await db.commit()
+        await _fail_review(review, f"Invalid response from Claude: {data['message']}", db)
 
     except anthropic.APITimeoutError:
-        review.status = "failed"
-        review.failure_message = "Evaluation timed out (90s)"
-        review.completed_at = datetime.now(UTC)
-        await db.commit()
+        await _fail_review(review, "Evaluation timed out (90s)", db)
     except anthropic.APIError as e:
-        review.status = "failed"
-        review.failure_message = f"Anthropic API error: {e}"
-        review.completed_at = datetime.now(UTC)
-        await db.commit()
+        await _fail_review(review, f"Anthropic API error: {e}", db)
     except Exception as e:
-        review.status = "failed"
-        review.failure_message = f"Evaluation failed: {e}"
-        review.completed_at = datetime.now(UTC)
-        await db.commit()
+        await _fail_review(review, f"Evaluation failed: {e}", db)
 
 
 async def evaluate_contract_task(review_id: uuid.UUID, contract_id: uuid.UUID):
-    """Background task: convert file if needed, then evaluate."""
+    """Background task: set status, then evaluate. Conversion already done at upload."""
     async with AsyncSessionLocal() as db:
         try:
+            # Only load blobs needed for evaluation (pdf_blob for PDF/DOC/DOCX, text for TXT)
             contract = await db.get(
                 Contract,
                 contract_id,
-                options=[undefer(Contract.original_blob), undefer(Contract.pdf_blob)],
+                options=[undefer(Contract.pdf_blob)],
             )
             review = await db.get(ContractReview, review_id)
 
             if not contract or not review:
                 return
 
-            # For DOC/DOCX: convert and update blobs
-            if contract.upload_type in ("doc", "docx"):
-                review.status = "reading"
-                await db.flush()
-
-                result = process_upload(contract.name, contract.original_blob)
-                contract.pdf_blob = result.pdf_blob
-                await db.flush()
-
-            # Run evaluation (sets evaluating -> completed/failed)
             await run_evaluation(review.id, contract, db)
 
         except Exception as e:
             review = await db.get(ContractReview, review_id)
             if review and review.status != "failed":
-                review.status = "failed"
-                review.failure_message = f"Pipeline error: {e}"
-                review.completed_at = datetime.now(UTC)
-                await db.commit()
+                await _fail_review(review, f"Pipeline error: {e}", db)

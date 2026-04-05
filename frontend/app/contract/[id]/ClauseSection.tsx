@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { FairnessRating, EvalClause } from '../../evaluate-contract/types';
+import type { FairnessRating, ReviewClause } from '../../evaluate-contract/types';
 import { getFairnessDisplay } from '../../evaluate-contract/fairness-utils';
 import ClauseCard from './ClauseCard';
 
@@ -24,7 +24,7 @@ function NoClauses({ rating, label }: { rating: FairnessRating; label: string })
   );
 }
 
-function ExpandableClauses({ label, clauses }: { label: string; clauses: EvalClause[] }) {
+function ExpandableClauses({ label, clauses }: { label: string; clauses: ReviewClause[] }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -53,7 +53,7 @@ function ExpandableClauses({ label, clauses }: { label: string; clauses: EvalCla
 
 interface ClauseSectionProps {
   rating: FairnessRating;
-  clauses: EvalClause[];
+  clauses: ReviewClause[];
 }
 
 export default function ClauseSection({ rating, clauses }: ClauseSectionProps) {

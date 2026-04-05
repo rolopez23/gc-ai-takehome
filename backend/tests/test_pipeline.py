@@ -2,7 +2,7 @@ import json
 
 import pytest
 from httpx import AsyncClient
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 
 def _mock_anthropic_success():
@@ -35,9 +35,9 @@ def _mock_anthropic_success():
 async def test_upload_triggers_evaluation(client: AsyncClient):
     """POST a .txt file with mocked Anthropic. Background task runs synchronously
     in the test client, so GET should see completed status immediately."""
-    with patch("services.evaluation.anthropic.Anthropic") as MockClient:
+    with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
         mock_instance = MockClient.return_value
-        mock_instance.messages.create.return_value = _mock_anthropic_success()
+        mock_instance.messages.create = AsyncMock(return_value=_mock_anthropic_success())
 
         resp = await client.post(
             "/api/contracts/upload",
@@ -57,9 +57,9 @@ async def test_upload_triggers_evaluation(client: AsyncClient):
 async def test_upload_and_poll_completed(client: AsyncClient):
     """POST .txt, then GET review. Assert final status is completed with
     overall_fairness and clauses populated."""
-    with patch("services.evaluation.anthropic.Anthropic") as MockClient:
+    with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
         mock_instance = MockClient.return_value
-        mock_instance.messages.create.return_value = _mock_anthropic_success()
+        mock_instance.messages.create = AsyncMock(return_value=_mock_anthropic_success())
 
         resp = await client.post(
             "/api/contracts/upload",
@@ -83,30 +83,13 @@ async def test_upload_and_poll_completed(client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_pipeline_conversion_error(client: AsyncClient):
-    """POST a .docx where process_upload raises ValueError during the background
-    task conversion step. The review should end up failed with a failure_message."""
-    from services.conversion import ConversionResult
-
-    # The router calls process_upload on upload; let that succeed with a docx result.
-    # The background task re-calls process_upload for doc/docx conversion; make that fail.
-    router_result = ConversionResult(
-        upload_type="docx",
-        original_blob=b"fake docx bytes",
-        pdf_blob=None,
-        text=None,
-    )
-
-    with patch("routers.contracts.process_upload", return_value=router_result), \
-         patch("services.evaluation.process_upload", side_effect=ValueError("corrupt file")):
+async def test_upload_conversion_error_returns_400(client: AsyncClient):
+    """POST a .docx where process_upload raises ValueError at upload time.
+    Conversion now happens at upload, not in background task."""
+    with patch("routers.contracts.process_upload", side_effect=ValueError("corrupt file")):
         resp = await client.post(
             "/api/contracts/upload",
             files={"file": ("test.docx", b"fake docx bytes", "application/vnd.openxmlformats-officedocument.wordprocessingml.document")},
         )
-        assert resp.status_code == 201
-        review_id = resp.json()["review_id"]
-
-        review_resp = await client.get(f"/api/reviews/{review_id}")
-        data = review_resp.json()
-        assert data["status"] == "failed"
-        assert "corrupt file" in data["failure_message"]
+        assert resp.status_code == 400
+        assert "corrupt file" in resp.json()["detail"]

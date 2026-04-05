@@ -4,9 +4,9 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import ClauseCard from '@/app/contract/[id]/ClauseCard';
 import ClauseSection from '@/app/contract/[id]/ClauseSection';
-import type { EvalClause } from '@/app/evaluate-contract/types';
+import type { ReviewClause } from '@/app/evaluate-contract/types';
 
-const TEST_CLAUSE: EvalClause = {
+const TEST_CLAUSE: ReviewClause = {
   section_number: '3.1',
   clause_type: 'Liability Cap',
   purpose: 'Limits financial exposure',
@@ -15,7 +15,7 @@ const TEST_CLAUSE: EvalClause = {
   explanation: 'Unlimited liability is unacceptable',
 };
 
-const TEST_CLAUSE_2: EvalClause = {
+const TEST_CLAUSE_2: ReviewClause = {
   section_number: '5.2',
   clause_type: 'Payment Terms',
   purpose: 'Defines payment schedule',

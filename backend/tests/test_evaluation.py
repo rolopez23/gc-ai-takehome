@@ -98,7 +98,7 @@ import anthropic
 import httpx
 import pytest_asyncio
 from datetime import UTC, datetime
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -192,9 +192,9 @@ def _mock_garbage_response():
 async def test_run_eval_success(db):
     contract, review = await _create_contract_and_review(db)
 
-    with patch("services.evaluation.anthropic.Anthropic") as MockClient:
+    with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
         mock_instance = MockClient.return_value
-        mock_instance.messages.create.return_value = _mock_success_response()
+        mock_instance.messages.create = AsyncMock(return_value=_mock_success_response())
         await run_evaluation(review.id, contract, db)
 
     await db.refresh(review)
@@ -215,9 +215,9 @@ async def test_run_eval_success(db):
 async def test_run_eval_not_a_contract(db):
     contract, review = await _create_contract_and_review(db)
 
-    with patch("services.evaluation.anthropic.Anthropic") as MockClient:
+    with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
         mock_instance = MockClient.return_value
-        mock_instance.messages.create.return_value = _mock_not_a_contract_response()
+        mock_instance.messages.create = AsyncMock(return_value=_mock_not_a_contract_response())
         await run_evaluation(review.id, contract, db)
 
     await db.refresh(review)
@@ -236,13 +236,13 @@ async def test_run_eval_not_a_contract(db):
 async def test_run_eval_api_error(db):
     contract, review = await _create_contract_and_review(db)
 
-    with patch("services.evaluation.anthropic.Anthropic") as MockClient:
+    with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
         mock_instance = MockClient.return_value
-        mock_instance.messages.create.side_effect = anthropic.APIError(
+        mock_instance.messages.create = AsyncMock(side_effect=anthropic.APIError(
             message="test error",
             request=httpx.Request("POST", "https://api.anthropic.com"),
             body=None,
-        )
+        ))
         await run_evaluation(review.id, contract, db)
 
     await db.refresh(review)
@@ -255,11 +255,11 @@ async def test_run_eval_api_error(db):
 async def test_run_eval_timeout(db):
     contract, review = await _create_contract_and_review(db)
 
-    with patch("services.evaluation.anthropic.Anthropic") as MockClient:
+    with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
         mock_instance = MockClient.return_value
-        mock_instance.messages.create.side_effect = anthropic.APITimeoutError(
+        mock_instance.messages.create = AsyncMock(side_effect=anthropic.APITimeoutError(
             request=httpx.Request("POST", "https://api.anthropic.com"),
-        )
+        ))
         await run_evaluation(review.id, contract, db)
 
     await db.refresh(review)
@@ -271,9 +271,9 @@ async def test_run_eval_timeout(db):
 async def test_run_eval_max_tokens(db):
     contract, review = await _create_contract_and_review(db)
 
-    with patch("services.evaluation.anthropic.Anthropic") as MockClient:
+    with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
         mock_instance = MockClient.return_value
-        mock_instance.messages.create.return_value = _mock_max_tokens_response()
+        mock_instance.messages.create = AsyncMock(return_value=_mock_max_tokens_response())
         await run_evaluation(review.id, contract, db)
 
     await db.refresh(review)
@@ -285,9 +285,9 @@ async def test_run_eval_max_tokens(db):
 async def test_run_eval_parse_failure(db):
     contract, review = await _create_contract_and_review(db)
 
-    with patch("services.evaluation.anthropic.Anthropic") as MockClient:
+    with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
         mock_instance = MockClient.return_value
-        mock_instance.messages.create.return_value = _mock_garbage_response()
+        mock_instance.messages.create = AsyncMock(return_value=_mock_garbage_response())
         await run_evaluation(review.id, contract, db)
 
     await db.refresh(review)

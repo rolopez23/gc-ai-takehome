@@ -1,6 +1,6 @@
-import type { EvalClause } from '../../evaluate-contract/types';
+import type { ReviewClause } from '../../evaluate-contract/types';
 
-export default function ClauseCard({ clause }: { clause: EvalClause }) {
+export default function ClauseCard({ clause }: { clause: ReviewClause }) {
   return (
     <div className="rounded-lg border border-foreground/10 p-4">
       <h4 className="flex items-baseline gap-2">
