@@ -6,18 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
 from models import Contract
-from schemas import ContractCreate, ContractDetailOut, ContractOut
+from schemas import ContractDetailOut, ContractOut
 
 router = APIRouter(prefix="/contracts", tags=["contracts"])
-
-
-@router.post("/", response_model=ContractOut, status_code=201)
-async def create_contract(payload: ContractCreate, db: AsyncSession = Depends(get_db)):
-    contract = Contract(**payload.model_dump())
-    db.add(contract)
-    await db.commit()
-    await db.refresh(contract)
-    return contract
 
 
 @router.get("/", response_model=list[ContractOut])

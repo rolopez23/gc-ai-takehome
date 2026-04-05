@@ -4,14 +4,10 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 
-# --- Contract ---
-
-class ContractCreate(BaseModel):
-    name: str
-    vendor: str | None = None
-    customer: str | None = None
-    agreement_type: str | None = None
-    text: str
+class UploadResponse(BaseModel):
+    contract_id: uuid.UUID
+    review_id: uuid.UUID
+    status: str
 
 
 class ContractOut(BaseModel):
@@ -19,47 +15,40 @@ class ContractOut(BaseModel):
 
     id: uuid.UUID
     name: str
-    vendor: str | None
-    customer: str | None
-    agreement_type: str | None
+    upload_type: str
     created_at: datetime
 
 
 class ContractDetailOut(ContractOut):
-    text: str
+    text: str | None
 
 
-# --- Review Result ---
-
-class ReviewResultOut(BaseModel):
+class ClauseOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
-    check_number: int
-    check_name: str
-    importance: str
-    status: str
-    severity: int | None
-    contract_language: str | None
-    playbook_position: str
-    finding: str
-    recommended_redline: str | None
+    section_number: str
+    clause_type: str
+    purpose: str
+    fairness: str
+    market_standard: str
+    explanation: str
 
 
-# --- Contract Review ---
-
-class ContractReviewOut(BaseModel):
+class ReviewOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
     contract_id: uuid.UUID
     status: str
+    review_instructions: str | None
+    overall_fairness: str | None
     summary: str | None
-    meta: dict | None
-    priority_issues: list | None
+    call_to_action: list | None
+    failure_message: str | None
     created_at: datetime
     completed_at: datetime | None
 
 
-class ContractReviewDetailOut(ContractReviewOut):
-    results: list[ReviewResultOut]
+class ReviewDetailOut(ReviewOut):
+    clauses: list[ClauseOut]

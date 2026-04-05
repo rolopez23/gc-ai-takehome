@@ -7,12 +7,12 @@ from sqlalchemy.orm import selectinload
 
 from database import get_db
 from models import Contract, ContractReview
-from schemas import ContractReviewDetailOut, ContractReviewOut
+from schemas import ReviewDetailOut, ReviewOut
 
 router = APIRouter(prefix="/reviews", tags=["reviews"])
 
 
-@router.post("/contracts/{contract_id}/review", response_model=ContractReviewOut, status_code=201)
+@router.post("/contracts/{contract_id}/review", response_model=ReviewOut, status_code=201)
 async def create_review(contract_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     contract = await db.get(Contract, contract_id)
     if not contract:
@@ -25,11 +25,11 @@ async def create_review(contract_id: uuid.UUID, db: AsyncSession = Depends(get_d
     return review
 
 
-@router.get("/{review_id}", response_model=ContractReviewDetailOut)
+@router.get("/{review_id}", response_model=ReviewDetailOut)
 async def get_review(review_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
         select(ContractReview)
-        .options(selectinload(ContractReview.results))
+        .options(selectinload(ContractReview.clauses))
         .where(ContractReview.id == review_id)
     )
     review = result.scalar_one_or_none()
@@ -38,7 +38,7 @@ async def get_review(review_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     return review
 
 
-@router.get("/contracts/{contract_id}/reviews", response_model=list[ContractReviewOut])
+@router.get("/contracts/{contract_id}/reviews", response_model=list[ReviewOut])
 async def list_reviews_for_contract(contract_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
         select(ContractReview)
