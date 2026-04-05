@@ -88,6 +88,14 @@
 **Where it surfaced**: PR walkthrough (human review)
 **Pattern tag**: `unnecessary-type-cast`
 
+### 2026-04-04 · eval-results-display/topline-score
+
+**Category**: Skill gap
+**Error class**: Skill
+**What happened**: Inherited `as EvalSuccess | undefined` cast from M1 stub was not flagged during initial page read. The cast silently skipped the `EvalError` variant, meaning error responses would render broken UI instead of the fallback. Correctness review caught it, but I should have noticed it when first reading the file — this is the same `as` cast anti-pattern flagged twice before.
+**Where it surfaced**: Review step (correctness reviewer)
+**Pattern tag**: `unnecessary-type-cast`
+
 ### 2026-04-04 · mvp-contract-eval/eval-schema
 
 **Category**: Human correction
