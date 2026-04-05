@@ -2,13 +2,17 @@ import base64
 import json
 import os
 import re
+import uuid
 from datetime import UTC, datetime
 
 import anthropic
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import undefer
 
+from database import AsyncSessionLocal
 from models import Contract, ContractReview, ReviewClause
 from prompt import EvalErrorResponse, EvalSuccessResponse, build_system_prompt
+from services.conversion import process_upload
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001")
@@ -172,3 +176,38 @@ async def run_evaluation(review_id, contract: Contract, db: AsyncSession):
         review.failure_message = f"Evaluation failed: {e}"
         review.completed_at = datetime.now(UTC)
         await db.commit()
+
+
+async def evaluate_contract_task(review_id: uuid.UUID, contract_id: uuid.UUID):
+    """Background task: convert file if needed, then evaluate."""
+    async with AsyncSessionLocal() as db:
+        try:
+            contract = await db.get(
+                Contract,
+                contract_id,
+                options=[undefer(Contract.original_blob), undefer(Contract.pdf_blob)],
+            )
+            review = await db.get(ContractReview, review_id)
+
+            if not contract or not review:
+                return
+
+            # For DOC/DOCX: convert and update blobs
+            if contract.upload_type in ("doc", "docx"):
+                review.status = "reading"
+                await db.flush()
+
+                result = process_upload(contract.name, contract.original_blob)
+                contract.pdf_blob = result.pdf_blob
+                await db.flush()
+
+            # Run evaluation (sets evaluating -> completed/failed)
+            await run_evaluation(review.id, contract, db)
+
+        except Exception as e:
+            review = await db.get(ContractReview, review_id)
+            if review and review.status != "failed":
+                review.status = "failed"
+                review.failure_message = f"Pipeline error: {e}"
+                review.completed_at = datetime.now(UTC)
+                await db.commit()
