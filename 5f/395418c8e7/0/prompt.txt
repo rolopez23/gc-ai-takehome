@@ -170,3 +170,7 @@ yes! Thanks for doing this
 ---
 
 Great remember to also logs how you can do things better too (if you are not, if you have those already great).  I would also say you keep asking if you should verify (always verify), and you did verification to late, it should be after tests before simplify.  Remember make it work, make it work well, make it beautiful that is our prime directive.
+
+---
+
+yes! I would also say add in the learnings, look at llm conversation history and ask is there any context the human could have given me that would make me get to the right answer faster and with less tokens.
