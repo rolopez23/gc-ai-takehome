@@ -51,3 +51,7 @@ Right now I am getting a 400 when I try to hit evaluate endpoint[Image #1]
 ---
 
 what is the path to the .env.local
+
+---
+
+Ok ran end to end some bugs, shimmer is not showing up, We flicker the original screen before returning to the page.  Some worries pieces were missed, since the E2E flow was not running well
