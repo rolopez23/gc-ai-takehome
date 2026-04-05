@@ -20,6 +20,13 @@ are removing everything that doesn't need to be there.
 
 This skill can never touch tests. You can only refactor code covered by the tests.
 
+## Sub-Skills
+
+If the diff touches React components (`.tsx` files that export JSX), also run the frontend
+cleanup sub-skill after the main simplify pass:
+- [`sub-skills/frontend-cleanup.md`](sub-skills/frontend-cleanup.md) — component extraction,
+  semantic HTML, accessibility, readable class names, data transformations, style constants
+
 ## Get the Diff
 
 ```bash

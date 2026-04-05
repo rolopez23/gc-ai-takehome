@@ -223,3 +223,43 @@
 **What happened**: No automated step considered ARIA/accessibility patterns. The review caught the live region mounting issue but only because the adversarial reviewer was casting a wide net. Simplify, standard review, and edge-case hunter all ignored accessibility. User noted this as a general gap — not a blocker for MVP but should be part of the review checklist.
 **Where it surfaced**: Human review
 **Pattern tag**: `accessibility-not-reviewed`
+
+### 2026-04-05 · eval-results-display/all-steps (post-human)
+
+**Category**: Skill gap
+**Error class**: Skill
+**What happened**: Simplify pass said "code is clean" on all three steps, but the human walkthrough drove 9 significant refactors: NoClauses extraction, ExpandableClauses (state-down), NoEvaluation/EvaluationResults extraction, semantic HTML (h4, section, article, ul/li), named class constants (BADGE_STYLING, SECTION_BORDER, etc.), semantic COLORS (fail/warning/pass), reduce instead of for-loop, aria-label/aria-expanded, and less brittle test assertions. The simplify skill has no frontend-specific checklist.
+**Where it surfaced**: PR walkthrough (human review)
+**Pattern tag**: `simplify-missed-frontend-cleanup`
+
+### 2026-04-05 · eval-results-display/all-steps (post-human)
+
+**Category**: Skill gap
+**Error class**: Skill
+**What happened**: Tests asserted on raw Tailwind class names (e.g., `toContain('text-red-600')`). Human flagged as brittle — should test against semantic constant names (`COLORS.fail`) or roles (`getByRole('list')`), not implementation details. Neither review nor simplify caught this.
+**Where it surfaced**: PR walkthrough (human review)
+**Pattern tag**: `brittle-style-assertions`
+
+### 2026-04-05 · eval-results-display/all-steps (post-human)
+
+**Category**: Human correction
+**Error class**: Context
+**What happened**: All M2 feature commits (20+) went directly to main instead of a feature branch. User had to point this out. AGENTS.md had main branch push protection but no rule requiring a feature branch before writing code.
+**Where it surfaced**: Human review
+**Pattern tag**: `committed-to-main`
+
+### 2026-04-05 · eval-results-display/all-steps (post-human)
+
+**Category**: Skill gap
+**Error class**: Context
+**What happened**: Verification was skipped on steps 2 and 3 despite both having browser-verifiable surfaces. The shimmer flicker bug was found by the user during manual E2E, not by the agent. AGENTS.md already had a rule that verify always runs after tests, but the "run independently" instruction was interpreted as license to skip it.
+**Where it surfaced**: Human review
+**Pattern tag**: `verify-not-automatic`
+
+### 2026-04-05 · eval-results-display/all-steps (post-human)
+
+**Category**: Skill gap
+**Error class**: Skill
+**What happened**: Missing aria-label on section elements, missing aria-expanded on toggle buttons, div-based clause list instead of ul/li. Neither simplify nor review flagged accessibility gaps. This is the second time accessibility has been missed across features.
+**Where it surfaced**: PR walkthrough (human review)
+**Pattern tag**: `accessibility-not-reviewed`

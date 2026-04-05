@@ -6,9 +6,9 @@
 
 | Step                                                      | Blocks              | Branch / Commit | Auto Tests | Verify | Simplify | Review | Understand | Human |
 | --------------------------------------------------------- | -------------------- | --------------- | :--------: | :----: | :------: | :----: | :--------: | :---: |
-| [label-mapping](steps/label-mapping.md)                   | topline-score, clause-sections | aa4638b |     ✅     |   ➖   |    ✅    |   ✅   |     ⬜     |  ⬜   |
-| [topline-score](steps/topline-score.md)                   | clause-sections      | 68b09ac         |     ✅     |   ⬜   |    ✅    |   ✅   |     ⬜     |  ⬜   |
-| [clause-sections](steps/clause-sections.md)               | —                    | f2356ad         |     ✅     |   ⬜   |    ✅    |   ✅   |     ⬜     |  ⬜   |
+| [label-mapping](steps/label-mapping.md)                   | topline-score, clause-sections | aa4638b |     ✅     |   ➖   |    ✅    |   ✅   |     ✅     |  ✅   |
+| [topline-score](steps/topline-score.md)                   | clause-sections      | 68b09ac         |     ✅     |   ✅   |    ✅    |   ✅   |     ✅     |  ✅   |
+| [clause-sections](steps/clause-sections.md)               | —                    | f2356ad         |     ✅     |   ✅   |    ✅    |   ✅   |     ✅     |  ✅   |
 
 **Legend:** ⬜ pending · ✅ passed · ❌ failed · ⚠️ incomplete · ➖ N/A
 

@@ -75,6 +75,12 @@ not a one-time post-feature task.
 
 This is a takehome project — optimize for speed, code quality, and polish over DX best practices. Ship fast, keep it clean.
 
+### Feature branch required
+
+Before writing any feature code, check out a feature branch (e.g., `m2-eval-results-display`).
+**Never commit feature work directly to main.** Only write code on main if the user explicitly
+confirms they want it. Setup/infra work (deps, config, tooling, CI, env files) may go on main.
+
 ### Main branch protection
 
 Before pushing to `main` any commit that is **not** general setup or infrastructure, you MUST:

@@ -17,6 +17,10 @@ Items to address after MVP ships. Not blockers — quality and polish work.
 - [ ] Add TTFT measurement to verification script
 - [ ] Build automated eval runner (run all contracts, compare against benchmarks, report diffs)
 
+## Prompt / Model
+
+- [ ] LLM summary text can contradict its own clause breakdown (e.g. "4 fair clauses" but only 2 tagged fair). Add a post-processing validation step or tighten the prompt to derive summary counts from the actual clauses array.
+
 ## API Hardening
 
 - [ ] Wire `instructions` through api-route to the prompt (currently sent but ignored server-side)
