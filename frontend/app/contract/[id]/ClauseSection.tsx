@@ -41,7 +41,7 @@ function ExpandableClauses({ label, clauses }: { label: string; clauses: EvalCla
       {expanded && (
         <ul className={CLAUSE_LIST}>
           {clauses.map((clause, index) => (
-            <li key={`${clause.section_number}-${index}`}>
+            <li key={clause.section_number}>
               <ClauseCard clause={clause} />
             </li>
           ))}
