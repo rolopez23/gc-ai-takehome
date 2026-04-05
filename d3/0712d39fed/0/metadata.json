@@ -1,0 +1,45 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "d30712d39fed",
+  "session_id": "23a9c520-117a-4263-b999-2b026dfb2d02",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-05T05:41:56.992198Z",
+  "branch": "rl/mvp-contract-eval",
+  "checkpoints_count": 6,
+  "files_touched": [
+    "docs/mvp-contract-eval/plan.md",
+    "frontend/__tests__/error-display.test.tsx",
+    "frontend/__tests__/evaluate-contract-page.test.tsx",
+    "frontend/__tests__/loading-shimmer.test.tsx",
+    "frontend/__tests__/success-navigation.test.tsx",
+    "frontend/app/contract/[id]/page.tsx",
+    "frontend/app/evaluate-contract/eval-result-context.tsx",
+    "frontend/app/evaluate-contract/page.tsx",
+    "frontend/app/layout.tsx"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-6[1m]",
+  "turn_id": "7e45b088837e",
+  "token_usage": {
+    "input_tokens": 1672,
+    "cache_creation_tokens": 701994,
+    "cache_read_tokens": 90371098,
+    "output_tokens": 146753,
+    "api_call_count": 454
+  },
+  "session_metrics": {
+    "turn_count": 58
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-05T05:41:56.019398Z",
+    "agent_lines": 274,
+    "agent_removed": 38,
+    "human_added": 0,
+    "human_modified": 1,
+    "human_removed": 0,
+    "total_committed": 275,
+    "total_lines_changed": 313,
+    "agent_percentage": 99.68051118210862,
+    "metric_version": 2
+  }
+}
