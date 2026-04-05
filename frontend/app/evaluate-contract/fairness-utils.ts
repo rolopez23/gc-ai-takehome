@@ -15,4 +15,4 @@ export function getFairnessDisplay(rating: FairnessRating): FairnessDisplay {
   return FAIRNESS_DISPLAY[rating];
 }
 
-export const FAIRNESS_SECTION_ORDER: FairnessRating[] = ['dealbreaker', 'non-standard', 'fair'];
+export const FAIRNESS_SECTION_ORDER: readonly FairnessRating[] = ['dealbreaker', 'non-standard', 'fair'];
