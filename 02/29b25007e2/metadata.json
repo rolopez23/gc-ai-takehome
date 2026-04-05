@@ -1,0 +1,37 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "0229b25007e2",
+  "strategy": "manual-commit",
+  "branch": "m3-backend-eval-pipeline",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "frontend/__tests__/FileDropZone.test.tsx",
+    "frontend/__tests__/api-evaluate.test.ts",
+    "frontend/__tests__/prompt.test.ts",
+    "frontend/__tests__/types.test.ts",
+    "frontend/__tests__/validation.test.ts",
+    "frontend/app/api/evaluate/route.ts",
+    "frontend/app/contract/[id]/page.tsx",
+    "frontend/app/evaluate-contract/FileDropZone.tsx",
+    "frontend/app/evaluate-contract/page.tsx",
+    "frontend/app/evaluate-contract/types.ts",
+    "frontend/app/evaluate-contract/validation.ts",
+    "frontend/prompt/index.ts",
+    "frontend/prompt/system-prompt.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/02/29b25007e2/0/metadata.json",
+      "transcript": "/02/29b25007e2/0/full.jsonl",
+      "content_hash": "/02/29b25007e2/0/content_hash.txt",
+      "prompt": "/02/29b25007e2/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 549,
+    "cache_creation_tokens": 216942,
+    "cache_read_tokens": 27861881,
+    "output_tokens": 110794,
+    "api_call_count": 205
+  }
+}
