@@ -3,21 +3,22 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import type { ReviewResponse, ReviewCompleted, ReviewClause, FairnessRating } from '../../evaluate-contract/types';
-import { ReviewResponseSchema } from '../../evaluate-contract/types';
-import { FAIRNESS_SECTION_ORDER } from '../../evaluate-contract/fairness-utils';
-import { LoadingShimmer } from '../../evaluate-contract/LoadingShimmer';
-import { BACKEND_URL, POLL_INTERVAL, POLL_TIMEOUT, STATUS_TEXT } from '../../evaluate-contract/constants';
-import ScoreBadge from './ScoreBadge';
-import ClauseSection from './ClauseSection';
+import type { ReviewResponse, ReviewCompleted, ReviewClause, FairnessRating } from '@/app/evaluate-contract/types';
+import { ReviewResponseSchema } from '@/app/evaluate-contract/types';
+import { FAIRNESS_SECTION_ORDER } from '@/app/evaluate-contract/fairness-utils';
+import { LoadingShimmer } from '@/app/evaluate-contract/LoadingShimmer';
+import { BACKEND_URL, POLL_INTERVAL, POLL_TIMEOUT, STATUS_TEXT } from '@/app/evaluate-contract/constants';
+import ScoreBadge from '@/app/contract/[id]/ScoreBadge';
+import ClauseSection from '@/app/contract/[id]/ClauseSection';
 
 const PAGE_CONTAINER = 'mx-auto max-w-2xl px-4 py-12';
+const PAGE_TITLE = 'text-3xl font-bold tracking-tight';
 const BACK_LINK = 'mt-6 inline-block text-sm text-foreground/60 underline hover:text-foreground';
 
 function LoadingState({ statusText }: { statusText: string }) {
   return (
     <div className={PAGE_CONTAINER}>
-      <h1 className="text-3xl font-bold tracking-tight">Evaluating contract</h1>
+      <h1 className={PAGE_TITLE}>Evaluating contract</h1>
       <div className="mt-6">
         <LoadingShimmer statusText={statusText} />
       </div>
@@ -38,7 +39,7 @@ function groupByFairness(clauses: ReviewClause[]) {
 function NoEvaluation() {
   return (
     <div className={PAGE_CONTAINER}>
-      <h1 className="text-3xl font-bold tracking-tight">No evaluation found</h1>
+      <h1 className={PAGE_TITLE}>No evaluation found</h1>
       <p className="mt-2 text-foreground/60">This evaluation may have expired or the link is invalid.</p>
       <Link href="/evaluate-contract" className={BACK_LINK}>
         Evaluate a contract
@@ -52,7 +53,7 @@ function EvaluationResults({ result }: { result: ReviewCompleted }) {
 
   return (
     <article className={PAGE_CONTAINER}>
-      <h1 className="text-3xl font-bold tracking-tight">Evaluation complete</h1>
+      <h1 className={PAGE_TITLE}>Evaluation complete</h1>
       {result.overall_fairness && (
         <div className="mt-4">
           <ScoreBadge rating={result.overall_fairness} />
@@ -79,7 +80,7 @@ function EvaluationResults({ result }: { result: ReviewCompleted }) {
 function NotAContract({ summary }: { summary: string | null }) {
   return (
     <div className={PAGE_CONTAINER}>
-      <h1 className="text-3xl font-bold tracking-tight">Not a contract</h1>
+      <h1 className={PAGE_TITLE}>Not a contract</h1>
       <p className="mt-2 text-foreground/60">{summary || 'The uploaded document does not appear to be a contract.'}</p>
       <Link href="/evaluate-contract" className={BACK_LINK}>
         Try another document
@@ -91,7 +92,7 @@ function NotAContract({ summary }: { summary: string | null }) {
 function EvaluationFailed({ message }: { message: string }) {
   return (
     <div className={PAGE_CONTAINER}>
-      <h1 className="text-3xl font-bold tracking-tight">Evaluation failed</h1>
+      <h1 className={PAGE_TITLE}>Evaluation failed</h1>
       <p className="mt-2 text-foreground/60">{message}</p>
       <Link href="/evaluate-contract" className={BACK_LINK}>
         Try again

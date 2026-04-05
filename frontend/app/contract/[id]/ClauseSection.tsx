@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import type { FairnessRating, ReviewClause } from '../../evaluate-contract/types';
-import { getFairnessDisplay } from '../../evaluate-contract/fairness-utils';
-import ClauseCard from './ClauseCard';
+import type { FairnessRating, ReviewClause } from '@/app/evaluate-contract/types';
+import { getFairnessDisplay } from '@/app/evaluate-contract/fairness-utils';
+import ClauseCard from '@/app/contract/[id]/ClauseCard';
 
 const SECTION_BORDER = 'rounded-lg border border-foreground/10 px-4 py-3';
 const SECTION_HEADER = `flex w-full items-center justify-between ${SECTION_BORDER} text-left hover:bg-foreground/5`;
@@ -40,7 +40,7 @@ function ExpandableClauses({ label, clauses }: { label: string; clauses: ReviewC
       </button>
       {expanded && (
         <ul className={CLAUSE_LIST}>
-          {clauses.map((clause, index) => (
+          {clauses.map((clause) => (
             <li key={clause.section_number}>
               <ClauseCard clause={clause} />
             </li>

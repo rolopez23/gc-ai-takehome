@@ -1,4 +1,4 @@
-import type { FairnessRating } from './types';
+import type { FairnessRating } from '@/app/evaluate-contract/types';
 
 interface FairnessDisplay {
   label: string;

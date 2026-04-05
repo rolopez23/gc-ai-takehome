@@ -2,10 +2,10 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FileDropZone } from './FileDropZone';
-import { LoadingShimmer } from './LoadingShimmer';
-import { BACKEND_URL, POLL_INTERVAL, POLL_TIMEOUT, STATUS_TEXT } from './constants';
-import { UploadResponseSchema, ReviewResponseSchema } from './types';
+import { FileDropZone } from '@/app/evaluate-contract/FileDropZone';
+import { LoadingShimmer } from '@/app/evaluate-contract/LoadingShimmer';
+import { BACKEND_URL, POLL_INTERVAL, POLL_TIMEOUT, STATUS_TEXT } from '@/app/evaluate-contract/constants';
+import { UploadResponseSchema, ReviewResponseSchema } from '@/app/evaluate-contract/types';
 
 async function uploadContract(file: File, instructions: string, signal: AbortSignal) {
   const form = new FormData();

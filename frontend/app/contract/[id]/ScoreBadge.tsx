@@ -1,5 +1,5 @@
-import type { FairnessRating } from '../../evaluate-contract/types';
-import { getFairnessDisplay } from '../../evaluate-contract/fairness-utils';
+import type { FairnessRating } from '@/app/evaluate-contract/types';
+import { getFairnessDisplay } from '@/app/evaluate-contract/fairness-utils';
 
 const BADGE_STYLING = 'inline-block rounded-full border px-3 py-1 text-sm font-semibold';
 

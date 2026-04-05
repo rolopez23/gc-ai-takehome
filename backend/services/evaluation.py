@@ -13,7 +13,9 @@ from database import AsyncSessionLocal
 from models import Contract, ContractReview, ReviewClause
 from prompt import EvalErrorResponse, EvalSuccessResponse, build_system_prompt
 
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+def _get_api_key() -> str:
+    return os.getenv("ANTHROPIC_API_KEY", "")
+
 ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001")
 ANTHROPIC_MAX_TOKENS = int(os.getenv("ANTHROPIC_MAX_TOKENS", "8192"))
 EVAL_TIMEOUT = 90
@@ -104,7 +106,7 @@ async def run_evaluation(review_id, contract: Contract, db: AsyncSession):
             instructions=review.review_instructions,
         )
 
-        client = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+        client = anthropic.AsyncAnthropic(api_key=_get_api_key())
         message = await client.messages.create(**params, timeout=EVAL_TIMEOUT)
 
         if message.stop_reason == "max_tokens":

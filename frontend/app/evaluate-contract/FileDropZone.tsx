@@ -5,7 +5,7 @@ import {
   ALLOWED_EXTENSIONS,
   validateFileExtension,
   validateFileSize,
-} from './validation';
+} from '@/app/evaluate-contract/validation';
 
 interface FileDropZoneProps {
   file: File | null;

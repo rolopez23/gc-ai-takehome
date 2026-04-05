@@ -14,3 +14,6 @@ reset-db:
 
 dev:
 	portless contract-evaluator-server uv run uvicorn main:app --reload
+
+dev.down:
+	@PID=$$(lsof -ti :8000) && kill $$PID && echo "Server stopped (PID $$PID)" || echo "No server running on :8000"
