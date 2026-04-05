@@ -91,3 +91,7 @@ lets bull out that class to a readable name, maybe badgestyling.  This is a pres
 ---
 
 Way too many divs.  Can we update to more semantic html than div/span.  Like headings etc.
+
+---
+
+Hmm article may be overkill for a clause. It needs context of the entire area.
