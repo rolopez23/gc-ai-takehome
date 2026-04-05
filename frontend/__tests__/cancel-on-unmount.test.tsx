@@ -3,7 +3,6 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import EvaluateContractPage from '@/app/evaluate-contract/page';
-import { EvalResultProvider } from '@/app/evaluate-contract/eval-result-context';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
@@ -18,7 +17,7 @@ describe('Cancel on unmount', () => {
     vi.stubGlobal('fetch', vi.fn(() => new Promise(() => {})));
 
     const { unmount } = render(
-      <EvalResultProvider><EvaluateContractPage /></EvalResultProvider>,
+      <EvaluateContractPage />,
     );
 
     const file = new File(['contract'], 'contract.txt', { type: 'text/plain' });
@@ -45,7 +44,7 @@ describe('Cancel on unmount', () => {
     }));
 
     const { unmount } = render(
-      <EvalResultProvider><EvaluateContractPage /></EvalResultProvider>,
+      <EvaluateContractPage />,
     );
 
     const file = new File(['contract'], 'contract.txt', { type: 'text/plain' });

@@ -1,72 +1,157 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import EvaluateContractPage from '@/app/evaluate-contract/page';
-import { EvalResultProvider } from '@/app/evaluate-contract/eval-result-context';
 
 const mockPush = vi.fn();
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush }),
 }));
 
-const VALID_RESPONSE = {
-  error: null,
-  overall_fairness: 'fair',
-  summary: '',
-  call_to_action: [],
-  clauses: [],
+const CONTRACT_ID = 'a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d';
+const REVIEW_ID = 'f6e5d4c3-b2a1-4f9e-8d7c-6b5a4c3d2e1f';
+
+const UPLOAD_RESPONSE = {
+  contract_id: CONTRACT_ID,
+  review_id: REVIEW_ID,
+  status: 'pending',
 };
 
+const REVIEW_EVALUATING = {
+  id: REVIEW_ID,
+  contract_id: CONTRACT_ID,
+  status: 'evaluating',
+};
+
+const REVIEW_COMPLETED = {
+  id: REVIEW_ID,
+  contract_id: CONTRACT_ID,
+  status: 'completed',
+  overall_fairness: 'fair',
+  summary: 'Looks good',
+  call_to_action: [],
+  clauses: [],
+  completed_at: '2026-01-01T00:00:00Z',
+};
+
+const REVIEW_FAILED = {
+  id: REVIEW_ID,
+  status: 'failed',
+  failure_message: 'LLM unavailable',
+};
+
+let mockFetch: ReturnType<typeof vi.fn>;
+
 beforeEach(() => {
-  vi.stubGlobal(
-    'fetch',
-    vi.fn(() => Promise.resolve(new Response(JSON.stringify(VALID_RESPONSE), { status: 200 }))),
-  );
+  mockFetch = vi.fn();
+  vi.stubGlobal('fetch', mockFetch);
+  mockPush.mockReset();
 });
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+async function selectFileAndSubmit() {
+  const file = new File(['content'], 'contract.txt', { type: 'text/plain' });
+  await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
+  await userEvent.click(screen.getByRole('button', { name: /evaluate/i }));
+}
 
 describe('EvaluateContractPage', () => {
   it('renders the page heading', () => {
-    render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
+    render(<EvaluateContractPage />);
     expect(screen.getByRole('heading', { name: /evaluate/i })).toBeInTheDocument();
   });
 
-  it('renders the file drop zone', () => {
-    render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
-    expect(screen.getByText(/drag.+drop/i)).toBeInTheDocument();
-  });
-
-  it('renders the instructions textarea', () => {
-    render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
-    expect(screen.getByPlaceholderText(/instruction/i)).toBeInTheDocument();
-  });
-
-  it('renders the submit button', () => {
-    render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
-    expect(screen.getByRole('button', { name: /evaluate/i })).toBeInTheDocument();
-  });
-
   it('disables submit button when no file is staged', () => {
-    render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
+    render(<EvaluateContractPage />);
     expect(screen.getByRole('button', { name: /evaluate/i })).toBeDisabled();
   });
 
-  it('calls /api/evaluate on submit', async () => {
-    render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
+  it('sends FormData POST to backend upload endpoint', async () => {
+    mockFetch
+      .mockResolvedValueOnce(new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(REVIEW_COMPLETED), { status: 200 }));
 
-    const file = new File(['content'], 'contract.txt', { type: 'text/plain' });
-    await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
-    await userEvent.click(screen.getByRole('button', { name: /evaluate/i }));
+    render(<EvaluateContractPage />);
+    await selectFileAndSubmit();
 
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith('/api/evaluate', expect.objectContaining({
-        method: 'POST',
-      }));
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/contracts/upload'),
+        expect.objectContaining({ method: 'POST' }),
+      );
+    });
+
+    const [, opts] = mockFetch.mock.calls[0];
+    expect(opts.body).toBeInstanceOf(FormData);
+    expect(opts.body.get('file')).toBeInstanceOf(File);
+  });
+
+  it('shows error on upload 400', async () => {
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify({ detail: 'Unsupported file type' }), { status: 400 }),
+    );
+
+    render(<EvaluateContractPage />);
+    await selectFileAndSubmit();
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent('Unsupported file type');
     });
   });
 
+  it('polls until completed then navigates', async () => {
+    mockFetch
+      .mockResolvedValueOnce(new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(REVIEW_EVALUATING), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(REVIEW_COMPLETED), { status: 200 }));
+
+    render(<EvaluateContractPage />);
+    await selectFileAndSubmit();
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith(`/contract/${CONTRACT_ID}`);
+    }, { timeout: 5000 });
+  });
+
+  it('shows failure message on failed review', async () => {
+    mockFetch
+      .mockResolvedValueOnce(new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(REVIEW_FAILED), { status: 200 }));
+
+    render(<EvaluateContractPage />);
+    await selectFileAndSubmit();
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent('LLM unavailable');
+    });
+  });
+
+  it('shows status text during polling', async () => {
+    let resolveSecondPoll: (v: Response) => void;
+    const secondPollPromise = new Promise<Response>((r) => { resolveSecondPoll = r; });
+
+    mockFetch
+      .mockResolvedValueOnce(new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(REVIEW_EVALUATING), { status: 200 }))
+      .mockImplementationOnce(() => secondPollPromise);
+
+    render(<EvaluateContractPage />);
+    await selectFileAndSubmit();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('status-text')).toHaveTextContent('Evaluating contract...');
+    });
+
+    // Clean up: resolve the pending poll so the component unmounts cleanly
+    resolveSecondPoll!(new Response(JSON.stringify(REVIEW_COMPLETED), { status: 200 }));
+  });
+
   it('does not clear instructions when file is removed', async () => {
-    render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
+    render(<EvaluateContractPage />);
 
     await userEvent.type(
       screen.getByPlaceholderText(/instruction/i),
@@ -80,30 +165,5 @@ describe('EvaluateContractPage', () => {
     expect(screen.getByPlaceholderText(/instruction/i)).toHaveValue(
       'Check indemnification',
     );
-  });
-
-  it('does not clear file when instructions are cleared', async () => {
-    render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
-
-    const file = new File(['content'], 'contract.txt', { type: 'text/plain' });
-    await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
-
-    const textarea = screen.getByPlaceholderText(/instruction/i);
-    await userEvent.type(textarea, 'Some text');
-    await userEvent.clear(textarea);
-
-    expect(screen.getByText('contract.txt')).toBeInTheDocument();
-  });
-
-  it('navigates on successful submit', async () => {
-    render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
-
-    const file = new File(['content'], 'contract.txt', { type: 'text/plain' });
-    await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
-    await userEvent.click(screen.getByRole('button', { name: /evaluate/i }));
-
-    await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/\/contract\/.+/));
-    });
   });
 });

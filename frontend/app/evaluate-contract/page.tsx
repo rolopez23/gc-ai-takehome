@@ -3,23 +3,49 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FileDropZone } from './FileDropZone';
-import { ReviewFailedSchema, ReviewCompletedSchema, type EvalSuccess } from './types';
-import { useEvalResult } from './eval-result-context';
+import { UploadResponseSchema, ReviewResponseSchema } from './types';
 
-async function evaluateContract(file: File, instructions: string, signal: AbortSignal): Promise<EvalSuccess> {
-  const text = await file.text();
-  const res = await fetch('/api/evaluate', {
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+const POLL_INTERVAL = 2000;
+const POLL_TIMEOUT = 10 * 60 * 1000;
+
+const STATUS_TEXT: Record<string, string> = {
+  pending: 'Preparing evaluation...',
+  reading: 'Reading document...',
+  evaluating: 'Evaluating contract...',
+};
+
+async function uploadContract(file: File, instructions: string, signal: AbortSignal) {
+  const form = new FormData();
+  form.append('file', file);
+  if (instructions.trim()) form.append('instructions', instructions);
+  const res = await fetch(`${BACKEND_URL}/api/contracts/upload`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, instructions }),
+    body: form,
     signal,
   });
-  if (!res.ok) throw new Error('evaluation failed');
-  const data = await res.json();
-  if (ReviewFailedSchema.safeParse(data).success) throw new Error('eval error');
-  const parsed = ReviewCompletedSchema.safeParse(data);
-  if (!parsed.success) throw new Error('unexpected response shape');
-  return parsed.data;
+  if (!res.ok) {
+    if (res.status === 413) throw new Error('File too large (max 10MB)');
+    if (res.status === 400) {
+      const data = await res.json();
+      throw new Error(data.detail || 'Invalid file');
+    }
+    throw new Error('Upload failed');
+  }
+  return UploadResponseSchema.parse(await res.json());
+}
+
+async function pollReview(reviewId: string, signal: AbortSignal, onStatus?: (s: string) => void) {
+  const start = Date.now();
+  while (Date.now() - start < POLL_TIMEOUT) {
+    const res = await fetch(`${BACKEND_URL}/api/reviews/${reviewId}`, { signal });
+    if (!res.ok) throw new Error('Failed to check review status');
+    const data = ReviewResponseSchema.parse(await res.json());
+    if (data.status === 'completed' || data.status === 'failed') return data;
+    onStatus?.(data.status);
+    await new Promise((r) => setTimeout(r, POLL_INTERVAL));
+  }
+  throw new Error('Evaluation timed out — please try again');
 }
 
 const HEIGHT = { '3.5': 'h-3.5', '4': 'h-4', '5': 'h-5', '8': 'h-8' } as const;
@@ -31,10 +57,11 @@ function ShimmerBar({ h, w, pill }: { h: keyof typeof HEIGHT; w: keyof typeof WI
   );
 }
 
-function LoadingShimmer() {
+function LoadingShimmer({ statusText }: { statusText: string }) {
   return (
     <div data-testid="loading-shimmer" className="space-y-6" role="status">
       <p className="sr-only">Evaluating contract, please wait...</p>
+      <p className="text-sm text-foreground/60" data-testid="status-text">{statusText}</p>
       <div className="space-y-3">
         <ShimmerBar h="8" w="28" pill />
         <ShimmerBar h="4" w="full" />
@@ -71,8 +98,8 @@ export default function EvaluateContractPage() {
   const [instructions, setInstructions] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [statusText, setStatusText] = useState('Preparing evaluation...');
   const router = useRouter();
-  const { setResult } = useEvalResult();
   const controllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -86,14 +113,21 @@ export default function EvaluateContractPage() {
     controllerRef.current = controller;
     setError(null);
     setIsLoading(true);
+    setStatusText('Preparing evaluation...');
     try {
-      const result = await evaluateContract(file, instructions, controller.signal);
-      const id = crypto.randomUUID();
-      setResult(id, result);
-      router.push(`/contract/${id}`);
+      const { contract_id, review_id } = await uploadContract(file, instructions, controller.signal);
+      const result = await pollReview(review_id, controller.signal, (s) =>
+        setStatusText(STATUS_TEXT[s] || 'Processing...'),
+      );
+      if (result.status === 'completed') {
+        router.push(`/contract/${contract_id}`);
+      } else {
+        setError(result.failure_message);
+        setIsLoading(false);
+      }
     } catch (e) {
       if (e instanceof DOMException && e.name === 'AbortError') return;
-      setError('Something went wrong. Try again.');
+      setError(e instanceof Error ? e.message : 'Something went wrong');
       setIsLoading(false);
     }
   }
@@ -103,7 +137,7 @@ export default function EvaluateContractPage() {
       <h1 className="text-3xl font-bold tracking-tight">Evaluate Contract</h1>
 
       {isLoading ? (
-        <LoadingShimmer />
+        <LoadingShimmer statusText={statusText} />
       ) : (
         <>
           <FileDropZone file={file} onFileChange={setFile} />

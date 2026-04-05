@@ -3,80 +3,99 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import EvaluateContractPage from '@/app/evaluate-contract/page';
-import { EvalResultProvider } from '@/app/evaluate-contract/eval-result-context';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
 }));
 
-let fetchResolver: (res: Response) => void;
+const UPLOAD_RESPONSE = {
+  contract_id: '452be08b-a29d-402f-8f44-6b1a0f976efa',
+  review_id: 'a9198839-1da3-4fb3-ac30-c462cc81ee4e',
+  status: 'pending',
+};
+
+const POLLING_RESPONSE = {
+  id: 'a9198839-1da3-4fb3-ac30-c462cc81ee4e',
+  contract_id: '452be08b-a29d-402f-8f44-6b1a0f976efa',
+  status: 'evaluating',
+};
 
 beforeEach(() => {
-  vi.stubGlobal(
-    'fetch',
-    vi.fn(() => {
-      return new Promise((resolve) => {
-        fetchResolver = resolve;
-      });
-    }),
-  );
+  vi.restoreAllMocks();
 });
 
-async function stageFileAndSubmit() {
-  render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
-
+async function stageFileAndSubmit(fetchImpl: typeof fetch) {
+  vi.stubGlobal('fetch', vi.fn(fetchImpl));
+  render(<EvaluateContractPage />);
   const file = new File(['contract text'], 'contract.txt', { type: 'text/plain' });
   await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
   await userEvent.click(screen.getByRole('button', { name: /evaluate contract/i }));
 }
 
-const VALID_RESPONSE = { error: null, overall_fairness: 'fair', summary: '', call_to_action: [], clauses: [] };
-
-function resolveFetch() {
-  fetchResolver(new Response(JSON.stringify(VALID_RESPONSE), { status: 200 }));
-}
-
 describe('Loading shimmer', () => {
   test('shows shimmer when submitting', async () => {
-    await stageFileAndSubmit();
-    expect(screen.getByTestId('loading-shimmer')).toBeInTheDocument();
-  });
-
-  test('disables button when submitting', async () => {
-    await stageFileAndSubmit();
-    expect(screen.getByRole('button', { name: /evaluate contract/i })).toBeDisabled();
-  });
-
-  test('keeps shimmer on success until navigation', async () => {
-    await stageFileAndSubmit();
-    expect(screen.getByTestId('loading-shimmer')).toBeInTheDocument();
-
-    resolveFetch();
+    // Upload resolves, poll hangs → shimmer stays visible
+    let callCount = 0;
+    await stageFileAndSubmit(() => {
+      callCount++;
+      if (callCount === 1) {
+        return Promise.resolve(new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 201 }));
+      }
+      return new Promise<Response>(() => {}); // poll hangs
+    });
 
     await waitFor(() => {
       expect(screen.getByTestId('loading-shimmer')).toBeInTheDocument();
     });
   });
 
-  test('hides shimmer on error', async () => {
-    await stageFileAndSubmit();
-    expect(screen.getByTestId('loading-shimmer')).toBeInTheDocument();
-
-    fetchResolver(new Response(JSON.stringify({ error: true, reason: 'fail' }), { status: 200 }));
+  test('disables button when submitting', async () => {
+    let callCount = 0;
+    await stageFileAndSubmit(() => {
+      callCount++;
+      if (callCount === 1) {
+        return Promise.resolve(new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 201 }));
+      }
+      return new Promise<Response>(() => {});
+    });
 
     await waitFor(() => {
-      expect(screen.queryByTestId('loading-shimmer')).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /evaluate contract/i })).toBeDisabled();
     });
   });
 
-  test('sends file text to /api/evaluate', async () => {
-    await stageFileAndSubmit();
-    resolveFetch();
+  test('sends FormData to backend upload endpoint', async () => {
+    let callCount = 0;
+    await stageFileAndSubmit(() => {
+      callCount++;
+      if (callCount === 1) {
+        return Promise.resolve(new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 201 }));
+      }
+      return new Promise<Response>(() => {});
+    });
 
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith('/api/evaluate', expect.objectContaining({
-        method: 'POST',
-      }));
+      const calls = (fetch as ReturnType<typeof vi.fn>).mock.calls;
+      expect(calls[0][0]).toContain('/api/contracts/upload');
+      expect(calls[0][1].method).toBe('POST');
+      expect(calls[0][1].body).toBeInstanceOf(FormData);
+    });
+  });
+
+  test('hides shimmer on failed evaluation', async () => {
+    const failedReview = { id: 'a9198839-1da3-4fb3-ac30-c462cc81ee4e', status: 'failed', failure_message: 'timeout' };
+
+    let callCount = 0;
+    await stageFileAndSubmit(() => {
+      callCount++;
+      if (callCount === 1) {
+        return Promise.resolve(new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 201 }));
+      }
+      return Promise.resolve(new Response(JSON.stringify(failedReview), { status: 200 }));
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('loading-shimmer')).not.toBeInTheDocument();
     });
   });
 });
