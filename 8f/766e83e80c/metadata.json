@@ -1,0 +1,45 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "8f766e83e80c",
+  "strategy": "manual-commit",
+  "branch": "m3-backend-eval-pipeline",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".claude/skills/plan/SKILL.md",
+    ".claude/skills/plan/sub-skills/plan-step.md",
+    ".claude/skills/verify/SKILL.md",
+    "docs/backend-eval-pipeline/plan.md",
+    "docs/backend-eval-pipeline/spec.md",
+    "docs/backend-eval-pipeline/steps/anthropic-client.md",
+    "docs/backend-eval-pipeline/steps/backend-models.md",
+    "docs/backend-eval-pipeline/steps/background-pipeline.md",
+    "docs/backend-eval-pipeline/steps/doc-docx-conversion.md",
+    "docs/backend-eval-pipeline/steps/evaluation-persistence.md",
+    "docs/backend-eval-pipeline/steps/file-processing.md",
+    "docs/backend-eval-pipeline/steps/frontend-types-cleanup.md",
+    "docs/backend-eval-pipeline/steps/pydantic-and-migration.md",
+    "docs/backend-eval-pipeline/steps/results-page.md",
+    "docs/backend-eval-pipeline/steps/review-endpoints.md",
+    "docs/backend-eval-pipeline/steps/system-prompt.md",
+    "docs/backend-eval-pipeline/steps/upload-endpoint.md",
+    "docs/backend-eval-pipeline/steps/upload-page.md",
+    "docs/decisions/ADR-001-document-storage-and-conversion-strategy.md",
+    "docs/decisions/ADR-002-async-evaluation-with-polling.md",
+    "docs/deprecation-log.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/8f/766e83e80c/0/metadata.json",
+      "transcript": "/8f/766e83e80c/0/full.jsonl",
+      "content_hash": "/8f/766e83e80c/0/content_hash.txt",
+      "prompt": "/8f/766e83e80c/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 544,
+    "cache_creation_tokens": 212916,
+    "cache_read_tokens": 26776582,
+    "output_tokens": 108537,
+    "api_call_count": 200
+  }
+}
