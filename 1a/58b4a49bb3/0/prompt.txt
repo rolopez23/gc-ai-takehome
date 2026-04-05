@@ -1,0 +1,29 @@
+Ok I want to specify out M2, I lot should be used. I want to use the eval-context to show the data.  Render A topline score, summary and then handle 3 sections egregious, unfair, fair.  Each should be collapsible and state the number of items.  Lets use the /problem-spec skill
+
+---
+
+I think we should have section number, clause_type and explanation.  Lets keep it out for now.
+
+---
+
+yes! Map to the user labels.  All can start collapsed for now.
+
+---
+
+If it is Egregious / Unfair Have a Celebratory Icon and say no x.  If the Fair is zero have a warning icon and say it is zero.  We want to acknowledge it thought.  Use a placeholder instead of the normal component (no collapsing)
+
+---
+
+Refresh issue will be fixed in M3, Zero fair clauses found means it is egregious, but it conveys more so I would keep.  I do look the scroll constraint limit each section to 1/2 of the page.  3. Label mapping as a util is great!
+
+---
+
+Lets have a link back to upload contract page.
+
+---
+
+/plan
+
+---
+
+Ok like lots of mini cycles.
