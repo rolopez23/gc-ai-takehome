@@ -73,4 +73,11 @@ describe('ContractPage', () => {
     const link = screen.getByRole('link', { name: /evaluate/i });
     expect(link).toHaveAttribute('href', '/evaluate-contract');
   });
+
+  it('renders fallback when no result found', async () => {
+    mockGetResult.mockReturnValue(undefined);
+    const { default: ContractPage } = await import('@/app/contract/[id]/page');
+    render(<ContractPage />);
+    expect(screen.getByText('No evaluation found')).toBeInTheDocument();
+  });
 });
