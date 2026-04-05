@@ -75,3 +75,7 @@ Ok you can mark verify complete/Users/robertlopez/repos/gc-ai-takehome/docs/eval
 ---
 
 code execution also lets review test files
+
+---
+
+We should not be changing the array it is really a list of constants nd the order we do.  The display handles the label mapping, Can we make the classes better named, make then named fail, warning, pass and make to the actual data.
