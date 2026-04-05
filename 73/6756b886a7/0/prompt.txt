@@ -302,3 +302,11 @@ Yes fully reviewed lots of green above
 ---
 
 Ok git clean up handle all the files and we commited the .env.  Please remove it from git history and uncommit.  I am already rotating the key.
+
+---
+
+yes
+
+---
+
+commit
