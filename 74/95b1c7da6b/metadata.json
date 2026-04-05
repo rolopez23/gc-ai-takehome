@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "7495b1c7da6b",
+  "strategy": "manual-commit",
+  "branch": "rl/mvp-contract-eval",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "docs/mvp-contract-eval/plan.md",
+    "frontend/__tests__/cancel-on-unmount.test.tsx",
+    "frontend/app/evaluate-contract/page.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/74/95b1c7da6b/0/metadata.json",
+      "transcript": "/74/95b1c7da6b/0/full.jsonl",
+      "content_hash": "/74/95b1c7da6b/0/content_hash.txt",
+      "prompt": "/74/95b1c7da6b/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 1690,
+    "cache_creation_tokens": 708005,
+    "cache_read_tokens": 95026458,
+    "output_tokens": 150756,
+    "api_call_count": 468
+  }
+}
