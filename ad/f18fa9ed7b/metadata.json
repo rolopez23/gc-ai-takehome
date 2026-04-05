@@ -1,0 +1,28 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "adf18fa9ed7b",
+  "strategy": "manual-commit",
+  "branch": "m3-backend-eval-pipeline",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "backend/routers/contracts.py",
+    "backend/services/evaluation.py",
+    "backend/tests/conftest.py",
+    "backend/tests/test_pipeline.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/ad/f18fa9ed7b/0/metadata.json",
+      "transcript": "/ad/f18fa9ed7b/0/full.jsonl",
+      "content_hash": "/ad/f18fa9ed7b/0/content_hash.txt",
+      "prompt": "/ad/f18fa9ed7b/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 543,
+    "cache_creation_tokens": 212425,
+    "cache_read_tokens": 26562260,
+    "output_tokens": 108186,
+    "api_call_count": 199
+  }
+}
