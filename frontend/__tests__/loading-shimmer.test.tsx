@@ -3,6 +3,11 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import EvaluateContractPage from '@/app/evaluate-contract/page';
+import { EvalResultProvider } from '@/app/evaluate-contract/eval-result-context';
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}));
 
 let fetchResolver: (res: Response) => void;
 
@@ -18,7 +23,7 @@ beforeEach(() => {
 });
 
 async function stageFileAndSubmit() {
-  render(<EvaluateContractPage />);
+  render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
 
   const file = new File(['contract text'], 'contract.txt', { type: 'text/plain' });
   await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
@@ -51,16 +56,6 @@ describe('Loading shimmer', () => {
     await waitFor(() => {
       expect(screen.queryByTestId('loading-shimmer')).not.toBeInTheDocument();
     });
-  });
-
-  test('button remains disabled after response since file is cleared', async () => {
-    await stageFileAndSubmit();
-    resolveFetch();
-
-    await waitFor(() => {
-      expect(screen.queryByTestId('loading-shimmer')).not.toBeInTheDocument();
-    });
-    expect(screen.getByRole('button', { name: /evaluate contract/i })).toBeDisabled();
   });
 
   test('sends file text to /api/evaluate', async () => {

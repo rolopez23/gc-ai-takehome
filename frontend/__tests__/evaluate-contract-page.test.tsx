@@ -3,6 +3,12 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import EvaluateContractPage from '@/app/evaluate-contract/page';
+import { EvalResultProvider } from '@/app/evaluate-contract/eval-result-context';
+
+const mockPush = vi.fn();
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: mockPush }),
+}));
 
 const VALID_RESPONSE = {
   error: null,
@@ -21,32 +27,32 @@ beforeEach(() => {
 
 describe('EvaluateContractPage', () => {
   it('renders the page heading', () => {
-    render(<EvaluateContractPage />);
+    render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
     expect(screen.getByRole('heading', { name: /evaluate/i })).toBeInTheDocument();
   });
 
   it('renders the file drop zone', () => {
-    render(<EvaluateContractPage />);
+    render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
     expect(screen.getByText(/drag.+drop/i)).toBeInTheDocument();
   });
 
   it('renders the instructions textarea', () => {
-    render(<EvaluateContractPage />);
+    render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
     expect(screen.getByPlaceholderText(/instruction/i)).toBeInTheDocument();
   });
 
   it('renders the submit button', () => {
-    render(<EvaluateContractPage />);
+    render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
     expect(screen.getByRole('button', { name: /evaluate/i })).toBeInTheDocument();
   });
 
   it('disables submit button when no file is staged', () => {
-    render(<EvaluateContractPage />);
+    render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
     expect(screen.getByRole('button', { name: /evaluate/i })).toBeDisabled();
   });
 
   it('calls /api/evaluate on submit', async () => {
-    render(<EvaluateContractPage />);
+    render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
 
     const file = new File(['content'], 'contract.txt', { type: 'text/plain' });
     await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
@@ -60,7 +66,7 @@ describe('EvaluateContractPage', () => {
   });
 
   it('does not clear instructions when file is removed', async () => {
-    render(<EvaluateContractPage />);
+    render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
 
     await userEvent.type(
       screen.getByPlaceholderText(/instruction/i),
@@ -77,7 +83,7 @@ describe('EvaluateContractPage', () => {
   });
 
   it('does not clear file when instructions are cleared', async () => {
-    render(<EvaluateContractPage />);
+    render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
 
     const file = new File(['content'], 'contract.txt', { type: 'text/plain' });
     await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
@@ -89,22 +95,15 @@ describe('EvaluateContractPage', () => {
     expect(screen.getByText('contract.txt')).toBeInTheDocument();
   });
 
-  it('clears file and instructions after submit', async () => {
-    render(<EvaluateContractPage />);
+  it('navigates on successful submit', async () => {
+    render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
 
     const file = new File(['content'], 'contract.txt', { type: 'text/plain' });
     await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
-    await userEvent.type(
-      screen.getByPlaceholderText(/instruction/i),
-      'Focus on IP clauses',
-    );
-
     await userEvent.click(screen.getByRole('button', { name: /evaluate/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/drag.+drop/i)).toBeInTheDocument();
+      expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/\/contract\/.+/));
     });
-    expect(screen.getByPlaceholderText(/instruction/i)).toHaveValue('');
-    expect(screen.getByRole('button', { name: /evaluate/i })).toBeDisabled();
   });
 });

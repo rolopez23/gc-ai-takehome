@@ -3,6 +3,11 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import EvaluateContractPage from '@/app/evaluate-contract/page';
+import { EvalResultProvider } from '@/app/evaluate-contract/eval-result-context';
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}));
 
 const ERROR_MESSAGE = /something went wrong/i;
 
@@ -12,7 +17,7 @@ beforeEach(() => {
 
 async function stageFileAndSubmit(fetchMock: () => Promise<Response>) {
   vi.stubGlobal('fetch', vi.fn(fetchMock));
-  render(<EvaluateContractPage />);
+  render(<EvalResultProvider><EvaluateContractPage /></EvalResultProvider>);
 
   const file = new File(['contract text'], 'contract.txt', { type: 'text/plain' });
   await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);

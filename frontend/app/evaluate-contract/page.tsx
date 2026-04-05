@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { FileDropZone } from './FileDropZone';
-import { EvalErrorSchema } from './types';
+import { EvalErrorSchema, EvalSuccessSchema, type EvalSuccess } from './types';
+import { useEvalResult } from './eval-result-context';
 
-async function evaluateContract(file: File, instructions: string) {
+async function evaluateContract(file: File, instructions: string): Promise<EvalSuccess> {
   const text = await file.text();
   const res = await fetch('/api/evaluate', {
     method: 'POST',
@@ -14,7 +16,9 @@ async function evaluateContract(file: File, instructions: string) {
   if (!res.ok) throw new Error('evaluation failed');
   const data = await res.json();
   if (EvalErrorSchema.safeParse(data).success) throw new Error('eval error');
-  return data;
+  const parsed = EvalSuccessSchema.safeParse(data);
+  if (!parsed.success) throw new Error('unexpected response shape');
+  return parsed.data;
 }
 
 const HEIGHT = { '3.5': 'h-3.5', '4': 'h-4', '5': 'h-5', '8': 'h-8' } as const;
@@ -66,15 +70,18 @@ export default function EvaluateContractPage() {
   const [instructions, setInstructions] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const { setResult } = useEvalResult();
 
   async function handleSubmit() {
     if (!file) return;
     setError(null);
     setIsLoading(true);
     try {
-      await evaluateContract(file, instructions);
-      setFile(null);
-      setInstructions('');
+      const result = await evaluateContract(file, instructions);
+      const id = crypto.randomUUID();
+      setResult(id, result);
+      router.push(`/contract/${id}`);
     } catch {
       setError('Something went wrong. Try again.');
     } finally {
