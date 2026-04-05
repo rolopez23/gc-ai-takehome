@@ -1,0 +1,33 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "d30712d39fed",
+  "strategy": "manual-commit",
+  "branch": "rl/mvp-contract-eval",
+  "checkpoints_count": 6,
+  "files_touched": [
+    "docs/mvp-contract-eval/plan.md",
+    "frontend/__tests__/error-display.test.tsx",
+    "frontend/__tests__/evaluate-contract-page.test.tsx",
+    "frontend/__tests__/loading-shimmer.test.tsx",
+    "frontend/__tests__/success-navigation.test.tsx",
+    "frontend/app/contract/[id]/page.tsx",
+    "frontend/app/evaluate-contract/eval-result-context.tsx",
+    "frontend/app/evaluate-contract/page.tsx",
+    "frontend/app/layout.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/d3/0712d39fed/0/metadata.json",
+      "transcript": "/d3/0712d39fed/0/full.jsonl",
+      "content_hash": "/d3/0712d39fed/0/content_hash.txt",
+      "prompt": "/d3/0712d39fed/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 1672,
+    "cache_creation_tokens": 701994,
+    "cache_read_tokens": 90371098,
+    "output_tokens": 146753,
+    "api_call_count": 454
+  }
+}
