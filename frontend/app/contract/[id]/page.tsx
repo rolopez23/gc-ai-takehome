@@ -38,7 +38,7 @@ function EvaluationResults({ result }: { result: EvalSuccess }) {
   const grouped = groupByFairness(result.clauses);
 
   return (
-    <div className={PAGE_CONTAINER}>
+    <article className={PAGE_CONTAINER}>
       <h1 className="text-3xl font-bold tracking-tight">Evaluation complete</h1>
       <div className="mt-4">
         <ScoreBadge rating={result.overall_fairness} />
@@ -52,7 +52,7 @@ function EvaluationResults({ result }: { result: EvalSuccess }) {
       <Link href="/evaluate-contract" className={BACK_LINK}>
         Evaluate another contract
       </Link>
-    </div>
+    </article>
   );
 }
 
