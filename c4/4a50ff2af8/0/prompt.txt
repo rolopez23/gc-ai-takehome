@@ -151,3 +151,7 @@ for file 7 show me the code
 ---
 
 section order prevents order from changing not sure on the toContain, can there be multiple classes?
+
+---
+
+can we not test on the color but on the name of the asssinged class for both of the last too that will be less brittle.  Testing a color class seems very brittle
