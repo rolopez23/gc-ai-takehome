@@ -1,0 +1,37 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "63d87993af0c",
+  "session_id": "738e9457-3c2c-403a-8fe7-7afdd1993cc1",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-05T16:07:27.869373Z",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "frontend/app/contract/[id]/ClauseCard.tsx"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-6[1m]",
+  "turn_id": "86c88d92e333",
+  "token_usage": {
+    "input_tokens": 2757,
+    "cache_creation_tokens": 444100,
+    "cache_read_tokens": 25459465,
+    "output_tokens": 66826,
+    "api_call_count": 236
+  },
+  "session_metrics": {
+    "turn_count": 21
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-05T16:07:27.487482Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 4,
+    "human_removed": 0,
+    "total_committed": 0,
+    "total_lines_changed": 4,
+    "agent_percentage": 0,
+    "metric_version": 2
+  }
+}
