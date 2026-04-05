@@ -1,0 +1,89 @@
+Ok there is a PR open to main can you do a final PR review and see if everything passes the smell test.  I would love to confirm quality.  Also address all the coments I made.
+
+---
+
+There are a lot of files only pay attention to code files, for now ingore test and .md
+
+---
+
+can we use @/app/evaluate-contract/
+
+---
+
+No sorry replace all relative paths we are importing with the @/app types or other aliases.  Just minor clean up
+
+---
+
+Great! Thank you.  Make an Agents.md in frontend that states the pattern
+
+---
+
+So echo does not work cat does.  It is valid but not being loaded into the app reliably why?
+
+---
+
+Can you add a script that brings the server down to make dev.down
+
+---
+
+Add a message that makes sure we have a valid api key in the server. Test for the first letters.
+
+---
+
+Logt an info message. Like Application startup complete (aka valid anthropic key found).
+
+---
+
+this is what I see INFO:     Will watch for changes in these directories: ['/Users/robertlopez/repos/gc-ai-takehome/backend']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [72783] using WatchFiles
+INFO:     Started server process [72785]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+
+---
+
+File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/robertlopez/repos/gc-ai-takehome/backend/main.py", line 26, in lifespan
+    _check_api_key()
+    ~~~~~~~~~~~~~~^^
+  File "/Users/robertlopez/repos/gc-ai-takehome/backend/main.py", line 20, in _check_api_key
+    logger = logging.getLogger("uvicorn.error")
+             ^^^^^^^
+NameError: name 'logging' is not defined. Did you forget to import 'logging'?
+
+---
+
+still getting an error   File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/robertlopez/repos/gc-ai-takehome/backend/main.py", line 26, in lifespan
+    _check_api_key()
+    ~~~~~~~~~~~~~~^^
+  File "/Users/robertlopez/repos/gc-ai-takehome/backend/main.py", line 20, in _check_api_key
+    logger = logging.getLogger("uvicorn.error")
+             ^^^^^^^
+NameError: name 'logging' is not defined. Did you forget to import 'logging'?
+
+---
+
+still getting an error   File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/robertlopez/repos/gc-ai-takehome/backend/main.py", line 26, in lifespan
+    _check_api_key()
+    ~~~~~~~~~~~~~~^^
+  File "/Users/robertlopez/repos/gc-ai-takehome/backend/main.py", line 20, in _check_api_key
+    logger = logging.getLogger("uvicorn.error")
+             ^^^^^^^
+NameError: name 'logging' is not defined. not this.
+
+---
+
+Ok greate lets ship! push up latest changes to this massive PR we are at MVP and can now start doing the fun stuff. Will be kicking off two claudes for frontend / api route.
+
+---
+
+/publish-session
