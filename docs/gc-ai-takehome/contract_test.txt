@@ -1,0 +1,30 @@
+SOFTWARE LICENSE AGREEMENT
+
+This Agreement is entered into as of April 1, 2026 by and between:
+Vendor: Apex Cloud Inc., 100 Main St, San Francisco, CA 94105 ("Vendor")
+Customer: Birch Data LLC, 200 Oak Ave, Austin, TX 78701 ("Customer")
+
+---
+
+1. LICENSE GRANT
+Vendor grants Customer a non-exclusive, non-transferable license to use the software platform ("Service") during the Subscription Term for Customer's internal business purposes only.
+
+2. FEES AND PAYMENT
+Customer will pay $2,000/month, invoiced quarterly in advance. Payment is due within 30 days of invoice (Net 30). Late payments accrue interest at 1.5% per month.
+
+3. LIMITATION OF LIABILITY
+Vendor's total liability under this Agreement shall not exceed the fees paid by Customer in the 12 months preceding the claim. Neither party shall be liable for indirect, consequential, or punitive damages.
+
+4. DATA OWNERSHIP
+Customer retains all rights to Customer Data uploaded to the Service. Upon termination, Vendor will return Customer Data within 30 days and delete all copies within 60 days.
+
+5. TERM AND TERMINATION
+This Agreement begins on the Effective Date and continues for 12 months, auto-renewing for successive 12-month terms unless either party provides 60 days' written notice of non-renewal. Either party may terminate for material breach with 30 days' written notice if uncured.
+
+---
+
+APEX CLOUD INC.
+Signature: _______ Name: Jane Kim Title: CEO Date: April 1, 2026
+
+BIRCH DATA LLC
+Signature: _______ Name: Tom Park Title: COO Date: April 1, 2026
