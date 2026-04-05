@@ -118,3 +118,11 @@ yes
 ---
 
 No lets handle later.
+
+---
+
+commit then move on to api-route
+
+---
+
+.env is in .gitignore.
