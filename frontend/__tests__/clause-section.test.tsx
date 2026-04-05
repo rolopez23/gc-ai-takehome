@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import ClauseCard from '@/app/contract/[id]/ClauseCard';
 import ClauseSection from '@/app/contract/[id]/ClauseSection';
@@ -41,6 +42,23 @@ describe('ClauseSection', () => {
 
   it('starts collapsed — clauses not visible', () => {
     render(<ClauseSection rating="dealbreaker" clauses={[TEST_CLAUSE]} />);
+    expect(screen.queryByText('Unlimited liability is unacceptable')).not.toBeInTheDocument();
+  });
+
+  it('clicking header expands section and shows clauses', async () => {
+    const user = userEvent.setup();
+    render(<ClauseSection rating="dealbreaker" clauses={[TEST_CLAUSE, TEST_CLAUSE_2]} />);
+    await user.click(screen.getByRole('button'));
+    expect(screen.getByText('Unlimited liability is unacceptable')).toBeInTheDocument();
+    expect(screen.getByText('Net 15 is aggressive but negotiable')).toBeInTheDocument();
+  });
+
+  it('clicking header again collapses section', async () => {
+    const user = userEvent.setup();
+    render(<ClauseSection rating="dealbreaker" clauses={[TEST_CLAUSE]} />);
+    await user.click(screen.getByRole('button'));
+    expect(screen.getByText('Unlimited liability is unacceptable')).toBeInTheDocument();
+    await user.click(screen.getByRole('button'));
     expect(screen.queryByText('Unlimited liability is unacceptable')).not.toBeInTheDocument();
   });
 });
