@@ -66,19 +66,19 @@ Batch 3 (parallel):   12-upload-page + 13-results-page
 
 | #  | Step                                                                 | Blocks              | Batch | Auto Tests | Verify | Simplify | Review | Human |
 | -- | -------------------------------------------------------------------- | -------------------- | ----- | :--------: | :----: | :------: | :----: | :---: |
-| 1  | [backend-models](steps/backend-models.md)                            | 2                    | B1    |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
-| 4  | [file-processing](steps/file-processing.md)                          | 5, 8                 | B1    |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
-| 2  | [pydantic-and-migration](steps/pydantic-and-migration.md)            | 3, 8, 10             | seq   |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
-| 3  | [system-prompt](steps/system-prompt.md)                              | 6                    | B2    |     ⬜     |   ➖   |    ⬜    |   ⬜   |  ⬜   |
-| 5  | [doc-docx-conversion](steps/doc-docx-conversion.md)                  | 9                    | B2    |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
-| 8  | [upload-endpoint](steps/upload-endpoint.md)                          | 9                    | B2    |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
-| 10 | [review-endpoints](steps/review-endpoints.md)                        | 11                   | B2    |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
-| 6  | [anthropic-client](steps/anthropic-client.md)                        | 7                    | seq   |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
-| 7  | [evaluation-persistence](steps/evaluation-persistence.md)            | 9                    | seq   |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
-| 9  | [background-pipeline](steps/background-pipeline.md)                  | 11                   | seq   |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
-| 11 | [frontend-types-cleanup](steps/frontend-types-cleanup.md)            | 12, 13               | seq   |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
-| 12 | [upload-page](steps/upload-page.md)                                  | —                    | B3    |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
-| 13 | [results-page](steps/results-page.md)                                | —                    | B3    |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
+| 1  | [backend-models](steps/backend-models.md)                            | 2                    | B1    |     ✅     |   ✅   |    ⬜    |   ⬜   |  ⬜   |
+| 4  | [file-processing](steps/file-processing.md)                          | 5, 8                 | B1    |     ✅     |   ✅   |    ⬜    |   ⬜   |  ⬜   |
+| 2  | [pydantic-and-migration](steps/pydantic-and-migration.md)            | 3, 8, 10             | seq   |     ✅     |   ✅   |    ⬜    |   ⬜   |  ⬜   |
+| 3  | [system-prompt](steps/system-prompt.md)                              | 6                    | B2    |     ✅     |   ✅   |    ⬜    |   ⬜   |  ⬜   |
+| 5  | [doc-docx-conversion](steps/doc-docx-conversion.md)                  | 9                    | B2    |     ✅     |   ✅   |    ⬜    |   ⬜   |  ⬜   |
+| 8  | [upload-endpoint](steps/upload-endpoint.md)                          | 9                    | B2    |     ✅     |   ✅   |    ⬜    |   ⬜   |  ⬜   |
+| 10 | [review-endpoints](steps/review-endpoints.md)                        | 11                   | B2    |     ✅     |   ✅   |    ⬜    |   ⬜   |  ⬜   |
+| 6  | [anthropic-client](steps/anthropic-client.md)                        | 7                    | seq   |     ✅     |   ✅   |    ⬜    |   ⬜   |  ⬜   |
+| 7  | [evaluation-persistence](steps/evaluation-persistence.md)            | 9                    | seq   |     ✅     |   ✅   |    ⬜    |   ⬜   |  ⬜   |
+| 9  | [background-pipeline](steps/background-pipeline.md)                  | 11                   | seq   |     ✅     |   ✅   |    ⬜    |   ⬜   |  ⬜   |
+| 11 | [frontend-types-cleanup](steps/frontend-types-cleanup.md)            | 12, 13               | seq   |     ✅     |   ✅   |    ⬜    |   ⬜   |  ⬜   |
+| 12 | [upload-page](steps/upload-page.md)                                  | —                    | B3    |     ✅     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
+| 13 | [results-page](steps/results-page.md)                                | —                    | B3    |     ✅     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
 
 **Legend:** ⬜ pending · ✅ passed · ❌ failed · ⚠️ incomplete · ➖ N/A
 

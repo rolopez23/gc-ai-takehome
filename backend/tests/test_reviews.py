@@ -131,7 +131,7 @@ async def test_get_review_by_contract_id(client: AsyncClient, db: AsyncSession):
     db.add(review)
     await db.commit()
 
-    resp = await client.get(f"/api/reviews/contracts/{contract.id}/review")
+    resp = await client.get(f"/api/contracts/{contract.id}/review")
     assert resp.status_code == 200
     data = resp.json()
     assert data["id"] == str(review.id)
@@ -141,5 +141,5 @@ async def test_get_review_by_contract_id(client: AsyncClient, db: AsyncSession):
 @pytest.mark.asyncio
 async def test_get_review_by_contract_not_found(client: AsyncClient):
     fake_id = uuid.uuid4()
-    resp = await client.get(f"/api/reviews/contracts/{fake_id}/review")
+    resp = await client.get(f"/api/contracts/{fake_id}/review")
     assert resp.status_code == 404

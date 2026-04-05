@@ -3,10 +3,11 @@ import uuid
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, UploadFile, Form
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from database import get_db
 from models import Contract, ContractReview
-from schemas import ContractDetailOut, ContractOut, UploadResponse
+from schemas import ContractDetailOut, ContractOut, ReviewDetailOut, UploadResponse
 from services.conversion import process_upload
 from services.evaluation import evaluate_contract_task
 
@@ -68,3 +69,16 @@ async def get_contract(contract_id: uuid.UUID, db: AsyncSession = Depends(get_db
     if not contract:
         raise HTTPException(status_code=404, detail="Contract not found")
     return contract
+
+
+@router.get("/{contract_id}/review", response_model=ReviewDetailOut)
+async def get_contract_review(contract_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(ContractReview)
+        .options(selectinload(ContractReview.clauses))
+        .where(ContractReview.contract_id == contract_id)
+    )
+    review = result.scalar_one_or_none()
+    if not review:
+        raise HTTPException(status_code=404, detail="Review not found")
+    return review
