@@ -146,7 +146,7 @@ describe('Results page', () => {
       </EvalResultProvider>,
     );
 
-    expect(screen.getByText('fair')).toBeInTheDocument();
+    expect(screen.getByText('Fair')).toBeInTheDocument();
   });
 
   test('shows no evaluation found when result missing', async () => {
