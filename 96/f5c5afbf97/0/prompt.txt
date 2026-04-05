@@ -1,0 +1,120 @@
+Ok I want to pick up my last session we working through the pieces here is where we left off can you resume and have me catch up on all the pieces I need to review.  Also make sure the plan /Users/robertlopez/repos/gc-ai-takehome/docs/mvp-contract-eval/plan.md is updated[Image #1]
+
+---
+
+I never verified or did a code walk through on all the steps.
+
+---
+
+Yes lets redo all the steps restarting for 9
+
+---
+
+Yes do code but not test files
+
+---
+
+code snippets please
+
+---
+
+We dropped other files types for very minimal mvp.
+
+---
+
+it is making the array fixed this would cause issues if I tried to do ALLOWED_EXTENSIONS.push later in the code
+
+---
+
+can we avoid the cast is there a cleaner way I don't love that.
+
+---
+
+This was for the earlier code
+
+---
+
+Also can we migrate our typing to zod schema's thoughts? They work great for mcp and we have the same structured data.
+
+---
+
+I like zod, I think the cleanliness is worth it.  Lets build the zod schemas and try to minimize type case.  I don't like the changes you made ealier.
+
+---
+
+It is a more schema based approach instead of a code based approach.
+
+---
+
+yes
+
+---
+
+I also changed the prompt.  I like the user facing langauge of fair, unfair, egregious.  I made the prompt scoring, fair, non-standard, dealbreaker.  I want the split because I worried the language in the prompt may bias the llm toward plain english versions of those terms and not the more legal definitions.
+
+---
+
+json schema scoring.  Lets have a mapping object when we build the frontend code.  I would note this in relevant later plans but I should know it as well.
+
+---
+
+Yes if you can verify alwasy do it!
+
+---
+
+I did 1 can you try the new key, I think the issue may have been the quotes
+
+---
+
+Lets change model to Claude Haiku 3
+
+---
+
+Let do a simple contract for test
+
+---
+
+This is just a prompt export all the meat of prompt is the actual text
+
+---
+
+Not the most useful to ask me based on the prompt.  I like the the sharing of zod into the schema, that means we are pulling n the actual code as text through a template string.
+
+---
+
+yes
+
+---
+
+two things one we missed the learning step again.  Also I want to scrape some data from the session.  Also I want to do some updates:
+
+1. Lets use the simple contract for testing. 
+2. Create a eval log file I want to track time_to_first_token on the response, as well as if every sample contract meets our fairness benchmark.  Can you add an eval rules link to Agents.md.  This is informal and directional until we build a full eval pipeline
+
+---
+
+Also I would say v the verify on the scripts required too many turns, I would analyze how you worked there.  Also we did not pay attention to each ai model and there constraints should have researched and documented more we wasted turns and money on testing to a bad model.
+
+---
+
+yes
+
+---
+
+That looks good can you make a quick table of waht you captured so I evaluate?
+
+---
+
+Ok I think there is a prompt mismatch thank you so much for doing this can you update our prompt to better match the state.
+
+---
+
+I think actually that contract is bad, I think the prompt is better lets make the terms of the contract better rather than changing the prompt
+
+---
+
+yes
+
+---
+
+No lets handle later.

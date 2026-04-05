@@ -1,0 +1,38 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "96f5c5afbf97",
+  "strategy": "manual-commit",
+  "branch": "rl/mvp-contract-eval",
+  "checkpoints_count": 24,
+  "files_touched": [
+    ".claude/learnings.md",
+    "AGENTS.md",
+    "docs/gc-ai-takehome/contract_3_nonstandard.txt",
+    "docs/gc-ai-takehome/contract_4_minor_issues.txt",
+    "docs/mvp-contract-eval/eval-log.md",
+    "docs/mvp-contract-eval/plan.md",
+    "docs/reviews/rl-mvp-contract-eval-eval-prompt-2026-04-04.md",
+    "docs/reviews/rl-mvp-contract-eval-eval-schema-2026-04-04.md",
+    "frontend/__tests__/prompt.test.ts",
+    "frontend/__tests__/types.test.ts",
+    "frontend/app/evaluate-contract/types.ts",
+    "frontend/package-lock.json",
+    "frontend/package.json",
+    "frontend/prompt/system-prompt.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/96/f5c5afbf97/0/metadata.json",
+      "transcript": "/96/f5c5afbf97/0/full.jsonl",
+      "content_hash": "/96/f5c5afbf97/0/content_hash.txt",
+      "prompt": "/96/f5c5afbf97/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 1255,
+    "cache_creation_tokens": 219889,
+    "cache_read_tokens": 11564759,
+    "output_tokens": 61535,
+    "api_call_count": 134
+  }
+}
