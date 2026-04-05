@@ -1,14 +1,55 @@
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, Form
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
-from models import Contract
-from schemas import ContractDetailOut, ContractOut
+from models import Contract, ContractReview
+from schemas import ContractDetailOut, ContractOut, UploadResponse
+from services.conversion import process_upload
 
 router = APIRouter(prefix="/contracts", tags=["contracts"])
+
+MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
+
+
+@router.post("/upload", response_model=UploadResponse, status_code=201)
+async def upload_contract(
+    file: UploadFile,
+    instructions: str | None = Form(None),
+    db: AsyncSession = Depends(get_db),
+):
+    file_bytes = await file.read()
+    if len(file_bytes) > MAX_UPLOAD_SIZE:
+        raise HTTPException(status_code=413, detail="File too large (max 10MB)")
+
+    try:
+        result = process_upload(file.filename or "unknown", file_bytes)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except NotImplementedError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    contract = Contract(
+        name=file.filename or "unknown",
+        upload_type=result.upload_type,
+        original_blob=result.original_blob,
+        pdf_blob=result.pdf_blob,
+        text=result.text,
+    )
+    db.add(contract)
+    await db.flush()
+
+    review = ContractReview(
+        contract_id=contract.id,
+        status="pending",
+        review_instructions=instructions,
+    )
+    db.add(review)
+    await db.commit()
+
+    return UploadResponse(contract_id=contract.id, review_id=review.id, status="pending")
 
 
 @router.get("/", response_model=list[ContractOut])

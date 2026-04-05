@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 import os
+import subprocess
+import tempfile
 
 
 @dataclass
@@ -11,6 +13,7 @@ class ConversionResult:
 
 
 SUPPORTED_TYPES = {"txt", "pdf", "doc", "docx"}
+MAX_PDF_SIZE_BYTES = 24 * 1024 * 1024  # 24MB, Claude's document block limit
 
 
 def get_upload_type(filename: str) -> str:
@@ -22,6 +25,30 @@ def get_upload_type(filename: str) -> str:
     if ext_lower not in SUPPORTED_TYPES:
         raise ValueError(f"Unsupported file type: .{ext_lower}")
     return ext_lower
+
+
+def _convert_to_pdf(file_bytes: bytes, extension: str) -> bytes:
+    """Convert DOC/DOCX to PDF via LibreOffice headless."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_filename = f"input{extension}"  # e.g. "input.docx"
+        input_path = os.path.join(tmpdir, input_filename)
+        with open(input_path, "wb") as f:
+            f.write(file_bytes)
+
+        result = subprocess.run(
+            ["libreoffice", "--headless", "--convert-to", "pdf", "--outdir", tmpdir, input_path],
+            capture_output=True,
+            timeout=60,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(f"LibreOffice conversion failed: {result.stderr.decode()}")
+
+        pdf_path = os.path.join(tmpdir, "input.pdf")
+        if not os.path.exists(pdf_path):
+            raise RuntimeError("LibreOffice conversion produced no output")
+
+        with open(pdf_path, "rb") as f:
+            return f.read()
 
 
 def process_upload(filename: str, file_bytes: bytes) -> ConversionResult:
@@ -36,13 +63,21 @@ def process_upload(filename: str, file_bytes: bytes) -> ConversionResult:
             text=file_bytes.decode("utf-8"),
         )
 
+    pdf_blob: bytes | None = None
+
     if upload_type == "pdf":
-        return ConversionResult(
-            upload_type="pdf",
-            original_blob=file_bytes,
-            pdf_blob=file_bytes,
-            text=None,
+        pdf_blob = file_bytes
+    elif upload_type in ("doc", "docx"):
+        pdf_blob = _convert_to_pdf(file_bytes, f".{upload_type}")
+
+    if pdf_blob is not None and len(pdf_blob) > MAX_PDF_SIZE_BYTES:
+        raise ValueError(
+            f"Converted PDF exceeds maximum size ({len(pdf_blob)} bytes > {MAX_PDF_SIZE_BYTES})"
         )
 
-    # doc / docx
-    raise NotImplementedError("LibreOffice conversion not yet implemented")
+    return ConversionResult(
+        upload_type=upload_type,
+        original_blob=file_bytes,
+        pdf_blob=pdf_blob,
+        text=None,
+    )
