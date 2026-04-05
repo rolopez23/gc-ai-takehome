@@ -127,3 +127,7 @@ clause sections number should be unique for a key.
 ---
 
 continue
+
+---
+
+Lets move teh nor evaluation found to a sub component.  Same for the evaluation component make it a semantic component.  A for loop is fine for groupByFairness but really is should be a reduce transformation, that reads cleaner, not really a perforamcne difference.  lets also move long classes to names.  short ones are fine I am looking at mt-6 inline-block text-sm text-foreground/60 underline hover:text-foreground".  As for purposes this is the next page defining what is rendered onthe route.  I pulls data from context and handles the error.  asSuccess parses teh result to see if we did not get and error and have the infromation we need.  As above group by fairness is a dreudction of an array to object. We have a constant of the three types so we know we will render them on the screen in order.
