@@ -293,3 +293,7 @@ save and sign off
 ---
 
 Those are teh major I think teh walkthrough skill got streched by the size of the PR.  I think that is a good point you cheated on the E2E by not respeting user contracts.  I would say the parellization worked really well, and we should aim to do that in the future, can we make a memory about htat workign well.
+
+---
+
+Lets make a subsection on Standard Review to call on Typescript code for typescript best practices
