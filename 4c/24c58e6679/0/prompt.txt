@@ -258,3 +258,7 @@ WE can get an error that is response, ie not a contract.  We also don't want' to
 ---
 
 yes!
+
+---
+
+Nope! You did great. I love how you verified even thought the initial plan did not ask you to, great job tweaking context to make the right decision.
