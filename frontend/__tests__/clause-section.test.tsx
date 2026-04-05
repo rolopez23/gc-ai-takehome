@@ -61,4 +61,13 @@ describe('ClauseSection', () => {
     await user.click(screen.getByRole('button'));
     expect(screen.queryByText('Unlimited liability is unacceptable')).not.toBeInTheDocument();
   });
+
+  it('expanded section has scroll constraint', async () => {
+    const user = userEvent.setup();
+    render(<ClauseSection rating="dealbreaker" clauses={[TEST_CLAUSE]} />);
+    await user.click(screen.getByRole('button'));
+    const clauseList = screen.getByText('Unlimited liability is unacceptable').closest('[class*="max-h-"]');
+    expect(clauseList).not.toBeNull();
+    expect(clauseList!.className).toContain('overflow-y-auto');
+  });
 });

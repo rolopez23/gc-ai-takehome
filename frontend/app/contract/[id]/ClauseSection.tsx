@@ -25,7 +25,7 @@ export default function ClauseSection({ rating, clauses }: ClauseSectionProps) {
         <span className="text-foreground/40">{expanded ? '−' : '+'}</span>
       </button>
       {expanded && (
-        <div className="mt-2 space-y-2">
+        <div className="mt-2 max-h-[50vh] space-y-2 overflow-y-auto">
           {clauses.map((clause) => (
             <ClauseCard key={clause.section_number} clause={clause} />
           ))}
