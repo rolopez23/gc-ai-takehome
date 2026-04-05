@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "f845655e5de7",
+  "strategy": "manual-commit",
+  "branch": "m3-backend-eval-pipeline",
+  "checkpoints_count": 4,
+  "files_touched": [
+    "Process.md",
+    "backend/Makefile",
+    "backend/main.py",
+    "frontend/app/contract/[id]/ClauseCard.tsx",
+    "frontend/app/contract/[id]/ClauseSection.tsx",
+    "frontend/app/evaluate-contract/page.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/f8/45655e5de7/0/metadata.json",
+      "transcript": "/f8/45655e5de7/0/full.jsonl",
+      "content_hash": "/f8/45655e5de7/0/content_hash.txt",
+      "prompt": "/f8/45655e5de7/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 2631,
+    "cache_creation_tokens": 517769,
+    "cache_read_tokens": 107942486,
+    "output_tokens": 188175,
+    "api_call_count": 485
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "f845655e5de7",
+  "session_id": "56f744d5-cb1d-417f-a2c9-fb761f958299",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-05T23:02:01.752642Z",
+  "branch": "m3-backend-eval-pipeline",
+  "checkpoints_count": 4,
+  "files_touched": [
+    "Process.md",
+    "backend/Makefile",
+    "backend/main.py",
+    "frontend/app/contract/[id]/ClauseCard.tsx",
+    "frontend/app/contract/[id]/ClauseSection.tsx",
+    "frontend/app/evaluate-contract/page.tsx"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-6[1m]",
+  "turn_id": "ac828a5c7780",
+  "token_usage": {
+    "input_tokens": 2631,
+    "cache_creation_tokens": 517769,
+    "cache_read_tokens": 107942486,
+    "output_tokens": 188175,
+    "api_call_count": 485
+  },
+  "session_metrics": {
+    "turn_count": 73
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-05T23:02:00.269864Z",
+    "agent_lines": 36,
+    "agent_removed": 15,
+    "human_added": 38,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 74,
+    "total_lines_changed": 107,
+    "agent_percentage": 47.66355140186916,
+    "metric_version": 2
+  }
+}
