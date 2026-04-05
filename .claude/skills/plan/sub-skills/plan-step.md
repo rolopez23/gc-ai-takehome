@@ -41,8 +41,34 @@ controller action, one job behavior, one integration point.
 ## After the Final Cycle
 
 - Update `plan.md`: mark Auto Tests ✅ for this step
-- If this step has an externally observable surface, fill in the LLM Verification section
-  with the exact command and expected output. If not, mark N/A and say why.
+- Run LLM Verification and mark the Verify column accordingly
+
+---
+
+## Proof of Work
+
+> "Your job is to deliver code you have proven to work."
+> — [Simon Willison](https://simonwillison.net/2025/Dec/18/code-proven-to-work/)
+
+Every step must include an LLM Verification section. Automated tests prove correctness to the
+machine. Verification proves correctness to the human — they are complementary, not substitutes.
+
+**Verification is evidence.** The section must contain:
+1. The exact command(s) to run
+2. The expected output or behavior
+3. What constitutes a pass vs. fail
+
+**Before marking ➖ (N/A), exhaust all verification paths:**
+
+| "No external surface" | Try instead |
+|---|---|
+| Schema/model changes | Inspect the live DB: `\dt`, `\d tablename`, insert + query |
+| Config/prompt changes | Print the output, diff against expected |
+| Internal service logic | Check side effects: files written, DB rows created, logs emitted |
+| Type/validation changes | Build the project, run the compiler, show zero errors |
+
+➖ is valid only when the step has genuinely no observable effect beyond what automated tests
+cover — e.g., pure refactoring of internal function signatures with no behavior change.
 
 ---
 
@@ -91,11 +117,11 @@ controller action, one job behavior, one integration point.
 
 <repeat for each cycle>
 
-## LLM Verification
+## Verification
 
-<exact command and what a passing result looks like>
+<exact commands to run and what a passing result looks like — this is your proof of work>
 
 — or —
 
-**N/A** — <reason>
+**➖ N/A** — <reason, after exhausting all verification paths listed above>
 ```

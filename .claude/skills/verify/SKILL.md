@@ -11,9 +11,16 @@ description: >
 
 # Verify
 
+> "Your job is to deliver code you have proven to work."
+> — [Simon Willison](https://simonwillison.net/2025/Dec/18/code-proven-to-work/)
+
 You are verifying that implemented code works against a live, running system. This is not a unit
 test run — it is an end-to-end check of real behavior: real HTTP requests, real browser
 interactions, real database state. You are the last line of defense before the human signs off.
+
+Automated tests and manual verification are complementary. Tests prove correctness to the machine.
+Verification proves correctness to the human. Both are required — one does not substitute for
+the other.
 
 ## The Core Rule
 
@@ -46,11 +53,20 @@ Determine what needs to be verified. In order of preference:
 
 If you cannot determine what to verify, say so and return verification incomplete.
 
-**Do not mark N/A too eagerly.** If any verification is possible — connecting to a database,
-inspecting a file, querying a queue, checking logs — do it. N/A means there is genuinely no
-observable effect to check, not "there's no HTTP endpoint." A schema migration can be verified
-by inspecting the live database. A background job can be verified by checking its side effects.
-Only mark ➖ when you have exhausted all verification paths.
+**Do not mark N/A too eagerly.** Before marking ➖, exhaust every verification path:
+
+| "No external surface" | Try instead |
+|---|---|
+| Schema/model changes | Inspect the live DB: `\dt`, `\d tablename`, insert + query |
+| Config/prompt changes | Print the output, diff against expected |
+| Internal service logic | Check side effects: files written, DB rows created, logs emitted |
+| Type/validation changes | Build the project, run the compiler, show zero errors |
+| Background jobs | Check the job's side effects: rows updated, files created, status changed |
+| File conversion | Write output to disk, open it, verify content |
+
+➖ means genuinely no observable effect — not "there's no HTTP endpoint." A schema migration can
+be verified by inspecting the live database. A background job can be verified by checking its
+side effects. Only mark ➖ when you have exhausted all paths above.
 
 ## Check the System is Running
 
