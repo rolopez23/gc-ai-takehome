@@ -119,9 +119,27 @@ Rules added by `/learn-from-mistakes` when a pattern recurs 3+ times.
 
 After every Human sign-off, ALWAYS run /learn-from-mistakes before proceeding to the next step. This is a blocking requirement, not optional. (Pattern `workflow-steps-skipped` — 3 occurrences as of 2026-04-04.)
 
-### Prime directive: make it work, make it work well, make it beautiful
+### Workflow order is mandatory
 
-Verify always runs immediately after tests pass — never ask, never defer, never skip. The workflow order is: make it work (tests) → make it work well (verify) → make it beautiful (simplify → review → walkthrough → human → learn). (Pattern `verify-*` — 3 occurrences as of 2026-04-04.)
+The per-step workflow has **mandatory** and **variable** steps:
+
+```
+Auto Tests → Verify → Simplify → Review → [Understand] → [Human] → /learn-from-mistakes
+  MANDATORY   MANDATORY  MANDATORY  MANDATORY   VARIABLE    VARIABLE     MANDATORY
+```
+
+**Mandatory steps** (never skip, never ask permission, never defer):
+- **Auto Tests** — run tests, all must pass
+- **Verify** — live verification (curl, browser, DB inspection) against a running system. Tests prove it to the machine; verification proves it to the human. Both required. ([ref](https://simonwillison.net/2025/Dec/18/code-proven-to-work/))
+- **Simplify** — code reuse, quality, efficiency review + fixes
+- **Review** — correctness review (bugs, edge cases, contract violations)
+- **/learn-from-mistakes** — always runs after human sign-off, before next step
+
+**Variable steps** (human decides whether to run):
+- **Understand** — PR walkthrough; human may batch or skip
+- **Human** — sign-off; human may batch across steps
+
+Do not ask "should I run verify?" or "skip to walkthrough?" — mandatory steps just run. (Pattern `workflow-steps-skipped` — 4 occurrences, `verify-not-automatic` — 2 occurrences.)
 
 <!-- learned-rules-end -->
 

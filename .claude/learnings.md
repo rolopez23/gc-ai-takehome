@@ -263,3 +263,75 @@
 **What happened**: Missing aria-label on section elements, missing aria-expanded on toggle buttons, div-based clause list instead of ul/li. Neither simplify nor review flagged accessibility gaps. This is the second time accessibility has been missed across features.
 **Where it surfaced**: PR walkthrough (human review)
 **Pattern tag**: `accessibility-not-reviewed`
+
+### 2026-04-05 · backend-eval-pipeline/all-steps
+
+**Category**: Skill gap
+**Error class**: Skill
+**What happened**: Agent ran unit tests for all steps but skipped live verification (curl, DB inspection, browser) until user called it out: "are you doing independent verification?" This was immediately after updating the verify skill to say "never skip."
+**Where it surfaced**: Human review
+**Pattern tag**: `verification-skipped`
+
+### 2026-04-05 · backend-eval-pipeline/step-9
+
+**Category**: Missed edge case
+**Error class**: Context
+**What happened**: CORS used exact origin match. Frontend runs on random ports via portless. All 67 backend tests passed — test client bypasses CORS middleware. Only caught by browser verification.
+**Where it surfaced**: Browser E2E verification
+**Pattern tag**: `cors-not-tested`
+
+### 2026-04-05 · backend-eval-pipeline/step-9
+
+**Category**: Bad assumption
+**Error class**: Context
+**What happened**: Route path mismatch — spec said `/api/contracts/{id}/review` but implementation put endpoint on reviews router at `/api/reviews/contracts/{id}/review`. Frontend and backend tested independently.
+**Where it surfaced**: Browser E2E verification
+**Pattern tag**: `cross-boundary-contract-mismatch`
+
+### 2026-04-05 · backend-eval-pipeline/step-9
+
+**Category**: Bad assumption
+**Error class**: Context
+**What happened**: API key in root `.env` but not `backend/.env`. Agent's E2E worked (manually exported), user hit "auth failed" in normal usage.
+**Where it surfaced**: Human review (user screenshot)
+**Pattern tag**: `env-config-mismatch`
+
+### 2026-04-05 · backend-eval-pipeline/step-2
+
+**Category**: Missed edge case
+**Error class**: Skill
+**What happened**: `datetime.now(UTC)` (timezone-aware) vs `TIMESTAMP WITHOUT TIME ZONE`. SQLite tests passed, PostgreSQL rejected. Only caught by live DB verification.
+**Where it surfaced**: Live DB verification
+**Pattern tag**: `sqlite-vs-postgres-divergence`
+
+### 2026-04-05 · backend-eval-pipeline/simplify
+
+**Category**: Large refactor
+**Error class**: Skill
+**What happened**: Used synchronous `anthropic.Anthropic` inside `async` function, blocking event loop for up to 90s. Should have used `AsyncAnthropic`. Only caught by simplify.
+**Where it surfaced**: Simplify (efficiency review)
+**Pattern tag**: `sync-in-async`
+
+### 2026-04-05 · backend-eval-pipeline/simplify
+
+**Category**: Implementation hole
+**Error class**: Context
+**What happened**: DOC/DOCX converted at upload time AND again in background task. Double LibreOffice invocation.
+**Where it surfaced**: Simplify (code reuse review)
+**Pattern tag**: `duplicate-work`
+
+### 2026-04-05 · backend-eval-pipeline/walkthrough
+
+**Category**: Skill gap
+**Error class**: Skill
+**What happened**: Walkthrough rated Python concepts as High when user needed corrections on core mechanisms (deferred, from_attributes, selectinload). User flagged ratings as too generous.
+**Where it surfaced**: Human review
+**Pattern tag**: `walkthrough-calibration-inflated`
+
+### 2026-04-05 · backend-eval-pipeline/walkthrough
+
+**Category**: Skill gap
+**Error class**: Skill
+**What happened**: PR walkthrough covered 18 file groups across full milestone. Too large for deep comprehension — skill works better at step-level granularity.
+**Where it surfaced**: Human review
+**Pattern tag**: `walkthrough-scope-too-large`
