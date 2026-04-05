@@ -26,7 +26,7 @@ def upgrade() -> None:
         sa.Column("original_blob", sa.LargeBinary(), nullable=False),
         sa.Column("pdf_blob", sa.LargeBinary(), nullable=True),
         sa.Column("text", sa.Text(), nullable=True),
-        sa.Column("created_at", sa.DateTime(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
     )
 
     op.create_table(
@@ -39,8 +39,8 @@ def upgrade() -> None:
         sa.Column("summary", sa.Text(), nullable=True),
         sa.Column("call_to_action", sa.JSON(), nullable=True),
         sa.Column("failure_message", sa.Text(), nullable=True),
-        sa.Column("created_at", sa.DateTime(), nullable=False),
-        sa.Column("completed_at", sa.DateTime(), nullable=True),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("completed_at", sa.DateTime(timezone=True), nullable=True),
     )
 
     op.create_table(
