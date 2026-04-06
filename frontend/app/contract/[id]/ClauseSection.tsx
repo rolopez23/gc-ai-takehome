@@ -5,7 +5,7 @@ import type { FairnessRating, ReviewClause } from '@/app/evaluate-contract/types
 import { getFairnessDisplay } from '@/app/evaluate-contract/fairness-utils';
 import ClauseCard from '@/app/contract/[id]/ClauseCard';
 
-const SECTION_BORDER = 'rounded-lg border border-foreground/10 px-4 py-3';
+const SECTION_BORDER = 'rounded-lg border border-border px-4 py-3';
 const SECTION_HEADER = `flex w-full items-center justify-between ${SECTION_BORDER} text-left hover:bg-foreground/5`;
 const CLAUSE_LIST = 'mt-2 max-h-[50vh] space-y-2 overflow-y-auto';
 
@@ -24,7 +24,7 @@ function NoClauses({ rating, label }: { rating: FairnessRating; label: string })
   );
 }
 
-function ExpandableClauses({ label, clauses }: { label: string; clauses: ReviewClause[] }) {
+function ExpandableClauses({ label, rating, clauses }: { label: string; rating: FairnessRating; clauses: ReviewClause[] }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -42,7 +42,7 @@ function ExpandableClauses({ label, clauses }: { label: string; clauses: ReviewC
         <ul className={CLAUSE_LIST}>
           {clauses.map((clause) => (
             <li key={clause.section_number}>
-              <ClauseCard clause={clause} />
+              <ClauseCard clause={clause} fairness={rating} />
             </li>
           ))}
         </ul>
@@ -63,5 +63,5 @@ export default function ClauseSection({ rating, clauses }: ClauseSectionProps) {
     return <NoClauses rating={rating} label={label} />;
   }
 
-  return <ExpandableClauses label={label} clauses={clauses} />;
+  return <ExpandableClauses label={label} rating={rating} clauses={clauses} />;
 }

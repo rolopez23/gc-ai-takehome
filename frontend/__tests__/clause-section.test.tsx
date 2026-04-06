@@ -26,10 +26,17 @@ const TEST_CLAUSE_2: ReviewClause = {
 
 describe('ClauseCard', () => {
   it('renders section_number, clause_type, and explanation', () => {
-    render(<ClauseCard clause={TEST_CLAUSE} />);
+    render(<ClauseCard clause={TEST_CLAUSE} fairness="dealbreaker" />);
     expect(screen.getByText('3.1')).toBeInTheDocument();
     expect(screen.getByText('Liability Cap')).toBeInTheDocument();
     expect(screen.getByText('Unlimited liability is unacceptable')).toBeInTheDocument();
+  });
+
+  it('applies fairness-colored left border', () => {
+    const { container } = render(<ClauseCard clause={TEST_CLAUSE} fairness="dealbreaker" />);
+    const card = container.firstChild as HTMLElement;
+    expect(card.className).toContain('border-l-2');
+    expect(card.className).toContain('border-egregious-border');
   });
 });
 
