@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import EvaluateContractPage from '@/app/evaluate-contract/page';
+import { LoadingShimmer } from '@/app/evaluate-contract/LoadingShimmer';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
@@ -80,6 +81,22 @@ describe('Loading shimmer', () => {
       expect(calls[0][1].method).toBe('POST');
       expect(calls[0][1].body).toBeInstanceOf(FormData);
     });
+  });
+
+  test('shimmer cards have staggered delay', () => {
+    render(<LoadingShimmer statusText="Evaluating..." />);
+    const cards = screen.getAllByTestId('shimmer-card');
+    expect(cards).toHaveLength(3);
+    expect(cards[0].style.animationDelay).toBe('0ms');
+    expect(cards[1].style.animationDelay).toBe('150ms');
+    expect(cards[2].style.animationDelay).toBe('300ms');
+  });
+
+  test('shimmer has fade-in', () => {
+    render(<LoadingShimmer statusText="Evaluating..." />);
+    const shimmer = screen.getByTestId('loading-shimmer');
+    const fadeWrapper = shimmer.firstChild as HTMLElement;
+    expect(fadeWrapper.className).toContain('animate-[fadeIn_300ms_ease-out_forwards]');
   });
 
   test('hides shimmer on failed evaluation', async () => {
