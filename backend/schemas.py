@@ -36,6 +36,12 @@ class ContractDetailOut(ContractOut):
 
 
 class ClauseOut(BaseModel):
+    """WARNING: purpose, fairness, market_standard, explanation are nullable because clauses
+    are inserted at split time before evaluation. The polling endpoint only returns completed
+    reviews where these fields are populated, but if the endpoint is hit mid-evaluation
+    (transitory state), null values here will fail Zod validation on the frontend
+    (ReviewClauseSchema expects non-nullable strings)."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
