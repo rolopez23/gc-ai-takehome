@@ -109,3 +109,71 @@ describe('Dashboard empty state', () => {
     });
   });
 });
+
+// --- Cycle 3: Contract list tests ---
+
+const COMPLETED_CONTRACT = {
+  id: uuid,
+  name: 'lease_agreement.pdf',
+  upload_type: 'application/pdf',
+  created_at: '2026-04-05T12:00:00Z',
+  review_status: 'completed',
+  overall_fairness: 'fair' as const,
+  failure_code: null,
+};
+
+const FAILED_CONTRACT = {
+  id: uuid2,
+  name: 'vendor_contract.docx',
+  upload_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  created_at: '2026-04-05T11:00:00Z',
+  review_status: 'failed',
+  overall_fairness: null,
+  failure_code: 'timeout',
+};
+
+describe('Dashboard contract list', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    mockFetch.mockReset();
+    vi.stubGlobal('fetch', mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('renders contract names and badges for completed and failed', async () => {
+    mockFetch.mockReturnValue(mockFetchResponse([COMPLETED_CONTRACT, FAILED_CONTRACT]));
+    const { default: Home } = await import('@/app/page');
+    render(<Home />);
+    await waitFor(() => {
+      expect(screen.getByText('lease_agreement.pdf')).toBeInTheDocument();
+    });
+    expect(screen.getByText('vendor_contract.docx')).toBeInTheDocument();
+    // Completed contract shows fairness badge
+    expect(screen.getByText('Fair')).toBeInTheDocument();
+    // Failed contract shows "Failed"
+    expect(screen.getByText('Failed')).toBeInTheDocument();
+  });
+
+  it('links each row to /contract/{id}', async () => {
+    mockFetch.mockReturnValue(mockFetchResponse([COMPLETED_CONTRACT]));
+    const { default: Home } = await import('@/app/page');
+    render(<Home />);
+    await waitFor(() => {
+      expect(screen.getByText('lease_agreement.pdf')).toBeInTheDocument();
+    });
+    const link = screen.getByRole('link', { name: /lease_agreement\.pdf/i });
+    expect(link).toHaveAttribute('href', `/contract/${uuid}`);
+  });
+
+  it('shows "Your Contracts" heading when contracts exist', async () => {
+    mockFetch.mockReturnValue(mockFetchResponse([COMPLETED_CONTRACT]));
+    const { default: Home } = await import('@/app/page');
+    render(<Home />);
+    await waitFor(() => {
+      expect(screen.getByText('Your Contracts')).toBeInTheDocument();
+    });
+  });
+});
