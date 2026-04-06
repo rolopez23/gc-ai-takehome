@@ -50,7 +50,7 @@ describe("ClauseCard", () => {
       <ClauseCard clause={TEST_CLAUSE} fairness="dealbreaker" />,
     );
     const card = container.firstChild as HTMLElement;
-    expect(card.className).toContain("border-l-2");
+    expect(card.className).toContain("border-l-4");
     expect(card.className).toContain("border-l-egregious-border");
   });
 });

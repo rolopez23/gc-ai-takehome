@@ -27,8 +27,9 @@ export const SplittingEventSchema = z.object({
 export const StreamClauseSchema = z.object({
   section_number: z.string(),
   clause_type: z.string(),
-  severity: z.number(),
-  fairness: z.enum(["fair", "non-standard", "dealbreaker"]),
+  severity: z.number().optional(),
+  fairness: z.enum(["fair", "non-standard", "dealbreaker"]).optional(),
+  status: z.string().optional(),
   purpose: z.string().optional(),
   market_standard: z.string().optional(),
   explanation: z.string().optional(),

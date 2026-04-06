@@ -192,7 +192,11 @@ export default function ContractPage() {
           if (!res.ok) throw new Error("Failed to fetch review");
           const data = ReviewResponseSchema.parse(await res.json());
           setReview(data);
-          if (data.status === "completed" || data.status === "failed") {
+          if (
+            data.status === "completed" ||
+            data.status === "failed" ||
+            data.status === "rejected"
+          ) {
             setLoading(false);
             return;
           }
@@ -228,6 +232,10 @@ export default function ContractPage() {
   if (review.status === "failed")
     return (
       <EvaluationFailed message={getFailureMessage(review.failure_code)} />
+    );
+  if (review.status === "rejected")
+    return (
+      <NotAContract summary={"summary" in review ? review.summary : null} />
     );
   if (review.status === "completed") {
     if (review.overall_fairness) return <EvaluationResults result={review} />;
