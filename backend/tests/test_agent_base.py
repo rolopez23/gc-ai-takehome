@@ -4,6 +4,7 @@ import os
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import anthropic
+import httpx
 import pytest
 
 # ---------------------------------------------------------------------------
@@ -331,3 +332,111 @@ class TestMaxTokensTracking:
 
         assert any("max_tokens" in record.message for record in caplog.records)
         assert any("evaluator" in record.message for record in caplog.records)
+
+
+# ---------------------------------------------------------------------------
+# Cycle 5: rate-limit-resilience
+# ---------------------------------------------------------------------------
+
+
+def _make_rate_limit_error():
+    """Create an anthropic.RateLimitError for testing."""
+    return anthropic.RateLimitError(
+        message="Rate limited",
+        response=httpx.Response(
+            429, request=httpx.Request("POST", "https://api.anthropic.com")
+        ),
+        body={
+            "type": "error",
+            "error": {"type": "rate_limit_error", "message": "Rate limited"},
+        },
+    )
+
+
+class TestRateLimitRetry:
+    @pytest.mark.asyncio
+    @patch("services.agents.base.asyncio.sleep", new_callable=AsyncMock)
+    async def test_rate_limit_retry_with_longer_backoff(self, mock_sleep):
+        """Rate limit error retries with 10s backoff and succeeds on second attempt."""
+        from services.agents.base import (
+            RATE_LIMIT_BACKOFF_BASE,
+            AgentConfig,
+            AgentRunner,
+        )
+
+        config = AgentConfig("evaluator")
+        text_block = _make_text_block("ok")
+        success_response = _make_response([text_block], "end_turn")
+
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(
+            side_effect=[_make_rate_limit_error(), success_response]
+        )
+
+        runner = AgentRunner(config=config, tools=[], tool_handlers={})
+        runner.client = mock_client
+
+        result = await runner.run(
+            system="test", messages=[{"role": "user", "content": "hi"}]
+        )
+
+        assert result.stop_reason == "end_turn"
+        assert mock_client.messages.create.call_count == 2
+        # First rate limit retry sleeps for RATE_LIMIT_BACKOFF_BASE * 1
+        mock_sleep.assert_called_with(RATE_LIMIT_BACKOFF_BASE * 1)
+
+    @pytest.mark.asyncio
+    @patch("services.agents.base.asyncio.sleep", new_callable=AsyncMock)
+    async def test_rate_limit_retry_exhausted(self, mock_sleep):
+        """Raises after MAX_RATE_LIMIT_RETRIES rate limit retries are exhausted."""
+        from services.agents.base import MAX_RATE_LIMIT_RETRIES, AgentConfig, AgentRunner
+
+        config = AgentConfig("evaluator")
+
+        mock_client = AsyncMock()
+        # Raise rate limit error more times than allowed
+        mock_client.messages.create = AsyncMock(
+            side_effect=[_make_rate_limit_error() for _ in range(MAX_RATE_LIMIT_RETRIES + 1)]
+        )
+
+        runner = AgentRunner(config=config, tools=[], tool_handlers={})
+        runner.client = mock_client
+
+        with pytest.raises(anthropic.RateLimitError):
+            await runner.run(
+                system="test", messages=[{"role": "user", "content": "hi"}]
+            )
+
+        # 1 initial + MAX_RATE_LIMIT_RETRIES retries = MAX_RATE_LIMIT_RETRIES + 1
+        assert mock_client.messages.create.call_count == MAX_RATE_LIMIT_RETRIES + 1
+
+    @pytest.mark.asyncio
+    @patch("services.agents.base.asyncio.sleep", new_callable=AsyncMock)
+    async def test_rate_limit_separate_from_generic_retry(self, mock_sleep):
+        """Rate limit and generic API error retries operate independently."""
+        from services.agents.base import AgentConfig, AgentRunner
+
+        config = AgentConfig("evaluator")
+        text_block = _make_text_block("ok")
+        success_response = _make_response([text_block], "end_turn")
+
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(
+            side_effect=[
+                _make_rate_limit_error(),
+                anthropic.APIError(
+                    message="server error", request=MagicMock(), body=None
+                ),
+                success_response,
+            ]
+        )
+
+        runner = AgentRunner(config=config, tools=[], tool_handlers={})
+        runner.client = mock_client
+
+        result = await runner.run(
+            system="test", messages=[{"role": "user", "content": "hi"}]
+        )
+
+        assert result.stop_reason == "end_turn"
+        assert mock_client.messages.create.call_count == 3

@@ -51,6 +51,8 @@ class AgentConfig:
 
 
 MAX_RETRIES = 2
+MAX_RATE_LIMIT_RETRIES = 3
+RATE_LIMIT_BACKOFF_BASE = 10  # seconds
 MAX_TOOL_ROUNDS = 10  # Safety cap on tool-use loop iterations
 
 
@@ -96,7 +98,9 @@ class AgentRunner:
         messages: list[dict],
         tool_choice: dict[str, str],
     ):
-        for attempt in range(MAX_RETRIES + 1):
+        rate_limit_attempts = 0
+        attempt = 0
+        while attempt <= MAX_RETRIES:
             try:
                 return await self.client.messages.create(
                     model=self.config.model,
@@ -106,6 +110,20 @@ class AgentRunner:
                     tools=self.tools,
                     tool_choice=tool_choice,
                 )
+            except anthropic.RateLimitError:
+                rate_limit_attempts += 1
+                if rate_limit_attempts > MAX_RATE_LIMIT_RETRIES:
+                    raise
+                delay = RATE_LIMIT_BACKOFF_BASE * rate_limit_attempts
+                logger.warning(
+                    "Agent '%s' rate limited (attempt %d/%d), retrying in %ds",
+                    self.config.agent_type,
+                    rate_limit_attempts,
+                    MAX_RATE_LIMIT_RETRIES,
+                    delay,
+                )
+                await asyncio.sleep(delay)
+                # Don't increment attempt — rate limits are separate
             except (anthropic.APIError, anthropic.APITimeoutError) as e:
                 if attempt == MAX_RETRIES:
                     raise
@@ -119,6 +137,7 @@ class AgentRunner:
                     e,
                 )
                 await asyncio.sleep(delay)
+                attempt += 1
 
     async def run(
         self,

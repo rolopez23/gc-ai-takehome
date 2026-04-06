@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import os
 import uuid
 from collections.abc import AsyncGenerator
 from dataclasses import asdict
@@ -21,7 +22,7 @@ from services.synthesis import synthesize
 
 logger = logging.getLogger(__name__)
 
-MAX_CONCURRENT_EVALUATORS = 7
+MAX_CONCURRENT_EVALUATORS = int(os.getenv("MAX_CONCURRENT_EVALUATORS", "3"))
 FAILURE_THRESHOLD = 0.10
 
 
