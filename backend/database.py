@@ -6,7 +6,9 @@ from sqlalchemy.orm import DeclarativeBase
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://app:app@localhost:5432/app")
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "postgresql+asyncpg://app:app@localhost:5432/app"
+)
 
 engine = create_async_engine(DATABASE_URL, echo=False)
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)

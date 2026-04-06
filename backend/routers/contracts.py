@@ -7,7 +7,13 @@ from sqlalchemy.orm import selectinload
 
 from database import get_db
 from models import Contract, ContractReview
-from schemas import ContractDetailOut, ContractListOut, ContractOut, ReviewDetailOut, UploadResponse
+from schemas import (
+    ContractDetailOut,
+    ContractListOut,
+    ContractOut,
+    ReviewDetailOut,
+    UploadResponse,
+)
 from services.conversion import process_upload
 from services.evaluation import evaluate_contract_task
 
@@ -54,7 +60,9 @@ async def upload_contract(
 
     background_tasks.add_task(evaluate_contract_task, review.id, contract.id)
 
-    return UploadResponse(contract_id=contract.id, review_id=review.id, status="pending")
+    return UploadResponse(
+        contract_id=contract.id, review_id=review.id, status="pending"
+    )
 
 
 @router.get("/", response_model=list[ContractListOut])
@@ -103,7 +111,9 @@ async def get_contract(contract_id: uuid.UUID, db: AsyncSession = Depends(get_db
 
 
 @router.get("/{contract_id}/review", response_model=ReviewDetailOut)
-async def get_contract_review(contract_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+async def get_contract_review(
+    contract_id: uuid.UUID, db: AsyncSession = Depends(get_db)
+):
     result = await db.execute(
         select(ContractReview)
         .options(selectinload(ContractReview.clauses))

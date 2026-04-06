@@ -136,8 +136,12 @@ async def test_list_contracts_includes_review_status(client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_list_contracts_no_review_returns_nulls(client: AsyncClient, db: AsyncSession):
-    contract = Contract(name="orphan.txt", upload_type="txt", original_blob=b"test", text="text")
+async def test_list_contracts_no_review_returns_nulls(
+    client: AsyncClient, db: AsyncSession
+):
+    contract = Contract(
+        name="orphan.txt", upload_type="txt", original_blob=b"test", text="text"
+    )
     db.add(contract)
     await db.commit()
 

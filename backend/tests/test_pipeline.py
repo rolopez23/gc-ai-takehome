@@ -11,22 +11,24 @@ def _mock_anthropic_success():
     mock_msg.stop_reason = "end_turn"
     mock_content = MagicMock()
     mock_content.type = "text"
-    mock_content.text = json.dumps({
-        "error": None,
-        "overall_fairness": "fair",
-        "summary": "Looks good",
-        "call_to_action": [],
-        "clauses": [
-            {
-                "section_number": "1",
-                "clause_type": "Term",
-                "purpose": "Sets duration",
-                "fairness": "fair",
-                "market_standard": "Standard",
-                "explanation": "Normal",
-            }
-        ],
-    })
+    mock_content.text = json.dumps(
+        {
+            "error": None,
+            "overall_fairness": "fair",
+            "summary": "Looks good",
+            "call_to_action": [],
+            "clauses": [
+                {
+                    "section_number": "1",
+                    "clause_type": "Term",
+                    "purpose": "Sets duration",
+                    "fairness": "fair",
+                    "market_standard": "Standard",
+                    "explanation": "Normal",
+                }
+            ],
+        }
+    )
     mock_msg.content = [mock_content]
     return mock_msg
 
@@ -37,7 +39,9 @@ async def test_upload_triggers_evaluation(client: AsyncClient):
     in the test client, so GET should see completed status immediately."""
     with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
         mock_instance = MockClient.return_value
-        mock_instance.messages.create = AsyncMock(return_value=_mock_anthropic_success())
+        mock_instance.messages.create = AsyncMock(
+            return_value=_mock_anthropic_success()
+        )
 
         resp = await client.post(
             "/api/contracts/upload",
@@ -59,7 +63,9 @@ async def test_upload_and_poll_completed(client: AsyncClient):
     overall_fairness and clauses populated."""
     with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
         mock_instance = MockClient.return_value
-        mock_instance.messages.create = AsyncMock(return_value=_mock_anthropic_success())
+        mock_instance.messages.create = AsyncMock(
+            return_value=_mock_anthropic_success()
+        )
 
         resp = await client.post(
             "/api/contracts/upload",
@@ -86,10 +92,18 @@ async def test_upload_and_poll_completed(client: AsyncClient):
 async def test_upload_conversion_error_returns_400(client: AsyncClient):
     """POST a .docx where process_upload raises ValueError at upload time.
     Conversion now happens at upload, not in background task."""
-    with patch("routers.contracts.process_upload", side_effect=ValueError("corrupt file")):
+    with patch(
+        "routers.contracts.process_upload", side_effect=ValueError("corrupt file")
+    ):
         resp = await client.post(
             "/api/contracts/upload",
-            files={"file": ("test.docx", b"fake docx bytes", "application/vnd.openxmlformats-officedocument.wordprocessingml.document")},
+            files={
+                "file": (
+                    "test.docx",
+                    b"fake docx bytes",
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                )
+            },
         )
         assert resp.status_code == 400
         assert "corrupt file" in resp.json()["detail"]

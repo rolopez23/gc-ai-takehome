@@ -52,9 +52,7 @@ async def test_contract_txt_has_text_no_pdf_blob(db):
     await db.commit()
 
     stmt = (
-        select(Contract)
-        .where(Contract.id == c.id)
-        .options(undefer(Contract.pdf_blob))
+        select(Contract).where(Contract.id == c.id).options(undefer(Contract.pdf_blob))
     )
     result = await db.execute(stmt)
     row = result.scalar_one()
@@ -200,26 +198,28 @@ async def test_clause_relationship(db):
     db.add(r)
     await db.commit()
 
-    db.add_all([
-        ReviewClause(
-            review_id=r.id,
-            section_number="1.0",
-            clause_type="termination",
-            purpose="Allows either party to terminate.",
-            fairness="fair",
-            market_standard="Standard mutual termination clause.",
-            explanation="This is standard.",
-        ),
-        ReviewClause(
-            review_id=r.id,
-            section_number="2.0",
-            clause_type="indemnification",
-            purpose="One-sided indemnification.",
-            fairness="dealbreaker",
-            market_standard="Mutual indemnification is standard.",
-            explanation="Only one party bears indemnification burden.",
-        ),
-    ])
+    db.add_all(
+        [
+            ReviewClause(
+                review_id=r.id,
+                section_number="1.0",
+                clause_type="termination",
+                purpose="Allows either party to terminate.",
+                fairness="fair",
+                market_standard="Standard mutual termination clause.",
+                explanation="This is standard.",
+            ),
+            ReviewClause(
+                review_id=r.id,
+                section_number="2.0",
+                clause_type="indemnification",
+                purpose="One-sided indemnification.",
+                fairness="dealbreaker",
+                market_standard="Mutual indemnification is standard.",
+                explanation="Only one party bears indemnification burden.",
+            ),
+        ]
+    )
     await db.commit()
 
     stmt = (

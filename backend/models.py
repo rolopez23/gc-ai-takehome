@@ -17,7 +17,9 @@ class Contract(Base):
     original_blob: Mapped[bytes] = deferred(mapped_column(LargeBinary))
     pdf_blob: Mapped[bytes | None] = deferred(mapped_column(LargeBinary, nullable=True))
     text: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(UTC))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
 
     reviews: Mapped[list["ContractReview"]] = relationship(back_populates="contract")
 
@@ -34,8 +36,12 @@ class ContractReview(Base):
     call_to_action: Mapped[list | None] = mapped_column(JSON, nullable=True)
     failure_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     failure_code: Mapped[str | None] = mapped_column(nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(UTC))
-    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
+    completed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     contract: Mapped["Contract"] = relationship(back_populates="reviews")
     clauses: Mapped[list["ReviewClause"]] = relationship(back_populates="review")

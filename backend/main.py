@@ -17,7 +17,9 @@ def _check_api_key():
     if not key:
         raise RuntimeError("ANTHROPIC_API_KEY is not set. Add it to your .env file.")
     if not key.startswith("sk-ant-"):
-        raise RuntimeError(f"ANTHROPIC_API_KEY looks invalid (starts with '{key[:6]}...'). Expected 'sk-ant-...'.")
+        raise RuntimeError(
+            f"ANTHROPIC_API_KEY looks invalid (starts with '{key[:6]}...'). Expected 'sk-ant-...'."
+        )
     logger = logging.getLogger("uvicorn.error")
     logger.info("Valid Anthropic API key found (sk-ant-...)")
 

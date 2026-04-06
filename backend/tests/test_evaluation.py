@@ -116,7 +116,9 @@ async def db():
 
 
 async def _create_contract_and_review(db, text="Contract text"):
-    contract = Contract(name="test.txt", upload_type="txt", original_blob=b"test", text=text)
+    contract = Contract(
+        name="test.txt", upload_type="txt", original_blob=b"test", text=text
+    )
     db.add(contract)
     await db.flush()
     review = ContractReview(contract_id=contract.id, status="pending")
@@ -133,30 +135,32 @@ def _mock_success_response():
     mock_msg.stop_reason = "end_turn"
     mock_content = MagicMock()
     mock_content.type = "text"
-    mock_content.text = json.dumps({
-        "error": None,
-        "overall_fairness": "fair",
-        "summary": "2 fair clauses",
-        "call_to_action": ["No action needed"],
-        "clauses": [
-            {
-                "section_number": "1",
-                "clause_type": "Term",
-                "purpose": "Sets duration",
-                "fairness": "fair",
-                "market_standard": "Standard 12-month term",
-                "explanation": "Standard term",
-            },
-            {
-                "section_number": "2",
-                "clause_type": "Liability",
-                "purpose": "Limits damages",
-                "fairness": "fair",
-                "market_standard": "Standard cap",
-                "explanation": "Reasonable cap",
-            },
-        ],
-    })
+    mock_content.text = json.dumps(
+        {
+            "error": None,
+            "overall_fairness": "fair",
+            "summary": "2 fair clauses",
+            "call_to_action": ["No action needed"],
+            "clauses": [
+                {
+                    "section_number": "1",
+                    "clause_type": "Term",
+                    "purpose": "Sets duration",
+                    "fairness": "fair",
+                    "market_standard": "Standard 12-month term",
+                    "explanation": "Standard term",
+                },
+                {
+                    "section_number": "2",
+                    "clause_type": "Liability",
+                    "purpose": "Limits damages",
+                    "fairness": "fair",
+                    "market_standard": "Standard cap",
+                    "explanation": "Reasonable cap",
+                },
+            ],
+        }
+    )
     mock_msg.content = [mock_content]
     return mock_msg
 
@@ -166,7 +170,9 @@ def _mock_not_a_contract_response():
     mock_msg.stop_reason = "end_turn"
     mock_content = MagicMock()
     mock_content.type = "text"
-    mock_content.text = json.dumps({"error": True, "reason": "This is a recipe, not a contract"})
+    mock_content.text = json.dumps(
+        {"error": True, "reason": "This is a recipe, not a contract"}
+    )
     mock_msg.content = [mock_content]
     return mock_msg
 
@@ -217,7 +223,9 @@ async def test_run_eval_not_a_contract(db):
 
     with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
         mock_instance = MockClient.return_value
-        mock_instance.messages.create = AsyncMock(return_value=_mock_not_a_contract_response())
+        mock_instance.messages.create = AsyncMock(
+            return_value=_mock_not_a_contract_response()
+        )
         await run_evaluation(review.id, contract, db)
 
     await db.refresh(review)
@@ -238,11 +246,13 @@ async def test_run_eval_api_error(db):
 
     with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
         mock_instance = MockClient.return_value
-        mock_instance.messages.create = AsyncMock(side_effect=anthropic.APIError(
-            message="test error",
-            request=httpx.Request("POST", "https://api.anthropic.com"),
-            body=None,
-        ))
+        mock_instance.messages.create = AsyncMock(
+            side_effect=anthropic.APIError(
+                message="test error",
+                request=httpx.Request("POST", "https://api.anthropic.com"),
+                body=None,
+            )
+        )
         await run_evaluation(review.id, contract, db)
 
     await db.refresh(review)
@@ -257,9 +267,11 @@ async def test_run_eval_timeout(db):
 
     with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
         mock_instance = MockClient.return_value
-        mock_instance.messages.create = AsyncMock(side_effect=anthropic.APITimeoutError(
-            request=httpx.Request("POST", "https://api.anthropic.com"),
-        ))
+        mock_instance.messages.create = AsyncMock(
+            side_effect=anthropic.APITimeoutError(
+                request=httpx.Request("POST", "https://api.anthropic.com"),
+            )
+        )
         await run_evaluation(review.id, contract, db)
 
     await db.refresh(review)
@@ -273,7 +285,9 @@ async def test_run_eval_max_tokens(db):
 
     with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
         mock_instance = MockClient.return_value
-        mock_instance.messages.create = AsyncMock(return_value=_mock_max_tokens_response())
+        mock_instance.messages.create = AsyncMock(
+            return_value=_mock_max_tokens_response()
+        )
         await run_evaluation(review.id, contract, db)
 
     await db.refresh(review)
@@ -315,10 +329,14 @@ async def test_run_eval_status_committed_before_api_call(db):
 
 @pytest.mark.asyncio
 async def test_contract_review_has_failure_code(db):
-    contract = Contract(name="test.txt", upload_type="txt", original_blob=b"test", text="text")
+    contract = Contract(
+        name="test.txt", upload_type="txt", original_blob=b"test", text="text"
+    )
     db.add(contract)
     await db.flush()
-    review = ContractReview(contract_id=contract.id, status="failed", failure_code="timeout")
+    review = ContractReview(
+        contract_id=contract.id, status="failed", failure_code="timeout"
+    )
     db.add(review)
     await db.commit()
     await db.refresh(review)
@@ -331,9 +349,11 @@ async def test_run_eval_timeout_sets_failure_code(db):
 
     with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
         mock_instance = MockClient.return_value
-        mock_instance.messages.create = AsyncMock(side_effect=anthropic.APITimeoutError(
-            request=httpx.Request("POST", "https://api.anthropic.com"),
-        ))
+        mock_instance.messages.create = AsyncMock(
+            side_effect=anthropic.APITimeoutError(
+                request=httpx.Request("POST", "https://api.anthropic.com"),
+            )
+        )
         await run_evaluation(review.id, contract, db)
 
     await db.refresh(review)
@@ -346,11 +366,13 @@ async def test_run_eval_api_error_sets_failure_code(db):
 
     with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
         mock_instance = MockClient.return_value
-        mock_instance.messages.create = AsyncMock(side_effect=anthropic.APIError(
-            message="test error",
-            request=httpx.Request("POST", "https://api.anthropic.com"),
-            body=None,
-        ))
+        mock_instance.messages.create = AsyncMock(
+            side_effect=anthropic.APIError(
+                message="test error",
+                request=httpx.Request("POST", "https://api.anthropic.com"),
+                body=None,
+            )
+        )
         await run_evaluation(review.id, contract, db)
 
     await db.refresh(review)
@@ -363,7 +385,9 @@ async def test_run_eval_max_tokens_sets_failure_code(db):
 
     with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
         mock_instance = MockClient.return_value
-        mock_instance.messages.create = AsyncMock(return_value=_mock_max_tokens_response())
+        mock_instance.messages.create = AsyncMock(
+            return_value=_mock_max_tokens_response()
+        )
         await run_evaluation(review.id, contract, db)
 
     await db.refresh(review)
