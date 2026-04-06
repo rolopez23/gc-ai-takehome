@@ -35,7 +35,7 @@ app = FastAPI(title="GC AI Takehome", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=os.getenv("CORS_ORIGIN_REGEX", r"https?://contract-evaluator\.localhost(:\d+)?"),
+    allow_origin_regex=os.getenv("CORS_ORIGIN_REGEX", r"https?://localhost(:\d+)?"),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
