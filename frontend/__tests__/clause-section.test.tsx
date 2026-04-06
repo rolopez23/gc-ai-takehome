@@ -13,6 +13,16 @@ const TEST_CLAUSE: ReviewClause = {
   fairness: "dealbreaker",
   market_standard: "Typically 12 months of fees",
   explanation: "Unlimited liability is unacceptable",
+  severity: 9,
+};
+
+const TEST_CLAUSE_NO_SEVERITY: ReviewClause = {
+  section_number: "4.1",
+  clause_type: "Governing Law",
+  purpose: "Sets jurisdiction",
+  fairness: "fair",
+  market_standard: "Standard",
+  explanation: "Standard governing law clause",
 };
 
 const TEST_CLAUSE_2: ReviewClause = {
@@ -22,6 +32,7 @@ const TEST_CLAUSE_2: ReviewClause = {
   fairness: "dealbreaker",
   market_standard: "Net 30",
   explanation: "Net 15 is aggressive but negotiable",
+  severity: 6,
 };
 
 describe("ClauseCard", () => {
@@ -40,7 +51,7 @@ describe("ClauseCard", () => {
     );
     const card = container.firstChild as HTMLElement;
     expect(card.className).toContain("border-l-2");
-    expect(card.className).toContain("border-egregious-border");
+    expect(card.className).toContain("border-l-egregious-border");
   });
 });
 
@@ -117,5 +128,17 @@ describe("ClauseSection", () => {
     render(<ClauseSection rating="dealbreaker" clauses={[TEST_CLAUSE]} />);
     await user.click(screen.getByRole("button"));
     expect(screen.getByRole("list")).toBeInTheDocument();
+  });
+});
+
+describe("ClauseCard severity display", () => {
+  it("shows severity score when clause has severity", () => {
+    render(<ClauseCard clause={TEST_CLAUSE} fairness="dealbreaker" />);
+    expect(screen.getByText("Severity: 9/10")).toBeInTheDocument();
+  });
+
+  it("does not show severity when clause has no severity", () => {
+    render(<ClauseCard clause={TEST_CLAUSE_NO_SEVERITY} fairness="fair" />);
+    expect(screen.queryByText(/Severity:/)).not.toBeInTheDocument();
   });
 });

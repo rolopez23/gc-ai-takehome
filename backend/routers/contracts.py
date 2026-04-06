@@ -27,6 +27,7 @@ async def upload_contract(
     file: UploadFile,
     background_tasks: BackgroundTasks,
     instructions: str | None = Form(None),
+    stream: bool = False,
     db: AsyncSession = Depends(get_db),
 ):
     file_bytes = await file.read()
@@ -35,9 +36,7 @@ async def upload_contract(
 
     try:
         result = process_upload(file.filename or "unknown", file_bytes)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except NotImplementedError as e:
+    except (ValueError, NotImplementedError) as e:
         raise HTTPException(status_code=400, detail=str(e))
 
     contract = Contract(
@@ -58,7 +57,8 @@ async def upload_contract(
     db.add(review)
     await db.commit()
 
-    background_tasks.add_task(evaluate_contract_task, review.id, contract.id)
+    if not stream:
+        background_tasks.add_task(evaluate_contract_task, review.id, contract.id)
 
     return UploadResponse(
         contract_id=contract.id, review_id=review.id, status="pending"

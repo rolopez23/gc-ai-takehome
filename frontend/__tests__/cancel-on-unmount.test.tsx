@@ -30,7 +30,8 @@ describe("Cancel on unmount", () => {
       screen.getByRole("button", { name: /evaluate contract/i }),
     );
 
-    expect(screen.getByTestId("loading-shimmer")).toBeInTheDocument();
+    // Streaming view should be visible (uploading stage)
+    expect(screen.getByTestId("streaming-view")).toBeInTheDocument();
 
     unmount();
 

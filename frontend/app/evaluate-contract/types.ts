@@ -10,10 +10,13 @@ export const ReviewClauseSchema = z.object({
   id: z.string().uuid(),
   section_number: z.string(),
   clause_type: z.string(),
-  purpose: z.string(),
-  fairness: FairnessRatingSchema,
-  market_standard: z.string(),
-  explanation: z.string(),
+  purpose: z.string().nullable(),
+  fairness: FairnessRatingSchema.nullable(),
+  market_standard: z.string().nullable(),
+  explanation: z.string().nullable(),
+  severity: z.number().min(1).max(10).optional().nullable(),
+  is_synthetic: z.boolean().optional(),
+  playbook_status: z.string().nullable().optional(),
 });
 
 export const UploadResponseSchema = z.object({
@@ -25,7 +28,13 @@ export const UploadResponseSchema = z.object({
 export const ReviewPollingSchema = z.object({
   id: z.string().uuid(),
   contract_id: z.string().uuid(),
-  status: z.enum(["pending", "reading", "evaluating"]),
+  status: z.enum([
+    "pending",
+    "reading",
+    "evaluating",
+    "verifying",
+    "splitting",
+  ]),
 });
 
 export const ReviewCompletedSchema = z.object({
@@ -46,10 +55,17 @@ export const ReviewFailedSchema = z.object({
   failure_code: z.string().nullable(),
 });
 
+export const ReviewRejectedSchema = z.object({
+  id: z.string().uuid(),
+  status: z.literal("rejected"),
+  summary: z.string().nullable(),
+});
+
 export const ReviewResponseSchema = z.discriminatedUnion("status", [
   ReviewPollingSchema,
   ReviewCompletedSchema,
   ReviewFailedSchema,
+  ReviewRejectedSchema,
 ]);
 
 export type FairnessRating = z.infer<typeof FairnessRatingSchema>;

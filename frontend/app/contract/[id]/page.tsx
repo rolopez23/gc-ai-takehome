@@ -41,13 +41,26 @@ function LoadingState({ statusText }: { statusText: string }) {
 }
 
 function groupByFairness(clauses: ReviewClause[]) {
-  return clauses.reduce<Record<FairnessRating, ReviewClause[]>>(
-    (groups, clause) => {
+  const groups: Record<string, ReviewClause[]> = {
+    dealbreaker: [],
+    "non-standard": [],
+    fair: [],
+    absent: [],
+  };
+  for (const clause of clauses) {
+    if (clause.playbook_status === "ABSENT" || clause.is_synthetic) {
+      groups.absent.push(clause);
+    } else if (clause.fairness && clause.fairness in groups) {
       groups[clause.fairness].push(clause);
-      return groups;
-    },
-    { dealbreaker: [], "non-standard": [], fair: [] },
-  );
+    } else {
+      // Unknown fairness — default to non-standard
+      groups["non-standard"].push(clause);
+    }
+  }
+  for (const rating of Object.keys(groups)) {
+    groups[rating].sort((a, b) => (b.severity ?? 0) - (a.severity ?? 0));
+  }
+  return groups;
 }
 
 function NoEvaluation() {
@@ -73,12 +86,14 @@ function EvaluationResults({ result }: { result: ReviewCompleted }) {
 
   return (
     <article className={PAGE_CONTAINER}>
-      <h1 className={PAGE_TITLE}>Evaluation complete</h1>
-      {result.overall_fairness && (
-        <div className="mt-4">
-          <ScoreBadge rating={result.overall_fairness} />
-        </div>
-      )}
+      <div className="sticky top-0 z-10 -mx-6 bg-background/95 backdrop-blur-sm px-6 pb-4 pt-12 -mt-12">
+        <h1 className={PAGE_TITLE}>Evaluation complete</h1>
+        {result.overall_fairness && (
+          <div className="mt-2">
+            <ScoreBadge rating={result.overall_fairness} />
+          </div>
+        )}
+      </div>
       {result.summary && (
         <div className="mt-4 rounded-r-lg border-l-2 border-foreground/20 bg-surface py-3 pl-4 pr-4">
           <p className="text-sm text-muted">{result.summary}</p>
@@ -99,6 +114,13 @@ function EvaluationResults({ result }: { result: ReviewCompleted }) {
             clauses={grouped[rating]}
           />
         ))}
+        {grouped.absent.length > 0 && (
+          <ClauseSection
+            rating={"absent" as FairnessRating}
+            clauses={grouped.absent}
+            title={`Missing from Contract (${grouped.absent.length})`}
+          />
+        )}
       </div>
       <Link href="/evaluate-contract" className={BACK_LINK}>
         Evaluate another contract

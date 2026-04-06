@@ -34,8 +34,7 @@ frontend/coverage/
 # uv
 uv.lock
 
-# Alembic
-backend/migrations/versions/
 
 # Entire
 .entire/
+.claude/worktrees/

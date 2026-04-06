@@ -15,18 +15,36 @@ const UPLOAD_RESPONSE = {
   status: "pending",
 };
 
-const POLLING_RESPONSE = {
-  id: "a9198839-1da3-4fb3-ac30-c462cc81ee4e",
-  contract_id: "452be08b-a29d-402f-8f44-6b1a0f976efa",
-  status: "evaluating",
-};
+const REVIEW_ID = "a9198839-1da3-4fb3-ac30-c462cc81ee4e";
+
+function makeStreamResponse(events: object[]): Response {
+  const body = events.map((e) => JSON.stringify(e) + "\n").join("");
+  return new Response(body, {
+    status: 200,
+    headers: { "content-type": "application/x-ndjson" },
+  });
+}
+
+function makeStallingStream(events: object[]): Response {
+  const encoder = new TextEncoder();
+  const body = new ReadableStream({
+    start(controller) {
+      for (const e of events) {
+        controller.enqueue(encoder.encode(JSON.stringify(e) + "\n"));
+      }
+    },
+  });
+  return new Response(body, {
+    status: 200,
+    headers: { "content-type": "application/x-ndjson" },
+  });
+}
 
 beforeEach(() => {
   vi.restoreAllMocks();
 });
 
-async function stageFileAndSubmit(fetchImpl: typeof fetch) {
-  vi.stubGlobal("fetch", vi.fn(fetchImpl));
+async function stageFileAndSubmit() {
   render(<EvaluateContractPage />);
   const file = new File(["contract text"], "contract.txt", {
     type: "text/plain",
@@ -37,61 +55,60 @@ async function stageFileAndSubmit(fetchImpl: typeof fetch) {
   );
 }
 
-describe("Loading shimmer", () => {
-  test("shows shimmer when submitting", async () => {
-    // Upload resolves, poll hangs → shimmer stays visible
-    let callCount = 0;
-    await stageFileAndSubmit(() => {
-      callCount++;
-      if (callCount === 1) {
-        return Promise.resolve(
-          new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 201 }),
-        );
-      }
-      return new Promise<Response>(() => {}); // poll hangs
-    });
+describe("Loading / streaming view", () => {
+  test("shows streaming view when submitting", async () => {
+    // Upload resolves, stream stays open
+    const mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+    mockFetch
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
+        makeStallingStream([
+          {
+            event: "started",
+            review_id: REVIEW_ID,
+            summary: "",
+            call_to_action: [],
+          },
+          { event: "verifying", is_contract: true },
+        ]),
+      );
+
+    await stageFileAndSubmit();
 
     await waitFor(() => {
-      expect(screen.getByTestId("loading-shimmer")).toBeInTheDocument();
+      expect(screen.getByTestId("streaming-view")).toBeInTheDocument();
     });
   });
 
-  test("disables button when submitting", async () => {
-    let callCount = 0;
-    await stageFileAndSubmit(() => {
-      callCount++;
-      if (callCount === 1) {
-        return Promise.resolve(
-          new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 201 }),
-        );
-      }
-      return new Promise<Response>(() => {});
-    });
+  test("hides submit button when streaming", async () => {
+    const mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+    // Never resolve — stays in uploading state
+    mockFetch.mockReturnValueOnce(new Promise(() => {}));
+
+    await stageFileAndSubmit();
 
     await waitFor(() => {
       expect(
-        screen.getByRole("button", { name: /evaluate contract/i }),
-      ).toBeDisabled();
+        screen.queryByRole("button", { name: /evaluate contract/i }),
+      ).not.toBeInTheDocument();
     });
   });
 
   test("sends FormData to backend upload endpoint", async () => {
-    let callCount = 0;
-    await stageFileAndSubmit(() => {
-      callCount++;
-      if (callCount === 1) {
-        return Promise.resolve(
-          new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 201 }),
-        );
-      }
-      return new Promise<Response>(() => {});
-    });
+    const mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+    mockFetch.mockReturnValueOnce(new Promise(() => {}));
+
+    await stageFileAndSubmit();
 
     await waitFor(() => {
-      const calls = (fetch as ReturnType<typeof vi.fn>).mock.calls;
-      expect(calls[0][0]).toContain("/api/contracts/upload");
-      expect(calls[0][1].method).toBe("POST");
-      expect(calls[0][1].body).toBeInstanceOf(FormData);
+      expect(mockFetch.mock.calls[0][0]).toContain("/api/contracts/upload");
+      expect(mockFetch.mock.calls[0][1].method).toBe("POST");
+      expect(mockFetch.mock.calls[0][1].body).toBeInstanceOf(FormData);
     });
   });
 
@@ -113,28 +130,29 @@ describe("Loading shimmer", () => {
     );
   });
 
-  test("hides shimmer on failed evaluation", async () => {
-    const failedReview = {
-      id: "a9198839-1da3-4fb3-ac30-c462cc81ee4e",
-      status: "failed",
-      failure_message: "timeout",
-    };
-
-    let callCount = 0;
-    await stageFileAndSubmit(() => {
-      callCount++;
-      if (callCount === 1) {
-        return Promise.resolve(
-          new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 201 }),
-        );
-      }
-      return Promise.resolve(
-        new Response(JSON.stringify(failedReview), { status: 200 }),
+  test("hides streaming view on failed stream", async () => {
+    const mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+    mockFetch
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
+        makeStreamResponse([
+          {
+            event: "started",
+            review_id: REVIEW_ID,
+            summary: "",
+            call_to_action: [],
+          },
+          { event: "failed", reason: "Something broke" },
+        ]),
       );
-    });
+
+    await stageFileAndSubmit();
 
     await waitFor(() => {
-      expect(screen.queryByTestId("loading-shimmer")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("streaming-view")).not.toBeInTheDocument();
     });
   });
 });

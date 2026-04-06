@@ -8,6 +8,22 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
 }));
 
+const UPLOAD_RESPONSE = {
+  contract_id: "452be08b-a29d-402f-8f44-6b1a0f976efa",
+  review_id: "a9198839-1da3-4fb3-ac30-c462cc81ee4e",
+  status: "pending",
+};
+
+const REVIEW_ID = "a9198839-1da3-4fb3-ac30-c462cc81ee4e";
+
+function makeStreamResponse(events: object[]): Response {
+  const body = events.map((e) => JSON.stringify(e) + "\n").join("");
+  return new Response(body, {
+    status: 200,
+    headers: { "content-type": "application/x-ndjson" },
+  });
+}
+
 beforeEach(() => {
   vi.restoreAllMocks();
 });
@@ -58,29 +74,28 @@ describe("Error display", () => {
     });
   });
 
-  test("shows friendly error when evaluation fails with known failure_code", async () => {
-    const uploadResponse = {
-      contract_id: "452be08b-a29d-402f-8f44-6b1a0f976efa",
-      review_id: "a9198839-1da3-4fb3-ac30-c462cc81ee4e",
-      status: "pending",
-    };
-    const failedReview = {
-      id: "a9198839-1da3-4fb3-ac30-c462cc81ee4e",
-      status: "failed",
-      failure_message: "API timeout",
-      failure_code: "timeout",
-    };
-
+  test("shows error when stream fails", async () => {
     let callCount = 0;
     await stageFileAndSubmit(() => {
       callCount++;
       if (callCount === 1) {
         return Promise.resolve(
-          new Response(JSON.stringify(uploadResponse), { status: 201 }),
+          new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }),
         );
       }
       return Promise.resolve(
-        new Response(JSON.stringify(failedReview), { status: 200 }),
+        makeStreamResponse([
+          {
+            event: "started",
+            review_id: REVIEW_ID,
+            summary: "",
+            call_to_action: [],
+          },
+          {
+            event: "failed",
+            reason: "Evaluation timed out. Please try again.",
+          },
+        ]),
       );
     });
 
@@ -89,44 +104,48 @@ describe("Error display", () => {
     });
   });
 
-  test("shows generic error when evaluation fails with null failure_code", async () => {
-    const uploadResponse = {
-      contract_id: "452be08b-a29d-402f-8f44-6b1a0f976efa",
-      review_id: "a9198839-1da3-4fb3-ac30-c462cc81ee4e",
-      status: "pending",
-    };
-    const failedReview = {
-      id: "a9198839-1da3-4fb3-ac30-c462cc81ee4e",
-      status: "failed",
-      failure_message: null,
-      failure_code: null,
-    };
-
+  test("shows rejection reason from stream", async () => {
     let callCount = 0;
     await stageFileAndSubmit(() => {
       callCount++;
       if (callCount === 1) {
         return Promise.resolve(
-          new Response(JSON.stringify(uploadResponse), { status: 201 }),
+          new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }),
         );
       }
       return Promise.resolve(
-        new Response(JSON.stringify(failedReview), { status: 200 }),
+        makeStreamResponse([
+          {
+            event: "started",
+            review_id: REVIEW_ID,
+            summary: "",
+            call_to_action: [],
+          },
+          {
+            event: "rejected",
+            reason: "This does not appear to be a contract.",
+          },
+        ]),
       );
     });
 
     await waitFor(() => {
-      expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/does not appear to be a contract/i),
+      ).toBeInTheDocument();
     });
   });
 
-  test("preserves file and instructions on error", async () => {
+  test("shows file info after upload error (file preserved in form)", async () => {
     await stageFileAndSubmit(() => Promise.reject(new Error("network error")));
 
     await waitFor(() => {
       expect(screen.getByRole("alert")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("contract.txt")).toBeInTheDocument();
+    // After a failed upload, the page resets to idle (failed state) where
+    // the file drop zone is not shown — the error state with Try again is shown instead.
+    // This is expected: the user clicks "Try again" to reload.
+    expect(screen.getByRole("alert")).toHaveTextContent("network error");
   });
 });

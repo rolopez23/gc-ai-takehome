@@ -1,0 +1,218 @@
+"""Base agent runner: config, tool-use loop, retry, and token tracking."""
+
+import asyncio
+import logging
+import os
+from collections.abc import Callable
+from dataclasses import dataclass, field
+from functools import lru_cache
+from typing import Any
+
+import anthropic
+
+logger = logging.getLogger(__name__)
+
+_DEFAULT_MODEL = "claude-haiku-4-5-20251001"
+
+_AGENT_MODEL_ENV_VARS = {
+    "verifier": "VERIFIER_MODEL",
+    "splitter": "SPLITTER_MODEL",
+    "evaluator": "EVALUATOR_MODEL",
+    "headline": "HEADLINE_MODEL",
+}
+
+AGENT_MAX_TOKENS = {
+    "verifier": 1024,
+    "splitter": 32768,
+    "evaluator": 8192,
+    "headline": 8192,
+}
+
+
+def _get_agent_model(agent_type: str) -> str:
+    """Lazily read the model env var for an agent type."""
+    env_var = _AGENT_MODEL_ENV_VARS.get(agent_type)
+    if env_var:
+        return os.getenv(env_var, _DEFAULT_MODEL)
+    return _DEFAULT_MODEL
+
+
+@dataclass
+class AgentConfig:
+    agent_type: str
+    model: str | None = None
+    max_tokens: int | None = None
+
+    def __post_init__(self):
+        if self.model is None:
+            self.model = _get_agent_model(self.agent_type)
+        if self.max_tokens is None:
+            self.max_tokens = AGENT_MAX_TOKENS.get(self.agent_type, 8192)
+
+
+MAX_RETRIES = 2
+MAX_RATE_LIMIT_RETRIES = 3
+RATE_LIMIT_BACKOFF_BASE = 10  # seconds
+MAX_TOOL_ROUNDS = 10  # Safety cap on tool-use loop iterations
+
+
+def _get_api_key() -> str:
+    return os.getenv("ANTHROPIC_API_KEY", "")
+
+
+AGENT_TIMEOUT = 90  # seconds — splitter with 32K tokens can take 30-60s
+
+
+@lru_cache(maxsize=1)
+def _get_shared_client() -> anthropic.AsyncAnthropic:
+    """Return a shared Anthropic client instance (created once, reused)."""
+    return anthropic.AsyncAnthropic(
+        api_key=_get_api_key(),
+        timeout=AGENT_TIMEOUT,
+    )
+
+
+@dataclass
+class AgentResult:
+    content: list
+    stop_reason: str
+    tool_results: dict = field(default_factory=dict)
+    max_tokens_hit: bool = False
+
+
+class AgentRunner:
+    def __init__(
+        self,
+        config: AgentConfig,
+        tools: list[dict],
+        tool_handlers: dict[str, Callable],
+    ):
+        self.config = config
+        self.tools = tools
+        self.tool_handlers = tool_handlers
+        self.client = _get_shared_client()
+
+    async def _call_with_retry(
+        self,
+        system: str,
+        messages: list[dict],
+        tool_choice: dict[str, str],
+    ):
+        rate_limit_attempts = 0
+        attempt = 0
+        while attempt <= MAX_RETRIES:
+            try:
+                return await self.client.messages.create(
+                    model=self.config.model,
+                    max_tokens=self.config.max_tokens,
+                    system=system,
+                    messages=messages,
+                    tools=self.tools,
+                    tool_choice=tool_choice,
+                )
+            except anthropic.RateLimitError:
+                rate_limit_attempts += 1
+                if rate_limit_attempts > MAX_RATE_LIMIT_RETRIES:
+                    raise
+                delay = RATE_LIMIT_BACKOFF_BASE * rate_limit_attempts
+                logger.warning(
+                    "Agent '%s' rate limited (attempt %d/%d), retrying in %ds",
+                    self.config.agent_type,
+                    rate_limit_attempts,
+                    MAX_RATE_LIMIT_RETRIES,
+                    delay,
+                )
+                await asyncio.sleep(delay)
+                # Don't increment attempt — rate limits are separate
+            except (anthropic.APIError, anthropic.APITimeoutError) as e:
+                if attempt == MAX_RETRIES:
+                    raise
+                delay = 2**attempt  # exponential backoff: 1s, 2s
+                logger.warning(
+                    "Agent '%s' API error (attempt %d/%d), retrying in %ds: %s",
+                    self.config.agent_type,
+                    attempt + 1,
+                    MAX_RETRIES + 1,
+                    delay,
+                    e,
+                )
+                await asyncio.sleep(delay)
+                attempt += 1
+
+    async def run(
+        self,
+        system: str,
+        messages: list[dict],
+        force_tool: str | None = None,
+    ) -> AgentResult:
+        tool_choice: dict[str, str] = (
+            {"type": "tool", "name": force_tool} if force_tool else {"type": "auto"}
+        )
+        tool_results: dict[str, Any] = {}
+
+        # Copy messages so we don't mutate the caller's list
+        messages = list(messages)
+
+        for _round in range(MAX_TOOL_ROUNDS):
+            response = await self._call_with_retry(
+                system=system,
+                messages=messages,
+                tool_choice=tool_choice,
+            )
+
+            if response.stop_reason == "max_tokens":
+                logger.warning(
+                    "Agent '%s' hit max_tokens limit", self.config.agent_type
+                )
+                return AgentResult(
+                    content=response.content,
+                    stop_reason="max_tokens",
+                    tool_results=tool_results,
+                    max_tokens_hit=True,
+                )
+
+            if response.stop_reason == "end_turn":
+                return AgentResult(
+                    content=response.content,
+                    stop_reason="end_turn",
+                    tool_results=tool_results,
+                )
+
+            if response.stop_reason == "tool_use":
+                # Process all tool_use blocks in the response
+                tool_result_blocks = []
+                for block in response.content:
+                    if block.type == "tool_use":
+                        handler = self.tool_handlers.get(block.name)
+                        if handler:
+                            result = await handler(block.input)
+                        else:
+                            result = f"Unknown tool: {block.name}"
+                        tool_results[block.name] = block.input
+                        tool_result_blocks.append(
+                            {
+                                "type": "tool_result",
+                                "tool_use_id": block.id,
+                                "content": str(result),
+                            }
+                        )
+
+                # Append assistant response + tool results to messages
+                messages.append({"role": "assistant", "content": response.content})
+                messages.append({"role": "user", "content": tool_result_blocks})
+
+                # After first forced tool call, switch to auto
+                if force_tool:
+                    tool_choice = {"type": "auto"}
+                continue
+
+            # Unexpected stop reason -- return what we have
+            return AgentResult(
+                content=response.content,
+                stop_reason=response.stop_reason,
+                tool_results=tool_results,
+            )
+
+        raise RuntimeError(
+            f"Agent '{self.config.agent_type}' exceeded {MAX_TOOL_ROUNDS} tool-use rounds"
+        )

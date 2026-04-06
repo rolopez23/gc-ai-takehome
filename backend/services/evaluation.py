@@ -12,11 +12,7 @@ from sqlalchemy.orm import undefer
 from database import AsyncSessionLocal
 from models import Contract, ContractReview, ReviewClause
 from prompt import EvalErrorResponse, EvalSuccessResponse, build_system_prompt
-
-
-def _get_api_key() -> str:
-    return os.getenv("ANTHROPIC_API_KEY", "")
-
+from services.agents.base import _get_api_key
 
 ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001")
 ANTHROPIC_MAX_TOKENS = int(os.getenv("ANTHROPIC_MAX_TOKENS", "8192"))

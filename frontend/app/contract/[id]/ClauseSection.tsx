@@ -36,33 +36,33 @@ function NoClauses({
 }
 
 function ExpandableClauses({
-  label,
+  displayLabel,
+  ariaLabel,
   rating,
   clauses,
 }: {
-  label: string;
+  displayLabel: string;
+  ariaLabel: string;
   rating: FairnessRating;
   clauses: ReviewClause[];
 }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <section aria-label={`${label} clauses`}>
+    <section aria-label={ariaLabel}>
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
         aria-expanded={expanded}
         className={SECTION_HEADER}
       >
-        <span className="font-semibold">
-          {label} ({clauses.length})
-        </span>
+        <span className="font-semibold">{displayLabel}</span>
         <span className="text-foreground/40">{expanded ? "−" : "+"}</span>
       </button>
       {expanded && (
         <ul className={CLAUSE_LIST}>
           {clauses.map((clause) => (
-            <li key={clause.section_number}>
+            <li key={clause.id}>
               <ClauseCard clause={clause} fairness={rating} />
             </li>
           ))}
@@ -75,14 +75,29 @@ function ExpandableClauses({
 interface ClauseSectionProps {
   rating: FairnessRating;
   clauses: ReviewClause[];
+  title?: string;
 }
 
-export default function ClauseSection({ rating, clauses }: ClauseSectionProps) {
+export default function ClauseSection({
+  rating,
+  clauses,
+  title,
+}: ClauseSectionProps) {
   const { label } = getFairnessDisplay(rating);
+  const displayLabel = title ?? `${label} (${clauses.length})`;
 
-  if (clauses.length === 0) {
+  if (clauses.length === 0 && !title) {
     return <NoClauses rating={rating} label={label} />;
   }
 
-  return <ExpandableClauses label={label} rating={rating} clauses={clauses} />;
+  if (clauses.length === 0) return null;
+
+  return (
+    <ExpandableClauses
+      displayLabel={displayLabel}
+      ariaLabel={`${title ?? label} clauses`}
+      rating={rating}
+      clauses={clauses}
+    />
+  );
 }

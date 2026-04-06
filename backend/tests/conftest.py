@@ -25,10 +25,14 @@ app.dependency_overrides[get_db] = override_get_db
 
 @pytest.fixture(autouse=True)
 def _patch_bg_session(monkeypatch):
-    """Ensure the background task uses the test database, not the real one."""
+    """Ensure background tasks and stream endpoint use the test database."""
+    import routers.reviews
     import services.evaluation
+    import services.orchestrator
 
     monkeypatch.setattr(services.evaluation, "AsyncSessionLocal", TestSessionLocal)
+    monkeypatch.setattr(services.orchestrator, "AsyncSessionLocal", TestSessionLocal)
+    monkeypatch.setattr(routers.reviews, "AsyncSessionLocal", TestSessionLocal)
 
 
 @pytest.fixture(scope="session")
