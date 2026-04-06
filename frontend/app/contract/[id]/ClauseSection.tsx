@@ -14,7 +14,7 @@ function NoClauses({ rating, label }: { rating: FairnessRating; label: string })
   const icon = isCelebratory ? '✓' : '⚠';
   const text = isCelebratory
     ? `No ${label.toLowerCase()} clauses`
-    : 'No fair clauses found';
+    : 'No standard clauses found';
 
   return (
     <div className={`flex items-center gap-2 ${SECTION_BORDER} text-foreground/50`}>

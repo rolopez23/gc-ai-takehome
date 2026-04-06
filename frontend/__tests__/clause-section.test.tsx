@@ -43,7 +43,7 @@ describe('ClauseCard', () => {
 describe('ClauseSection', () => {
   it('renders header with label and count', () => {
     render(<ClauseSection rating="dealbreaker" clauses={[TEST_CLAUSE, TEST_CLAUSE_2]} />);
-    expect(screen.getByText(/Egregious/)).toBeInTheDocument();
+    expect(screen.getByText(/Dealbreaker/)).toBeInTheDocument();
     expect(screen.getByText(/\(2\)/)).toBeInTheDocument();
   });
 
@@ -69,21 +69,21 @@ describe('ClauseSection', () => {
     expect(screen.queryByText('Unlimited liability is unacceptable')).not.toBeInTheDocument();
   });
 
-  it('renders celebratory placeholder for empty egregious section', () => {
+  it('renders celebratory placeholder for empty dealbreaker section', () => {
     render(<ClauseSection rating="dealbreaker" clauses={[]} />);
-    expect(screen.getByText(/No egregious clauses/)).toBeInTheDocument();
+    expect(screen.getByText(/No dealbreaker clauses/)).toBeInTheDocument();
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
-  it('renders celebratory placeholder for empty unfair section', () => {
+  it('renders celebratory placeholder for empty non-standard section', () => {
     render(<ClauseSection rating="non-standard" clauses={[]} />);
-    expect(screen.getByText(/No unfair clauses/)).toBeInTheDocument();
+    expect(screen.getByText(/No non-standard clauses/)).toBeInTheDocument();
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
   it('renders warning placeholder for empty fair section', () => {
     render(<ClauseSection rating="fair" clauses={[]} />);
-    expect(screen.getByText(/No fair clauses found/)).toBeInTheDocument();
+    expect(screen.getByText(/No standard clauses found/)).toBeInTheDocument();
     expect(screen.getByText('⚠')).toBeInTheDocument();
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });

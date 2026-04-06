@@ -91,9 +91,9 @@ describe('ContractPage', () => {
       expect(screen.getByText('Evaluation complete')).toBeInTheDocument();
     });
     const buttons = screen.getAllByRole('button');
-    expect(buttons[0]).toHaveTextContent(/Egregious/);
+    expect(buttons[0]).toHaveTextContent(/Dealbreaker/);
     expect(buttons[0]).toHaveTextContent('(1)');
-    expect(buttons[1]).toHaveTextContent(/Unfair/);
+    expect(buttons[1]).toHaveTextContent(/Non-Standard/);
     expect(buttons[1]).toHaveTextContent('(1)');
   });
 
@@ -102,7 +102,7 @@ describe('ContractPage', () => {
     const { default: ContractPage } = await import('@/app/contract/[id]/page');
     render(<ContractPage />);
     await waitFor(() => {
-      expect(screen.getByText('Egregious')).toBeInTheDocument();
+      expect(screen.getByText('Dealbreaker')).toBeInTheDocument();
     });
   });
 

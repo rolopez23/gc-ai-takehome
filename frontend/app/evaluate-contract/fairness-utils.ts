@@ -12,9 +12,9 @@ export const COLORS = {
 } as const;
 
 const FAIRNESS_DISPLAY: Record<FairnessRating, FairnessDisplay> = {
-  dealbreaker: { label: 'Egregious', colorClass: COLORS.fail },
-  'non-standard': { label: 'Unfair', colorClass: COLORS.warning },
-  fair: { label: 'Fair', colorClass: COLORS.pass },
+  dealbreaker: { label: 'Dealbreaker', colorClass: COLORS.fail },
+  'non-standard': { label: 'Non-Standard', colorClass: COLORS.warning },
+  fair: { label: 'Standard', colorClass: COLORS.pass },
 };
 
 export function getFairnessDisplay(rating: FairnessRating): FairnessDisplay {

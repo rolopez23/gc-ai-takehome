@@ -152,7 +152,7 @@ describe('Dashboard contract list', () => {
     });
     expect(screen.getByText('vendor_contract.docx')).toBeInTheDocument();
     // Completed contract shows fairness badge
-    expect(screen.getByText('Fair')).toBeInTheDocument();
+    expect(screen.getByText('Standard')).toBeInTheDocument();
     // Failed contract shows "Failed"
     expect(screen.getByText('Failed')).toBeInTheDocument();
   });

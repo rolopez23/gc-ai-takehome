@@ -107,7 +107,7 @@ describe('Results page via backend', () => {
     render(<ContractPage />);
 
     await waitFor(() => {
-      expect(screen.getByText('Fair')).toBeInTheDocument();
+      expect(screen.getByText('Standard')).toBeInTheDocument();
     });
   });
 
