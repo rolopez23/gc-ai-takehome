@@ -3,7 +3,7 @@
   "checkpoint_id": "9ce5360ffc32",
   "strategy": "manual-commit",
   "branch": "feat/agentic-eval-pipeline",
-  "checkpoints_count": 2,
+  "checkpoints_count": 3,
   "files_touched": [
     "backend/services/agents/__init__.py",
     "backend/services/agents/base.py",
@@ -17,13 +17,19 @@
       "transcript": "/9c/e5360ffc32/0/full.jsonl",
       "content_hash": "/9c/e5360ffc32/0/content_hash.txt",
       "prompt": "/9c/e5360ffc32/0/prompt.txt"
+    },
+    {
+      "metadata": "/9c/e5360ffc32/1/metadata.json",
+      "transcript": "/9c/e5360ffc32/1/full.jsonl",
+      "content_hash": "/9c/e5360ffc32/1/content_hash.txt",
+      "prompt": "/9c/e5360ffc32/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 791,
-    "cache_creation_tokens": 29987,
-    "cache_read_tokens": 360927,
-    "output_tokens": 9937,
-    "api_call_count": 14
+    "input_tokens": 3742,
+    "cache_creation_tokens": 433954,
+    "cache_read_tokens": 16064542,
+    "output_tokens": 90693,
+    "api_call_count": 156
   }
 }
