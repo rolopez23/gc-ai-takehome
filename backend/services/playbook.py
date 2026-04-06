@@ -13,7 +13,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 DEFAULT_PLAYBOOK_PATH = REPO_ROOT / "docs" / "gc-ai-takehome" / "gc_ai_playbook.md"
 
 
-class PlaybookCheck(BaseModel):
+class PlaybookCheck(BaseModel, frozen=True):
     """A single check from the playbook."""
 
     number: int
@@ -147,7 +147,11 @@ def validate_playbook() -> None:
     Called from main.py lifespan. Raises if playbook can't be parsed.
     """
     playbook = parse_playbook()
+    if not playbook:
+        raise RuntimeError("Playbook parsed but contains no agreement types")
     total = sum(len(checks) for checks in playbook.values())
+    if total == 0:
+        raise RuntimeError("Playbook parsed but contains no checks")
     logger.info(
         "Playbook loaded: %d agreement types, %d total checks",
         len(playbook),
