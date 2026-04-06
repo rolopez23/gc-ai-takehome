@@ -423,3 +423,7 @@ are you hitting the right endpoint? shouldn't stream be a new endpoint?
 ---
 
 I think they should both exist but the frontend should call one of the other deliberately.
+
+---
+
+I like the query parameter
