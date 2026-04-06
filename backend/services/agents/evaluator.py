@@ -69,11 +69,11 @@ REPORT_EVALUATION_TOOL = {
             },
             "finding": {
                 "type": "string",
-                "description": "Key finding from the evaluation.",
+                "description": "One sentence, max 20 words. Key finding.",
             },
             "recommended_redline": {
                 "type": ["string", "null"],
-                "description": "Suggested contract modification, or null.",
+                "description": "One sentence or null. Specific contract change.",
             },
             "fairness": {
                 "type": "string",
@@ -82,15 +82,15 @@ REPORT_EVALUATION_TOOL = {
             },
             "purpose": {
                 "type": "string",
-                "description": "What this clause is meant to accomplish.",
+                "description": "One sentence, max 15 words. What the clause does.",
             },
             "market_standard": {
                 "type": "string",
-                "description": "What is typical in the market for this clause.",
+                "description": "One sentence, max 15 words. Market norm.",
             },
             "explanation": {
                 "type": "string",
-                "description": "Detailed explanation of the evaluation.",
+                "description": "One sentence, max 20 words. Impact on customer.",
             },
         },
         "required": [
@@ -123,7 +123,15 @@ def build_evaluator_prompt(instructions: str | None = None) -> str:
         "3. Call the report_evaluation tool with your assessment, including both the playbook "
         "status (TRIGGERED/PASS/ABSENT/PARTIAL) and the user-facing fairness tier "
         "(fair/non-standard/dealbreaker), plus a severity score from 1-10.\n\n"
-        "Evaluate carefully and ground your assessment in the playbook checks retrieved."
+        "Evaluate carefully and ground your assessment in the playbook checks retrieved.\n\n"
+        "CRITICAL: Be extremely concise in all text fields.\n"
+        "- finding: ONE sentence, max 20 words. State the fact, not the analysis.\n"
+        "- explanation: ONE sentence, max 20 words. What this means for the customer.\n"
+        "- purpose: ONE sentence, max 15 words. What the clause does.\n"
+        "- market_standard: ONE sentence, max 15 words. What is typical.\n"
+        "- recommended_redline: ONE sentence or null. Specific ask, not a paragraph.\n\n"
+        "Focus on SCORES (severity, fairness, playbook_status) — these are the primary output.\n"
+        "Text fields are supporting context only."
     )
     return append_instructions(
         prompt,

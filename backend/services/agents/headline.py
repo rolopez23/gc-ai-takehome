@@ -13,11 +13,17 @@ HEADLINE_TOOL = {
     "input_schema": {
         "type": "object",
         "properties": {
-            "summary": {"type": "string", "description": "Concise executive summary"},
+            "summary": {
+                "type": "string",
+                "description": "1-2 sentences. Overall contract posture and key risk.",
+            },
             "call_to_action": {
                 "type": "array",
-                "items": {"type": "string"},
-                "description": "Prioritized next steps",
+                "items": {
+                    "type": "string",
+                    "description": "Brief action phrase, 5-10 words each.",
+                },
+                "description": "Prioritized next steps, brief action phrases.",
             },
         },
         "required": ["summary", "call_to_action"],
@@ -36,7 +42,12 @@ def build_headline_prompt(instructions: str | None = None) -> str:
         "1. Write a clear, concise executive summary highlighting the key findings.\n"
         "2. Produce a prioritized list of specific next steps the user should take.\n\n"
         "Focus on the most significant issues first (dealbreaker > non-standard > fair).\n"
-        "Use the report_headline tool to submit your results."
+        "Use the report_headline tool to submit your results.\n\n"
+        "CRITICAL: Be extremely concise.\n"
+        "- summary: 1-2 sentences maximum. State the overall posture and key risk.\n"
+        "- call_to_action: Each item is a brief action phrase (5-10 words), not a paragraph.\n"
+        '  Example: "Negotiate liability cap to 12 months fees"\n'
+        '  NOT: "We recommend negotiating the limitation of liability clause to increase the cap..."'
     )
     return append_instructions(prompt, instructions)
 

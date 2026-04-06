@@ -49,6 +49,12 @@ class TestHeadlinePrompt:
         assert isinstance(prompt, str)
         assert len(prompt) > 0
 
+    def test_headline_prompt_includes_brevity(self):
+        """Prompt contains brevity instructions for summary and call_to_action."""
+        prompt = build_headline_prompt(instructions=None)
+        assert "1-2 sentences" in prompt
+        assert "5-10 words" in prompt
+
 
 # --- Cycle 2: headline-agent-class ---
 

@@ -84,6 +84,21 @@ class TestEvaluatorToolDefinitions:
         assert isinstance(prompt, str)
         assert len(prompt) > 0
 
+    def test_evaluator_prompt_includes_brevity(self):
+        """Prompt contains brevity instructions with word limits."""
+        prompt = build_evaluator_prompt(instructions=None)
+        assert "ONE sentence" in prompt
+        assert "max 20 words" in prompt
+
+    def test_evaluator_tool_descriptions_brief(self):
+        """REPORT_EVALUATION_TOOL descriptions mention word limits for text fields."""
+        schema = REPORT_EVALUATION_TOOL["input_schema"]
+        assert "max 20 words" in schema["properties"]["finding"]["description"]
+        assert "max 20 words" in schema["properties"]["explanation"]["description"]
+        assert "max 15 words" in schema["properties"]["purpose"]["description"]
+        assert "max 15 words" in schema["properties"]["market_standard"]["description"]
+        assert "One sentence or null" in schema["properties"]["recommended_redline"]["description"]
+
 
 # --- Cycle 2: get-playbook-tool-handler ---
 
