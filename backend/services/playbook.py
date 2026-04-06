@@ -146,7 +146,7 @@ def validate_playbook() -> None:
 
     Called from main.py lifespan. Raises if playbook can't be parsed.
     """
-    playbook = parse_playbook()
+    playbook = _cached_playbook()
     if not playbook:
         raise RuntimeError("Playbook parsed but contains no agreement types")
     total = sum(len(checks) for checks in playbook.values())

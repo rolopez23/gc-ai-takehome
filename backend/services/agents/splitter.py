@@ -5,7 +5,11 @@ import logging
 from dataclasses import dataclass
 
 from services.agents.base import AgentConfig, AgentRunner
-from services.playbook import parse_playbook
+from services.playbook import (
+    _cached_playbook,
+    get_all_check_names,
+    get_check_names_with_descriptions,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -81,13 +85,14 @@ def build_splitter_prompt(instructions: str | None) -> str:
     Includes the full playbook check name enum with one-sentence descriptions
     for all 4 agreement types, plus user instructions if provided.
     """
-    playbook = parse_playbook()
-
     check_sections = []
     for short_name, playbook_name in AGREEMENT_TYPE_TO_PLAYBOOK.items():
-        if playbook_name in playbook:
-            checks = [f"  - {c.name}: {c.description}" for c in playbook[playbook_name]]
+        try:
+            descriptions = get_check_names_with_descriptions(playbook_name)
+            checks = [f"  - {d}" for d in descriptions]
             check_sections.append(f"### {short_name}\n" + "\n".join(checks))
+        except KeyError:
+            pass
 
     check_enum_text = "\n\n".join(check_sections)
 
@@ -196,7 +201,7 @@ def detect_absent_checks(
     if not playbook_name:
         return []
 
-    playbook = parse_playbook()
+    playbook = _cached_playbook()
     all_checks_list = playbook.get(playbook_name, [])
 
     # Build ordered list of uncovered checks (preserve playbook order for determinism)
