@@ -67,6 +67,12 @@ class VerifierAgent:
             force_tool="verify_contract",
         )
 
+        if "verify_contract" not in result.tool_results:
+            raise RuntimeError(
+                f"Verifier did not call verify_contract. "
+                f"Stop reason: {result.stop_reason}, max_tokens_hit: {result.max_tokens_hit}"
+            )
+
         tool_data = result.tool_results["verify_contract"]
         return VerifierResult(
             is_contract=tool_data["is_contract"],

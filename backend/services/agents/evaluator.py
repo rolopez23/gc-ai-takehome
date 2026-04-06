@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 from services.agents.base import AgentConfig, AgentRunner
 from services.agents.messages import append_instructions
+from services.agents.splitter import AGREEMENT_TYPE_TO_PLAYBOOK
 from services.playbook import get_playbook
 
 GET_PLAYBOOK_TOOL = {
@@ -127,9 +128,15 @@ def build_evaluator_prompt(instructions: str | None = None) -> str:
 
 
 async def handle_get_playbook(input_data: dict) -> dict:
-    """Tool handler for get_playbook: calls playbook parser lookup."""
+    """Tool handler for get_playbook: calls playbook parser lookup.
+
+    Maps short agreement type names (from splitter output) to full playbook names.
+    """
     try:
-        checks = get_playbook(input_data["agreement_type"], input_data["check_names"])
+        # Map short name ("SaaS MSA") to full playbook name ("SaaS Master Service Agreement")
+        short_type = input_data["agreement_type"]
+        playbook_type = AGREEMENT_TYPE_TO_PLAYBOOK.get(short_type, short_type)
+        checks = get_playbook(playbook_type, input_data["check_names"])
         return {
             "checks": [
                 {
@@ -195,11 +202,13 @@ class EvaluatorAgent:
 
         # Note unresolvable references
         refs = clause.get("cross_references", [])
-        if refs and cross_ref_text:
-            missing = [r for r in refs if r not in cross_ref_text]
+        if refs:
+            resolved = cross_ref_text or {}
+            missing = [r for r in refs if r not in resolved]
             if missing:
                 msg_parts.append(
-                    f"\nNote: Referenced section(s) {', '.join(missing)} not found in contract."
+                    f"\nNote: Referenced section(s) {', '.join(missing)} not found in contract. "
+                    f"Flag this as a finding in your evaluation."
                 )
 
         user_message = "\n".join(msg_parts)
@@ -218,7 +227,13 @@ class EvaluatorAgent:
             messages=[{"role": "user", "content": user_message}],
         )
 
-        tool_input = result.tool_results.get("report_evaluation", {})
+        if "report_evaluation" not in result.tool_results:
+            raise RuntimeError(
+                f"Evaluator did not call report_evaluation for clause {clause['section_number']}. "
+                f"Stop reason: {result.stop_reason}, max_tokens_hit: {result.max_tokens_hit}"
+            )
+
+        tool_input = result.tool_results["report_evaluation"]
         return EvaluatorResult(
             section_number=tool_input.get("section_number", ""),
             clause_type=tool_input.get("clause_type", ""),

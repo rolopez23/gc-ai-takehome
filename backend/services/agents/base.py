@@ -1,5 +1,6 @@
 """Base agent runner: config, tool-use loop, retry, and token tracking."""
 
+import asyncio
 import logging
 import os
 from collections.abc import Callable
@@ -50,6 +51,7 @@ class AgentConfig:
 
 
 MAX_RETRIES = 2
+MAX_TOOL_ROUNDS = 10  # Safety cap on tool-use loop iterations
 
 
 def _get_api_key() -> str:
@@ -98,9 +100,19 @@ class AgentRunner:
                     tools=self.tools,
                     tool_choice=tool_choice,
                 )
-            except (anthropic.APIError, anthropic.APITimeoutError):
+            except (anthropic.APIError, anthropic.APITimeoutError) as e:
                 if attempt == MAX_RETRIES:
                     raise
+                delay = 2**attempt  # exponential backoff: 1s, 2s
+                logger.warning(
+                    "Agent '%s' API error (attempt %d/%d), retrying in %ds: %s",
+                    self.config.agent_type,
+                    attempt + 1,
+                    MAX_RETRIES + 1,
+                    delay,
+                    e,
+                )
+                await asyncio.sleep(delay)
 
     async def run(
         self,
@@ -116,7 +128,7 @@ class AgentRunner:
         # Copy messages so we don't mutate the caller's list
         messages = list(messages)
 
-        while True:
+        for _round in range(MAX_TOOL_ROUNDS):
             response = await self._call_with_retry(
                 system=system,
                 messages=messages,
@@ -175,3 +187,7 @@ class AgentRunner:
                 stop_reason=response.stop_reason,
                 tool_results=tool_results,
             )
+
+        raise RuntimeError(
+            f"Agent '{self.config.agent_type}' exceeded {MAX_TOOL_ROUNDS} tool-use rounds"
+        )

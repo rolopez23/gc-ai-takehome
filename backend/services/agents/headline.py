@@ -86,7 +86,13 @@ class HeadlineAgent:
             force_tool="report_headline",
         )
 
-        tool_input = result.tool_results.get("report_headline", {})
+        if "report_headline" not in result.tool_results:
+            raise RuntimeError(
+                f"Headline agent did not call report_headline. "
+                f"Stop reason: {result.stop_reason}, max_tokens_hit: {result.max_tokens_hit}"
+            )
+
+        tool_input = result.tool_results["report_headline"]
         return HeadlineResult(
             summary=tool_input.get("summary", ""),
             call_to_action=tool_input.get("call_to_action", []),

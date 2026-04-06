@@ -15,7 +15,11 @@ def compute_overall_fairness(clauses: list[dict]) -> str:
 
     Excludes clauses with status='error' from computation.
     """
-    evaluated = [c for c in clauses if c.get("status") != "error"]
+    evaluated = [
+        c
+        for c in clauses
+        if c.get("status") != "error" and c.get("fairness") in FAIRNESS_RANK
+    ]
     if not evaluated:
         return "fair"
 
