@@ -1,13 +1,13 @@
 import uuid
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, UploadFile, Form
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from database import get_db
 from models import Contract, ContractReview
-from schemas import ContractDetailOut, ContractOut, ReviewDetailOut, UploadResponse
+from schemas import ContractDetailOut, ContractListOut, ContractOut, ReviewDetailOut, UploadResponse
 from services.conversion import process_upload
 from services.evaluation import evaluate_contract_task
 
@@ -57,10 +57,41 @@ async def upload_contract(
     return UploadResponse(contract_id=contract.id, review_id=review.id, status="pending")
 
 
-@router.get("/", response_model=list[ContractOut])
+@router.get("/", response_model=list[ContractListOut])
 async def list_contracts(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Contract).order_by(Contract.created_at.desc()))
-    return result.scalars().all()
+    latest_review = (
+        select(
+            ContractReview.contract_id,
+            func.max(ContractReview.created_at).label("max_created_at"),
+        )
+        .group_by(ContractReview.contract_id)
+        .subquery()
+    )
+
+    stmt = (
+        select(
+            Contract.id,
+            Contract.name,
+            Contract.upload_type,
+            Contract.created_at,
+            ContractReview.status.label("review_status"),
+            ContractReview.overall_fairness,
+            ContractReview.failure_code,
+        )
+        .outerjoin(
+            latest_review,
+            Contract.id == latest_review.c.contract_id,
+        )
+        .outerjoin(
+            ContractReview,
+            (ContractReview.contract_id == latest_review.c.contract_id)
+            & (ContractReview.created_at == latest_review.c.max_created_at),
+        )
+        .order_by(Contract.created_at.desc())
+    )
+
+    result = await db.execute(stmt)
+    return result.mappings().all()
 
 
 @router.get("/{contract_id}", response_model=ContractDetailOut)

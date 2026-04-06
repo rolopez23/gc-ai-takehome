@@ -1,7 +1,13 @@
 import uuid
 
 import pytest
+import pytest_asyncio
 from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from database import get_db
+from main import app
+from models import Contract
 
 
 @pytest.mark.asyncio
@@ -71,6 +77,12 @@ async def test_upload_accepts_pdf(client: AsyncClient):
     assert resp.status_code == 201
 
 
+@pytest_asyncio.fixture
+async def db():
+    async for session in app.dependency_overrides[get_db]():
+        yield session
+
+
 @pytest.mark.asyncio
 async def test_list_contracts_no_blobs(client: AsyncClient):
     await client.post(
@@ -84,6 +96,9 @@ async def test_list_contracts_no_blobs(client: AsyncClient):
     item = data[0]
     assert "name" in item
     assert "upload_type" in item
+    assert "review_status" in item
+    assert "overall_fairness" in item
+    assert "failure_code" in item
     assert "original_blob" not in item
     assert "pdf_blob" not in item
 
@@ -105,3 +120,31 @@ async def test_get_contract_not_found(client: AsyncClient):
     fake_id = str(uuid.uuid4())
     resp = await client.get(f"/api/contracts/{fake_id}")
     assert resp.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_list_contracts_includes_review_status(client: AsyncClient):
+    await client.post(
+        "/api/contracts/upload",
+        files={"file": ("contract.txt", b"contract text", "text/plain")},
+    )
+    resp = await client.get("/api/contracts/")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert len(data) >= 1
+    assert data[0]["review_status"] is not None
+
+
+@pytest.mark.asyncio
+async def test_list_contracts_no_review_returns_nulls(client: AsyncClient, db: AsyncSession):
+    contract = Contract(name="orphan.txt", upload_type="txt", original_blob=b"test", text="text")
+    db.add(contract)
+    await db.commit()
+
+    resp = await client.get("/api/contracts/")
+    assert resp.status_code == 200
+    data = resp.json()
+    orphan = next(item for item in data if item["name"] == "orphan.txt")
+    assert orphan["review_status"] is None
+    assert orphan["overall_fairness"] is None
+    assert orphan["failure_code"] is None

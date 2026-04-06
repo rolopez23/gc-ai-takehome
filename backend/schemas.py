@@ -19,6 +19,18 @@ class ContractOut(BaseModel):
     created_at: datetime
 
 
+class ContractListOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    name: str
+    upload_type: str
+    created_at: datetime
+    review_status: str | None = None
+    overall_fairness: str | None = None
+    failure_code: str | None = None
+
+
 class ContractDetailOut(ContractOut):
     text: str | None
 
