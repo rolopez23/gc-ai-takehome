@@ -3,6 +3,7 @@
 import os
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import anthropic
 import pytest
 
 # ---------------------------------------------------------------------------
@@ -40,3 +41,131 @@ class TestAgentConfig:
         config = AgentConfig("evaluator", model="custom-model", max_tokens=4096)
         assert config.model == "custom-model"
         assert config.max_tokens == 4096
+
+
+# ---------------------------------------------------------------------------
+# Helpers for mocking Anthropic responses
+# ---------------------------------------------------------------------------
+
+
+def _make_text_block(text: str):
+    """Create a mock TextBlock content block."""
+    block = MagicMock()
+    block.type = "text"
+    block.text = text
+    return block
+
+
+def _make_tool_use_block(tool_id: str, name: str, input_dict: dict):
+    """Create a mock ToolUseBlock content block."""
+    block = MagicMock()
+    block.type = "tool_use"
+    block.id = tool_id
+    block.name = name
+    block.input = input_dict
+    return block
+
+
+def _make_response(content: list, stop_reason: str):
+    """Create a mock Anthropic Message response."""
+    resp = MagicMock()
+    resp.content = content
+    resp.stop_reason = stop_reason
+    return resp
+
+
+# ---------------------------------------------------------------------------
+# Cycle 2: tool-loop-happy-path
+# ---------------------------------------------------------------------------
+
+
+class TestAgentRunnerHappyPath:
+    @pytest.mark.asyncio
+    async def test_agent_runner_text_response(self):
+        """Runner returns text content on end_turn with no tool use."""
+        from services.agents.base import AgentConfig, AgentResult, AgentRunner
+
+        config = AgentConfig("evaluator")
+        text_block = _make_text_block("Hello world")
+        mock_response = _make_response([text_block], "end_turn")
+
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(return_value=mock_response)
+
+        runner = AgentRunner(config=config, tools=[], tool_handlers={})
+        runner.client = mock_client
+
+        result = await runner.run(system="test", messages=[{"role": "user", "content": "hi"}])
+
+        assert isinstance(result, AgentResult)
+        assert result.content == [text_block]
+        assert result.stop_reason == "end_turn"
+        assert result.tool_results == {}
+        assert result.max_tokens_hit is False
+
+    @pytest.mark.asyncio
+    async def test_agent_runner_tool_use_loop(self):
+        """Runner executes tool handler and loops back until end_turn."""
+        from services.agents.base import AgentConfig, AgentResult, AgentRunner
+
+        config = AgentConfig("evaluator")
+
+        # First response: tool_use block
+        tool_block = _make_tool_use_block("tool_1", "my_tool", {"key": "value"})
+        first_response = _make_response([tool_block], "tool_use")
+
+        # Second response: text with end_turn
+        text_block = _make_text_block("Done")
+        second_response = _make_response([text_block], "end_turn")
+
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(
+            side_effect=[first_response, second_response]
+        )
+
+        handler = AsyncMock(return_value="tool output")
+        runner = AgentRunner(
+            config=config,
+            tools=[{"name": "my_tool", "description": "test", "input_schema": {}}],
+            tool_handlers={"my_tool": handler},
+        )
+        runner.client = mock_client
+
+        result = await runner.run(system="test", messages=[{"role": "user", "content": "go"}])
+
+        assert result.content == [text_block]
+        assert result.stop_reason == "end_turn"
+        assert "my_tool" in result.tool_results
+        assert result.tool_results["my_tool"] == {"key": "value"}
+        handler.assert_called_once_with({"key": "value"})
+
+    @pytest.mark.asyncio
+    async def test_tool_handler_receives_input(self):
+        """Tool handler is called with the exact input dict from the tool_use block."""
+        from services.agents.base import AgentConfig, AgentRunner
+
+        config = AgentConfig("evaluator")
+
+        tool_input = {"name": "Alice", "count": 3}
+        tool_block = _make_tool_use_block("t1", "greet", tool_input)
+        first_response = _make_response([tool_block], "tool_use")
+
+        text_block = _make_text_block("ok")
+        second_response = _make_response([text_block], "end_turn")
+
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(
+            side_effect=[first_response, second_response]
+        )
+
+        handler = AsyncMock(return_value="greeted")
+        runner = AgentRunner(
+            config=config,
+            tools=[{"name": "greet", "description": "greet", "input_schema": {}}],
+            tool_handlers={"greet": handler},
+        )
+        runner.client = mock_client
+
+        await runner.run(system="test", messages=[{"role": "user", "content": "greet"}])
+
+        handler.assert_called_once_with(tool_input)
