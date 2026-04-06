@@ -270,3 +270,53 @@ class TestAgentRunnerRetry:
             await runner.run(system="test", messages=[{"role": "user", "content": "hi"}])
 
         assert mock_client.messages.create.call_count == 1
+
+
+# ---------------------------------------------------------------------------
+# Cycle 4: max-tokens-tracking
+# ---------------------------------------------------------------------------
+
+
+class TestMaxTokensTracking:
+    @pytest.mark.asyncio
+    async def test_max_tokens_detected(self):
+        """Runner sets max_tokens_hit=True when stop_reason is 'max_tokens'."""
+        from services.agents.base import AgentConfig, AgentRunner
+
+        config = AgentConfig("evaluator")
+        text_block = _make_text_block("truncated output")
+        response = _make_response([text_block], "max_tokens")
+
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(return_value=response)
+
+        runner = AgentRunner(config=config, tools=[], tool_handlers={})
+        runner.client = mock_client
+
+        result = await runner.run(system="test", messages=[{"role": "user", "content": "hi"}])
+        assert result.max_tokens_hit is True
+        assert result.stop_reason == "max_tokens"
+        assert result.content == [text_block]
+
+    @pytest.mark.asyncio
+    async def test_max_tokens_logged(self, caplog):
+        """A warning is logged when max_tokens is hit."""
+        import logging
+
+        from services.agents.base import AgentConfig, AgentRunner
+
+        config = AgentConfig("evaluator")
+        text_block = _make_text_block("truncated")
+        response = _make_response([text_block], "max_tokens")
+
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(return_value=response)
+
+        runner = AgentRunner(config=config, tools=[], tool_handlers={})
+        runner.client = mock_client
+
+        with caplog.at_level(logging.WARNING, logger="services.agents.base"):
+            await runner.run(system="test", messages=[{"role": "user", "content": "hi"}])
+
+        assert any("max_tokens" in record.message for record in caplog.records)
+        assert any("evaluator" in record.message for record in caplog.records)

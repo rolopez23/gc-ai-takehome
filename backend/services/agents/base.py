@@ -108,6 +108,17 @@ class AgentRunner:
                 tool_choice=tool_choice,
             )
 
+            if response.stop_reason == "max_tokens":
+                logger.warning(
+                    "Agent '%s' hit max_tokens limit", self.config.agent_type
+                )
+                return AgentResult(
+                    content=response.content,
+                    stop_reason="max_tokens",
+                    tool_results=tool_results,
+                    max_tokens_hit=True,
+                )
+
             if response.stop_reason == "end_turn":
                 return AgentResult(
                     content=response.content,
