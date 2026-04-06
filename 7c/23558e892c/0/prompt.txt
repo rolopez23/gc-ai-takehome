@@ -455,3 +455,7 @@ Also we are getting rate limited most of the failures are due to crossing the 50
 ---
 
 LEts do that, lets run /plan to do all of these and break it up into new steps ask me any questions you have
+
+---
+
+lets try up to 3 times.  Do 3 evaluators.   I think lets have the evaluate smartly show information.  Show the headlines of clauses complete and the score cards of each section.  If complete it can go to the new page. I think it is intellgently linking it to the streaming state.  Right now it is busy I would show (top level stats updated in real time).  Last clause as a preview 1 at a time.  A background shimmer and a headline of where it is at.  Use the streaming contract to extract this to the state of the component or an context.
