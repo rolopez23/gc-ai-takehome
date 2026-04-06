@@ -1,10 +1,11 @@
 """Clause splitter agent: reads contract, determines agreement type, splits into clauses."""
 
+import base64
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from services.agents.base import AgentConfig, AgentRunner
-from services.playbook import get_all_check_names, get_check_names_with_descriptions, parse_playbook
+from services.playbook import parse_playbook
 
 logger = logging.getLogger(__name__)
 
@@ -257,8 +258,6 @@ class SplitterAgent:
         # Build the user message content
         content: list[dict] = []
         if pdf_blob:
-            import base64
-
             content.append(
                 {
                     "type": "document",
