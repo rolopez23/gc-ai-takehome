@@ -1,16 +1,18 @@
 import Link from 'next/link';
 
+const NAV = 'border-b border-border';
+const NAV_INNER = 'mx-auto flex h-14 max-w-2xl items-center justify-between px-6';
+const LOGO = 'text-sm font-semibold tracking-tight';
+const NAV_LINK = 'text-sm text-muted hover:text-foreground transition-colors';
+
 export function Nav() {
   return (
-    <nav className="border-b border-border">
-      <div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-6">
-        <Link href="/" className="text-sm font-semibold tracking-tight">
-          ◆ ContractAI
+    <nav className={NAV}>
+      <div className={NAV_INNER}>
+        <Link href="/" className={LOGO}>
+          Your Contracts
         </Link>
-        <Link
-          href="/evaluate-contract"
-          className="text-sm text-muted hover:text-foreground transition-colors"
-        >
+        <Link href="/evaluate-contract" className={NAV_LINK}>
           Evaluate Contract
         </Link>
       </div>
