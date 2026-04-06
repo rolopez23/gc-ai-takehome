@@ -467,3 +467,11 @@ Go for it remember if you do worktrees we verify / simplify / review after!
 ---
 
 Some clean up I want us to make sure the backend is sending compelte / failure on every stream as the last message.  I want to make sure the frontend can process too.  Also make sure the frontend no longer launches the polling
+
+---
+
+Right now the steream always leads to evaluation failed due to connection error fyi can you diagnose?
+
+---
+
+[Image #2] is more information
