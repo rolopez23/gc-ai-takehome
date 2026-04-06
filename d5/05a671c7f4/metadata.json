@@ -3,7 +3,7 @@
   "checkpoint_id": "d505a671c7f4",
   "strategy": "manual-commit",
   "branch": "feat/agentic-eval-pipeline",
-  "checkpoints_count": 1,
+  "checkpoints_count": 2,
   "files_touched": [
     "backend/services/agents/messages.py",
     "backend/services/agents/splitter.py"
@@ -14,13 +14,19 @@
       "transcript": "/d5/05a671c7f4/0/full.jsonl",
       "content_hash": "/d5/05a671c7f4/0/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/d5/05a671c7f4/1/metadata.json",
+      "transcript": "/d5/05a671c7f4/1/full.jsonl",
+      "content_hash": "/d5/05a671c7f4/1/content_hash.txt",
+      "prompt": "/d5/05a671c7f4/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 6,
-    "cache_creation_tokens": 6498,
-    "cache_read_tokens": 830387,
-    "output_tokens": 2578,
-    "api_call_count": 6
+    "input_tokens": 3180,
+    "cache_creation_tokens": 509821,
+    "cache_read_tokens": 49679993,
+    "output_tokens": 124692,
+    "api_call_count": 291
   }
 }
