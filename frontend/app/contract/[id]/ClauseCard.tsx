@@ -7,7 +7,7 @@ const FAIRNESS_BORDER: Record<string, string> = {
   fair: "border-fair-border",
   "non-standard": "border-unfair-border",
   dealbreaker: "border-egregious-border",
-  absent: "border-foreground/10",
+  absent: "border-gray-300",
 };
 
 const CARD = "rounded-lg border border-foreground/10 p-4";
