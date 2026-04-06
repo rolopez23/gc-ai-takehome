@@ -62,8 +62,10 @@ Create:  frontend/__tests__/streaming-types.test.ts            — Streaming Zod
 | [fe-stream-utils](steps/fe-stream-utils.md)                           | fe-evaluate-page                             | —               |     ✅     |   ⚠️   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
 | [fe-evaluate-page](steps/fe-evaluate-page.md)                         | —                                            | —               |     ✅     |   ⚠️   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
 | [fe-results-buckets](steps/fe-results-buckets.md)                     | —                                            | —               |     ✅     |   ⚠️   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
-| [evaluator-prompt-tighten](#evaluator-prompt-tighten)                 | —                                            | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
-| [fe-streaming-ux](#fe-streaming-ux)                                   | —                                            | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
+| [rate-limit-resilience](#rate-limit-resilience)                       | —                                            | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
+| [prompt-tighten](#prompt-tighten)                                     | —                                            | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
+| [fe-stream-context](#fe-stream-context)                               | fe-stream-live-ui                            | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
+| [fe-stream-live-ui](#fe-stream-live-ui)                               | —                                            | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
 
 **Legend:** ⬜ pending · ✅ passed · ❌ failed · ⚠️ incomplete · ➖ N/A
 
@@ -106,12 +108,14 @@ Phase 2 (parallel):  contract-verifier | clause-splitter | clause-evaluator | he
 Phase 3 (sequential): pipeline-orchestration
 Phase 4 (sequential): stream-endpoint
 Phase 5 (parallel):  fe-stream-utils + fe-evaluate-page | fe-results-buckets
+Phase 6 (parallel):  rate-limit-resilience | prompt-tighten
+Phase 7 (sequential): fe-stream-context
+Phase 8 (sequential): fe-stream-live-ui
 ```
 
-Phase 1 steps have no dependencies on each other. Phase 2 steps each depend on agent-core
-(and splitter/evaluator also depend on playbook-parser), but are independent of each other.
-Phase 5: fe-stream-utils + fe-evaluate-page are coupled (page needs the reader), run as one
-agent. fe-results-buckets is independent, runs as a separate agent.
+Phases 1-5: complete (backend pipeline + initial frontend).
+Phase 6: backend fixes (rate limits + prompt brevity) — independent, parallel.
+Phase 7-8: frontend streaming UX — context first, then UI on top.
 
 ## Post-Merge Workflow (MANDATORY)
 
@@ -244,42 +248,94 @@ render in severity-tier buckets with scores.
 Files: `frontend/app/contract/[id]/page.tsx`, `frontend/app/contract/[id]/ClauseSection.tsx`
 Tests: `frontend/__tests__/contract-results-page.test.tsx` (update existing)
 
-### evaluator-prompt-tighten
+### rate-limit-resilience
 
-Minimize token usage in evaluator output. Free-form text fields are too verbose — the LLM
-returns paragraphs when we want scores and one-liners. Changes:
+Fix rate limiting failures caused by blowing the 50K **input** tokens/min Haiku limit. The
+splitter sends the full contract, then evaluators each send clause text + playbook checks +
+cross-refs. With 7 concurrent evaluators, the input token burst exceeds the limit immediately.
 
-- **Evaluator prompt**: instruct "1 sentence max" for `finding`, `explanation`, `purpose`,
-  `market_standard`, `recommended_redline`. Emphasize scores (`severity`, `fairness`,
-  `playbook_status`) over prose.
-- **Evaluator tool schema**: tighten `description` fields to reinforce brevity
-  (e.g., "One sentence. Max 20 words.")
-- **Headline prompt**: same treatment — summary should be 1-2 sentences, call_to_action
-  items should be brief action phrases not paragraphs
+1. **Lower concurrency**: `MAX_CONCURRENT_EVALUATORS` from 7 → 3 (env-configurable via
+   `MAX_CONCURRENT_EVALUATORS` env var). Reduces input token burst.
+2. **429-specific retry**: distinguish rate limit errors (HTTP 429) from other API errors.
+   Retry up to 3 times with longer backoff (10s, 20s, 30s). Log the retry-after header
+   if present. Other API errors keep the existing 2x retry with exponential backoff.
+3. **Configurable concurrency**: `int(os.getenv("MAX_CONCURRENT_EVALUATORS", "3"))`
 
-Done when evaluator output is measurably shorter (before/after token comparison on a test
-contract).
+Done when a 4-clause contract evaluates without hitting rate limit failures.
 
-Files: `backend/services/agents/evaluator.py`, `backend/services/agents/headline.py`
+Files: `backend/services/agents/base.py`, `backend/services/orchestrator.py`
+Tests: `backend/tests/test_agent_base.py` (add 429 retry tests)
 
-### fe-streaming-ux
+### prompt-tighten
 
-Replace the current shimmer-based loading with a streaming-aware UI that shows real-time
-pipeline progress:
+Minimize token usage across all agent prompts. Text should be 1 sentence max — we want
+scores, not essays.
 
-1. **Background shimmer**: subtle shimmer/pulse on the page background instead of placeholder
-   cards. The page itself feels "alive" while processing.
-2. **Status tracker**: show the current pipeline stage with a progress indicator
-   (Verifying → Splitting → Evaluating N/M → Generating summary → Complete)
-3. **Clause accumulation**: as `clause_evaluated` events arrive, render actual clause cards
-   incrementally — grouped into severity-tier buckets (dealbreaker → non-standard → fair).
-   New clauses animate in.
-4. **Clause counter**: "Evaluated 3 of 12 clauses" with a progress bar or counter
-5. **Bucket headers**: show bucket headers immediately after splitting event (with counts
-   updating as clauses arrive)
+1. **Evaluator prompt**: instruct "1 sentence max" for `finding`, `explanation`, `purpose`,
+   `market_standard`, `recommended_redline`. Emphasize scores over prose.
+2. **Evaluator tool schema descriptions**: reinforce brevity ("One sentence. Max 20 words.")
+3. **Headline prompt**: summary 1-2 sentences, call_to_action items are brief action phrases
+4. **Splitter prompt**: keep clause text verbatim but tighten instructions
 
-The key insight: the evaluate page should progressively transform from "waiting" to "results"
-as events arrive — not stay in a loading state until everything finishes, then navigate away.
+Done when evaluator output is measurably shorter on a test contract.
 
-Files: `frontend/app/evaluate-contract/page.tsx`, new components as needed
+Files: `backend/services/agents/evaluator.py`, `backend/services/agents/headline.py`,
+       `backend/services/agents/splitter.py`
+
+### fe-stream-context
+
+Extract streaming state into a React context/hook that maps NDJSON events into clean
+component state. This is the data layer — no UI changes.
+
+The context tracks:
+- `stage`: "idle" | "verifying" | "splitting" | "evaluating" | "summarizing" | "completed" | "failed" | "rejected"
+- `agreementType`: string | null
+- `totalClauses`: number (from splitting event)
+- `evaluatedCount`: number (increments on each clause_evaluated)
+- `failedCount`: number
+- `clauses`: StreamClause[] (accumulated from clause_evaluated events)
+- `lastClause`: StreamClause | null (most recently evaluated)
+- `buckets`: { dealbreaker: StreamClause[], nonStandard: StreamClause[], fair: StreamClause[] }
+- `summary`: string (from replace event)
+- `callToAction`: string[] (from replace event)
+- `error`: string | null (from rejected/failed)
+- `reviewId`: string
+- `contractId`: string
+
+The hook `useContractStream(reviewId)` calls the stream endpoint and dispatches
+events into this state via a reducer. Components consume the context.
+
+Done when the context correctly tracks all state transitions for a mocked event sequence.
+
+Files: `frontend/app/evaluate-contract/StreamContext.tsx` (new)
+Tests: `frontend/__tests__/stream-context.test.tsx` (new)
+
+### fe-stream-live-ui
+
+Build the streaming-aware evaluate page UI using the stream context. Minimal, informative,
+real-time.
+
+Layout during streaming:
+1. **Background shimmer** — subtle pulse on the page background (not placeholder cards).
+   Signals "processing" without clutter.
+2. **Stage headline** — top of page, updates in real-time:
+   "Verifying document..." → "Splitting into N clauses..." →
+   "Evaluating clauses (3/12)..." → "Generating summary..." → "Complete"
+3. **Top-level stats** — updated in real-time as clauses arrive:
+   - Dealbreaker count / Non-standard count / Fair count
+   - Severity score badges accumulating
+4. **Last clause preview** — shows the most recently evaluated clause (1 at a time,
+   replaces the previous). Shows clause type, fairness badge, severity, and 1-sentence
+   finding. Animates in/out as new clauses arrive.
+5. **On complete** — navigate to `/contract/{id}` results page with full data.
+
+On rejected: show rejection reason with a "Try another contract" button.
+On failed: show error with retry option.
+
+Done when uploading a contract shows live streaming progress with stats updating and
+clause previews appearing.
+
+Files: `frontend/app/evaluate-contract/page.tsx` (rewrite streaming section),
+       `frontend/app/evaluate-contract/ClausePreview.tsx` (new),
+       `frontend/app/evaluate-contract/StreamProgress.tsx` (new)
 Tests: `frontend/__tests__/evaluate-contract-page.test.tsx` (update)
