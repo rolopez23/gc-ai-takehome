@@ -31,3 +31,8 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["."]
+
+[dependency-groups]
+dev = [
+    "black>=26.3.1",
+]

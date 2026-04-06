@@ -49,8 +49,9 @@ def test_process_docx():
         mock_result.returncode = 0
         return mock_result
 
-    with patch("services.conversion._find_libreoffice", return_value="libreoffice"), \
-         patch("services.conversion.subprocess.run", side_effect=mock_run):
+    with patch(
+        "services.conversion._find_libreoffice", return_value="libreoffice"
+    ), patch("services.conversion.subprocess.run", side_effect=mock_run):
         result = process_upload("contract.docx", b"fake-docx-bytes")
 
     assert result.upload_type == "docx"
@@ -72,8 +73,9 @@ def test_process_doc():
         mock_result.returncode = 0
         return mock_result
 
-    with patch("services.conversion._find_libreoffice", return_value="libreoffice"), \
-         patch("services.conversion.subprocess.run", side_effect=mock_run):
+    with patch(
+        "services.conversion._find_libreoffice", return_value="libreoffice"
+    ), patch("services.conversion.subprocess.run", side_effect=mock_run):
         result = process_upload("contract.doc", b"fake-doc-bytes")
 
     assert result.upload_type == "doc"
@@ -88,8 +90,9 @@ def test_libreoffice_failure():
     mock_result.returncode = 1
     mock_result.stderr = b"some error"
 
-    with patch("services.conversion._find_libreoffice", return_value="libreoffice"), \
-         patch("services.conversion.subprocess.run", return_value=mock_result):
+    with patch(
+        "services.conversion._find_libreoffice", return_value="libreoffice"
+    ), patch("services.conversion.subprocess.run", return_value=mock_result):
         with pytest.raises(RuntimeError, match="conversion failed"):
             process_upload("file.docx", b"data")
 

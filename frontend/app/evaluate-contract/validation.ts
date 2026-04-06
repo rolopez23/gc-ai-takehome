@@ -1,15 +1,18 @@
-export const ALLOWED_EXTENSIONS = ['.txt', '.pdf', '.doc', '.docx'] as const;
+export const ALLOWED_EXTENSIONS = [".txt", ".pdf", ".doc", ".docx"] as const;
 export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 export function getFileExtension(fileName: string) {
-  const dotIndex = fileName.lastIndexOf('.');
-  if (dotIndex === -1) return '';
+  const dotIndex = fileName.lastIndexOf(".");
+  if (dotIndex === -1) return "";
   return fileName.slice(dotIndex).toLowerCase();
 }
 
 export function validateFileExtension(fileName: string) {
   const ext = getFileExtension(fileName);
-  return ext !== '' && ALLOWED_EXTENSIONS.includes(ext as typeof ALLOWED_EXTENSIONS[number]);
+  return (
+    ext !== "" &&
+    ALLOWED_EXTENSIONS.includes(ext as (typeof ALLOWED_EXTENSIONS)[number])
+  );
 }
 
 export function validateFileSize(sizeInBytes: number) {

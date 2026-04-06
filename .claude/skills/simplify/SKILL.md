@@ -287,9 +287,10 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
 Only commit if at least one change was applied. If nothing was applied (suggestions only or
 nothing to simplify), skip the commit — no point creating an empty commit.
 
-## Update the Plan
+## Update the Plan (MANDATORY)
 
-If run as part of a plan chunk, update the Simplify column in plan.md:
+**You MUST update plan.md immediately after this skill completes — not later, not batched.**
+Update the Simplify column in plan.md:
 - **Changes applied, tests green** → ✅
 - **Suggestions raised** → ✅ (suggestions are for the human; the pass is recorded)
 - **Nothing to simplify** → ✅

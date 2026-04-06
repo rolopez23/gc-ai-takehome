@@ -164,8 +164,9 @@ Tell the user where the file was saved.
 Overall: Verified / Failed / Incomplete
 ```
 
-## Update the Plan
+## Update the Plan (MANDATORY)
 
+**You MUST update plan.md immediately after this skill completes — not later, not batched.**
 Update the Verify column in plan.md:
 - **Verified** → ✅
 - **Failed** → ❌ — needs fixes before Simplify or Review. Fix and re-verify, or update the

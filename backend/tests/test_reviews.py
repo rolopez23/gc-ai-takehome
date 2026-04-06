@@ -18,7 +18,9 @@ async def db():
 
 @pytest.mark.asyncio
 async def test_get_review_pending(client: AsyncClient, db: AsyncSession):
-    contract = Contract(name="test.txt", upload_type="txt", original_blob=b"test", text="test text")
+    contract = Contract(
+        name="test.txt", upload_type="txt", original_blob=b"test", text="test text"
+    )
     db.add(contract)
     await db.flush()
     review = ContractReview(contract_id=contract.id, status="pending")
@@ -34,7 +36,9 @@ async def test_get_review_pending(client: AsyncClient, db: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_get_review_completed(client: AsyncClient, db: AsyncSession):
-    contract = Contract(name="test.txt", upload_type="txt", original_blob=b"test", text="test text")
+    contract = Contract(
+        name="test.txt", upload_type="txt", original_blob=b"test", text="test text"
+    )
     db.add(contract)
     await db.flush()
     review = ContractReview(
@@ -72,13 +76,17 @@ async def test_get_review_completed(client: AsyncClient, db: AsyncSession):
     data = resp.json()
     assert data["overall_fairness"] == "fair"
     assert data["summary"] == "This contract is fair overall."
-    assert data["call_to_action"] == [{"label": "Sign it", "url": "https://example.com"}]
+    assert data["call_to_action"] == [
+        {"label": "Sign it", "url": "https://example.com"}
+    ]
     assert len(data["clauses"]) == 2
 
 
 @pytest.mark.asyncio
 async def test_get_review_rejected(client: AsyncClient, db: AsyncSession):
-    contract = Contract(name="test.txt", upload_type="txt", original_blob=b"test", text="test text")
+    contract = Contract(
+        name="test.txt", upload_type="txt", original_blob=b"test", text="test text"
+    )
     db.add(contract)
     await db.flush()
     review = ContractReview(
@@ -98,7 +106,9 @@ async def test_get_review_rejected(client: AsyncClient, db: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_get_review_failed(client: AsyncClient, db: AsyncSession):
-    contract = Contract(name="test.txt", upload_type="txt", original_blob=b"test", text="test text")
+    contract = Contract(
+        name="test.txt", upload_type="txt", original_blob=b"test", text="test text"
+    )
     db.add(contract)
     await db.flush()
     review = ContractReview(
@@ -124,7 +134,9 @@ async def test_get_review_not_found(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_get_review_by_contract_id(client: AsyncClient, db: AsyncSession):
-    contract = Contract(name="test.txt", upload_type="txt", original_blob=b"test", text="test text")
+    contract = Contract(
+        name="test.txt", upload_type="txt", original_blob=b"test", text="test text"
+    )
     db.add(contract)
     await db.flush()
     review = ContractReview(contract_id=contract.id, status="pending")

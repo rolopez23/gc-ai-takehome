@@ -179,6 +179,7 @@ Tell the user:
 - Whether any patterns crossed the threshold
 - Where the files were saved
 
-## Update the Plan
+## Update the Plan (MANDATORY)
 
+**You MUST update plan.md immediately after this skill completes — not later, not batched.**
 After the post-human run, mark the Human column ✅ in plan.md.

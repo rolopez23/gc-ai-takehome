@@ -27,6 +27,7 @@ app.dependency_overrides[get_db] = override_get_db
 def _patch_bg_session(monkeypatch):
     """Ensure the background task uses the test database, not the real one."""
     import services.evaluation
+
     monkeypatch.setattr(services.evaluation, "AsyncSessionLocal", TestSessionLocal)
 
 

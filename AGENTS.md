@@ -139,7 +139,27 @@ Auto Tests → Verify → Simplify → Review → [Understand] → [Human] → /
 - **Understand** — PR walkthrough; human may batch or skip
 - **Human** — sign-off; human may batch across steps
 
-Do not ask "should I run verify?" or "skip to walkthrough?" — mandatory steps just run. (Pattern `workflow-steps-skipped` — 4 occurrences, `verify-not-automatic` — 2 occurrences.)
+Do not ask "should I run verify?" or "skip to walkthrough?" — mandatory steps just run. (Pattern `workflow-steps-skipped` — 5 occurrences, `verify-not-automatic` — 2 occurrences.)
+
+### Background and worktree agents run the full workflow
+
+Delegating implementation to a background or worktree agent does NOT exempt that agent from
+running the mandatory workflow. Every agent that implements a step must also run: tests → verify
+→ simplify → review — in order, per step. Do not split implementation from VSR across agents.
+(Pattern `agents-skip-workflow` — 1 explicit occurrence + `workflow-steps-skipped` — 5 occurrences.)
+
+### Update plan.md immediately after each column completes
+
+Update the plan dashboard **immediately** after each workflow column completes — not at the end
+of the feature. If using background agents, the agent must update plan.md before returning.
+A stale dashboard is a lie about project state. (Pattern `plan-not-updated` — 3 occurrences.)
+
+### Never commit with broken E2E
+
+Every commit must leave the application in a functional E2E state. Transitory failures during
+development are fine, but before committing: verify the app starts, serves requests, and the
+change works. If E2E is broken at the end of a step, fix it or stop and report — do not commit
+broken code. (Pattern `broken-app-committed` — user rule, 2026-04-05.)
 
 <!-- learned-rules-end -->
 

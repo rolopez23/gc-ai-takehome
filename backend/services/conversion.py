@@ -7,10 +7,10 @@ import tempfile
 
 @dataclass
 class ConversionResult:
-    upload_type: str          # "pdf", "txt", "doc", "docx"
-    original_blob: bytes      # raw uploaded file
-    pdf_blob: bytes | None    # PDF for Claude; None only for txt
-    text: str | None          # plain text; set only for txt
+    upload_type: str  # "pdf", "txt", "doc", "docx"
+    original_blob: bytes  # raw uploaded file
+    pdf_blob: bytes | None  # PDF for Claude; None only for txt
+    text: str | None  # plain text; set only for txt
 
 
 SUPPORTED_TYPES = {"txt", "pdf", "doc", "docx"}
@@ -36,11 +36,14 @@ def _find_libreoffice() -> str:
         "/Applications/LibreOffice.app/Contents/MacOS/soffice",
         "soffice",
     ]:
-        if os.path.isfile(path) or subprocess.run(
-            ["which", path], capture_output=True
-        ).returncode == 0:
+        if (
+            os.path.isfile(path)
+            or subprocess.run(["which", path], capture_output=True).returncode == 0
+        ):
             return path
-    raise RuntimeError("LibreOffice not found. Install with: brew install --cask libreoffice")
+    raise RuntimeError(
+        "LibreOffice not found. Install with: brew install --cask libreoffice"
+    )
 
 
 def _convert_to_pdf(file_bytes: bytes, extension: str) -> bytes:
@@ -53,12 +56,22 @@ def _convert_to_pdf(file_bytes: bytes, extension: str) -> bytes:
             f.write(file_bytes)
 
         result = subprocess.run(
-            [libre_bin, "--headless", "--convert-to", "pdf", "--outdir", tmpdir, input_path],
+            [
+                libre_bin,
+                "--headless",
+                "--convert-to",
+                "pdf",
+                "--outdir",
+                tmpdir,
+                input_path,
+            ],
             capture_output=True,
             timeout=60,
         )
         if result.returncode != 0:
-            raise RuntimeError(f"LibreOffice conversion failed: {result.stderr.decode()}")
+            raise RuntimeError(
+                f"LibreOffice conversion failed: {result.stderr.decode()}"
+            )
 
         pdf_path = os.path.join(tmpdir, "input.pdf")
         if not os.path.exists(pdf_path):
@@ -76,7 +89,9 @@ def process_upload(filename: str, file_bytes: bytes) -> ConversionResult:
         try:
             text = file_bytes.decode("utf-8")
         except UnicodeDecodeError:
-            raise ValueError("File is not valid UTF-8 text. Save the file as UTF-8 and try again.")
+            raise ValueError(
+                "File is not valid UTF-8 text. Save the file as UTF-8 and try again."
+            )
         return ConversionResult(
             upload_type="txt",
             original_blob=file_bytes,

@@ -1,10 +1,10 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom';
-import EvaluateContractPage from '@/app/evaluate-contract/page';
+import { describe, test, expect, vi, beforeEach } from "vitest";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import "@testing-library/jest-dom";
+import EvaluateContractPage from "@/app/evaluate-contract/page";
 
-vi.mock('next/navigation', () => ({
+vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
 }));
 
@@ -12,19 +12,25 @@ beforeEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('Cancel on unmount', () => {
-  test('cancels in-flight request when component unmounts', async () => {
-    vi.stubGlobal('fetch', vi.fn(() => new Promise(() => {})));
-
-    const { unmount } = render(
-      <EvaluateContractPage />,
+describe("Cancel on unmount", () => {
+  test("cancels in-flight request when component unmounts", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => new Promise(() => {})),
     );
 
-    const file = new File(['contract'], 'contract.txt', { type: 'text/plain' });
-    await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
-    await userEvent.click(screen.getByRole('button', { name: /evaluate contract/i }));
+    const { unmount } = render(<EvaluateContractPage />);
 
-    expect(screen.getByTestId('loading-shimmer')).toBeInTheDocument();
+    const file = new File(["contract"], "contract.txt", { type: "text/plain" });
+    await userEvent.upload(
+      screen.getByLabelText(/upload contract file/i),
+      file,
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: /evaluate contract/i }),
+    );
+
+    expect(screen.getByTestId("loading-shimmer")).toBeInTheDocument();
 
     unmount();
 
@@ -34,22 +40,30 @@ describe('Cancel on unmount', () => {
     expect(signal.aborted).toBe(true);
   });
 
-  test('does not show error message on abort', async () => {
-    vi.stubGlobal('fetch', vi.fn((_url: string, init?: RequestInit) => {
-      return new Promise((_resolve, reject) => {
-        init?.signal?.addEventListener('abort', () => {
-          reject(new DOMException('The operation was aborted.', 'AbortError'));
+  test("does not show error message on abort", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((_url: string, init?: RequestInit) => {
+        return new Promise((_resolve, reject) => {
+          init?.signal?.addEventListener("abort", () => {
+            reject(
+              new DOMException("The operation was aborted.", "AbortError"),
+            );
+          });
         });
-      });
-    }));
-
-    const { unmount } = render(
-      <EvaluateContractPage />,
+      }),
     );
 
-    const file = new File(['contract'], 'contract.txt', { type: 'text/plain' });
-    await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
-    await userEvent.click(screen.getByRole('button', { name: /evaluate contract/i }));
+    const { unmount } = render(<EvaluateContractPage />);
+
+    const file = new File(["contract"], "contract.txt", { type: "text/plain" });
+    await userEvent.upload(
+      screen.getByLabelText(/upload contract file/i),
+      file,
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: /evaluate contract/i }),
+    );
 
     unmount();
 

@@ -17,7 +17,9 @@ def _check_api_key():
     if not key:
         raise RuntimeError("ANTHROPIC_API_KEY is not set. Add it to your .env file.")
     if not key.startswith("sk-ant-"):
-        raise RuntimeError(f"ANTHROPIC_API_KEY looks invalid (starts with '{key[:6]}...'). Expected 'sk-ant-...'.")
+        raise RuntimeError(
+            f"ANTHROPIC_API_KEY looks invalid (starts with '{key[:6]}...'). Expected 'sk-ant-...'."
+        )
     logger = logging.getLogger("uvicorn.error")
     logger.info("Valid Anthropic API key found (sk-ant-...)")
 
@@ -35,7 +37,7 @@ app = FastAPI(title="GC AI Takehome", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=os.getenv("CORS_ORIGIN_REGEX", r"https?://contract-evaluator\.localhost(:\d+)?"),
+    allow_origin_regex=os.getenv("CORS_ORIGIN_REGEX", r"https?://localhost(:\d+)?"),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

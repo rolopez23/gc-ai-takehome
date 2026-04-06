@@ -29,6 +29,18 @@
             "command": "entire hooks claude-code pre-task"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(git commit:*)",
+            "command": "cd /Users/robertlopez/repos/gc-ai-takehome/frontend && npx prettier --write --ignore-path .gitignore '**/*.{ts,tsx}' && cd /Users/robertlopez/repos/gc-ai-takehome/backend && uv run black . && cd /Users/robertlopez/repos/gc-ai-takehome/frontend && npm run test && cd /Users/robertlopez/repos/gc-ai-takehome/backend && uv run pytest -x -q",
+            "timeout": 120,
+            "statusMessage": "Running pre-commit: prettier + black + tests..."
+          }
+        ]
       }
     ],
     "SessionEnd": [
