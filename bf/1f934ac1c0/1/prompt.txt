@@ -267,3 +267,7 @@ Do we need batch_alter_table if we are using postgres back to question 1
 ---
 
 is our application running on postgres or sql_lite?
+
+---
+
+lets fix this shit
