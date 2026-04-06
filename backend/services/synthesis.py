@@ -23,10 +23,7 @@ def compute_overall_fairness(clauses: list[dict]) -> str:
 
     # Escalation: if >= threshold of clauses are non-standard, escalate to dealbreaker
     nonstandard_count = sum(1 for c in evaluated if c["fairness"] == "non-standard")
-    if (
-        len(evaluated) > 0
-        and nonstandard_count / len(evaluated) >= ESCALATION_THRESHOLD
-    ):
+    if nonstandard_count / len(evaluated) >= ESCALATION_THRESHOLD:
         worst = max(worst, FAIRNESS_RANK["dealbreaker"])
 
     return RANK_TO_FAIRNESS[worst]
@@ -38,9 +35,8 @@ def synthesize(
     headline: HeadlineResult,
 ) -> dict:
     """Assemble the final result dict from clause evaluations and headline."""
-    evaluated = [c for c in clause_results if c.get("status") != "error"]
     return {
-        "overall_fairness": compute_overall_fairness(evaluated),
+        "overall_fairness": compute_overall_fairness(clause_results),
         "agreement_type": agreement_type,
         "summary": headline.summary,
         "call_to_action": headline.call_to_action,
