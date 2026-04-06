@@ -41,3 +41,7 @@ Those steps are two big.  Each api route shoudl definitely be it sown step.  I t
 ---
 
 Can you look into verification more, trunning typsecript is not good verificaiton for the ui types.  Think of better verification if that is what we have.
+
+---
+
+you are missing the point on verification.  vitest is the auto-test.  Verificaiton should be running the code.  I would say for feedback-types lets look it into antoher step, same with the hooks and controls.  You can test clause and review feedback.  so lets have those tested with playwright.  I would combine thoe feedback-types and hooks-and-controls they are largely unverifiable uitl we test clause or review
