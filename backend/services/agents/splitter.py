@@ -1,10 +1,10 @@
 """Clause splitter agent: reads contract, determines agreement type, splits into clauses."""
 
-import base64
 import logging
 from dataclasses import dataclass
 
 from services.agents.base import AgentConfig, AgentRunner
+from services.agents.messages import build_user_message
 from services.playbook import (
     _cached_playbook,
     get_all_check_names,
@@ -260,26 +260,7 @@ class SplitterAgent:
         """Run the splitter agent on a contract document."""
         system = build_splitter_prompt(instructions)
 
-        # Build the user message content
-        content: list[dict] = []
-        if pdf_blob:
-            content.append(
-                {
-                    "type": "document",
-                    "source": {
-                        "type": "base64",
-                        "media_type": "application/pdf",
-                        "data": base64.standard_b64encode(pdf_blob).decode(),
-                    },
-                }
-            )
-        if text:
-            content.append({"type": "text", "text": text})
-
-        if not content:
-            raise ValueError("Either pdf_blob or text must be provided")
-
-        messages = [{"role": "user", "content": content}]
+        messages = build_user_message(pdf_blob, text)
 
         await self.runner.run(
             system=system,
