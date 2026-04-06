@@ -26,17 +26,55 @@ function makeStreamResponse(events: object[]): Response {
   });
 }
 
+/** Creates a stream that sends events then stays open (doesn't close). */
+function makeStallingStream(events: object[]): Response {
+  const encoder = new TextEncoder();
+  const body = new ReadableStream({
+    start(controller) {
+      for (const e of events) {
+        controller.enqueue(encoder.encode(JSON.stringify(e) + "\n"));
+      }
+      // Don't close — stream stays alive so the component stays in streaming state
+    },
+  });
+  return new Response(body, {
+    status: 200,
+    headers: { "content-type": "application/x-ndjson" },
+  });
+}
+
 const COMPLETED_STREAM = [
   { event: "started", review_id: REVIEW_ID, summary: "", call_to_action: [] },
   { event: "verifying", is_contract: true },
-  { event: "splitting", agreement_type: "SaaS MSA", clause_count: 1 },
+  { event: "splitting", agreement_type: "SaaS MSA", clause_count: 3 },
   {
     event: "clause_evaluated",
     clause: {
-      section_number: "1",
+      section_number: "1.1",
       clause_type: "Payment Terms",
       severity: 3,
       fairness: "fair",
+      finding: "Standard payment terms.",
+    },
+  },
+  {
+    event: "clause_evaluated",
+    clause: {
+      section_number: "4.2",
+      clause_type: "Limitation of Liability",
+      severity: 8,
+      fairness: "non-standard",
+      finding: "Liability capped at 3 months.",
+    },
+  },
+  {
+    event: "clause_evaluated",
+    clause: {
+      section_number: "7.1",
+      clause_type: "Termination",
+      severity: 9,
+      fairness: "dealbreaker",
+      finding: "Unilateral termination right.",
     },
   },
   { event: "replace", field: "summary", text: "Looks good" },
@@ -171,6 +209,23 @@ describe("EvaluateContractPage", () => {
     });
   });
 
+  it("shows 'Try again' button on failed stream", async () => {
+    mockFetch
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }),
+      )
+      .mockResolvedValueOnce(makeStreamResponse(FAILED_STREAM));
+
+    render(<EvaluateContractPage />);
+    await selectFileAndSubmit();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /try again/i }),
+      ).toBeInTheDocument();
+    });
+  });
+
   it("shows rejection reason on rejected stream", async () => {
     mockFetch
       .mockResolvedValueOnce(
@@ -183,6 +238,23 @@ describe("EvaluateContractPage", () => {
 
     await waitFor(() => {
       expect(screen.getByRole("alert")).toHaveTextContent("recipe");
+    });
+  });
+
+  it("shows 'Try another' button on rejected stream", async () => {
+    mockFetch
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }),
+      )
+      .mockResolvedValueOnce(makeStreamResponse(REJECTED_STREAM));
+
+    render(<EvaluateContractPage />);
+    await selectFileAndSubmit();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /try another/i }),
+      ).toBeInTheDocument();
     });
   });
 
@@ -201,24 +273,204 @@ describe("EvaluateContractPage", () => {
     });
   });
 
-  it("shows loading state during streaming", async () => {
-    // Don't resolve the stream — just check loading appears
-    mockFetch
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }),
-      )
-      .mockResolvedValueOnce(
-        new Response(new ReadableStream(), {
-          status: 200,
-          headers: { "content-type": "application/x-ndjson" },
-        }),
-      );
+  it("shows stage headline 'Uploading document...' during upload", async () => {
+    // Never resolve the upload — just check headline appears
+    mockFetch.mockReturnValueOnce(new Promise(() => {}));
 
     render(<EvaluateContractPage />);
     await selectFileAndSubmit();
 
     await waitFor(() => {
-      expect(screen.getByText(/preparing evaluation/i)).toBeInTheDocument();
+      expect(screen.getByTestId("stage-headline")).toHaveTextContent(
+        "Uploading document...",
+      );
+    });
+  });
+
+  it("shows stage headline 'Verifying document...' on verifying event", async () => {
+    const events = [
+      {
+        event: "started",
+        review_id: REVIEW_ID,
+        summary: "",
+        call_to_action: [],
+      },
+      { event: "verifying", is_contract: true },
+    ];
+
+    mockFetch
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }),
+      )
+      .mockResolvedValueOnce(makeStallingStream(events));
+
+    render(<EvaluateContractPage />);
+    await selectFileAndSubmit();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("stage-headline")).toHaveTextContent(
+        "Verifying document...",
+      );
+    });
+  });
+
+  it("shows splitting headline with agreement type and count", async () => {
+    const events = [
+      {
+        event: "started",
+        review_id: REVIEW_ID,
+        summary: "",
+        call_to_action: [],
+      },
+      { event: "splitting", agreement_type: "NDA", clause_count: 8 },
+    ];
+
+    mockFetch
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }),
+      )
+      .mockResolvedValueOnce(makeStallingStream(events));
+
+    render(<EvaluateContractPage />);
+    await selectFileAndSubmit();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("stage-headline")).toHaveTextContent(
+        "Splitting NDA into 8 clauses...",
+      );
+    });
+  });
+
+  it("shows stats bar with correct counts after clause events", async () => {
+    const events = [
+      {
+        event: "started",
+        review_id: REVIEW_ID,
+        summary: "",
+        call_to_action: [],
+      },
+      { event: "splitting", agreement_type: "NDA", clause_count: 5 },
+      {
+        event: "clause_evaluated",
+        clause: {
+          section_number: "1",
+          clause_type: "Scope",
+          severity: 2,
+          fairness: "fair",
+          finding: "Fine.",
+        },
+      },
+      {
+        event: "clause_evaluated",
+        clause: {
+          section_number: "2",
+          clause_type: "Term",
+          severity: 7,
+          fairness: "non-standard",
+          finding: "Odd.",
+        },
+      },
+      {
+        event: "clause_evaluated",
+        clause: {
+          section_number: "3",
+          clause_type: "Liability",
+          severity: 10,
+          fairness: "dealbreaker",
+          finding: "Bad.",
+        },
+      },
+    ];
+
+    mockFetch
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }),
+      )
+      .mockResolvedValueOnce(makeStallingStream(events));
+
+    render(<EvaluateContractPage />);
+    await selectFileAndSubmit();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("stat-dealbreaker")).toHaveTextContent("1");
+      expect(screen.getByTestId("stat-nonstandard")).toHaveTextContent("1");
+      expect(screen.getByTestId("stat-fair")).toHaveTextContent("1");
+    });
+  });
+
+  it("shows progress bar during evaluating stage", async () => {
+    const events = [
+      {
+        event: "started",
+        review_id: REVIEW_ID,
+        summary: "",
+        call_to_action: [],
+      },
+      { event: "splitting", agreement_type: "NDA", clause_count: 4 },
+      {
+        event: "clause_evaluated",
+        clause: {
+          section_number: "1",
+          clause_type: "Scope",
+          severity: 2,
+          fairness: "fair",
+          finding: "Fine.",
+        },
+      },
+    ];
+
+    mockFetch
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }),
+      )
+      .mockResolvedValueOnce(makeStallingStream(events));
+
+    render(<EvaluateContractPage />);
+    await selectFileAndSubmit();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("progress-bar")).toBeInTheDocument();
+      expect(screen.getByTestId("progress-bar")).toHaveTextContent(
+        "Evaluated 1 of 4 clauses",
+      );
+    });
+  });
+
+  it("shows last clause preview during evaluating stage", async () => {
+    const events = [
+      {
+        event: "started",
+        review_id: REVIEW_ID,
+        summary: "",
+        call_to_action: [],
+      },
+      { event: "splitting", agreement_type: "NDA", clause_count: 2 },
+      {
+        event: "clause_evaluated",
+        clause: {
+          section_number: "4.2",
+          clause_type: "Limitation of Liability",
+          severity: 8,
+          fairness: "non-standard",
+          finding: "Liability capped at 3 months.",
+        },
+      },
+    ];
+
+    mockFetch
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }),
+      )
+      .mockResolvedValueOnce(makeStallingStream(events));
+
+    render(<EvaluateContractPage />);
+    await selectFileAndSubmit();
+
+    await waitFor(() => {
+      const preview = screen.getByTestId("clause-preview");
+      expect(preview).toHaveTextContent("4.2");
+      expect(preview).toHaveTextContent("Limitation of Liability");
+      expect(preview).toHaveTextContent("Liability capped at 3 months.");
     });
   });
 });

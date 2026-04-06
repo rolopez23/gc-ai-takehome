@@ -19,6 +19,39 @@ const UPLOAD_RESPONSE = {
   status: "pending",
 };
 
+function makeStreamResponse(events: object[]): Response {
+  const body = events.map((e) => JSON.stringify(e) + "\n").join("");
+  return new Response(body, {
+    status: 200,
+    headers: { "content-type": "application/x-ndjson" },
+  });
+}
+
+const COMPLETED_STREAM = [
+  { event: "started", review_id: REVIEW_ID, summary: "", call_to_action: [] },
+  { event: "verifying", is_contract: true },
+  { event: "splitting", agreement_type: "SaaS MSA", clause_count: 1 },
+  {
+    event: "clause_evaluated",
+    clause: {
+      section_number: "1",
+      clause_type: "Payment Terms",
+      severity: 3,
+      fairness: "fair",
+    },
+  },
+  {
+    event: "completed",
+    result: {
+      overall_fairness: "fair",
+      agreement_type: "SaaS MSA",
+      summary: "All clauses are market standard.",
+      call_to_action: [],
+      clauses: [],
+    },
+  },
+];
+
 const REVIEW_COMPLETED = {
   id: REVIEW_ID,
   contract_id: CONTRACT_ID,
@@ -41,28 +74,6 @@ beforeEach(() => {
 afterEach(() => {
   vi.restoreAllMocks();
 });
-
-function makeStreamResponse(events: object[]): Response {
-  const body = events.map((e) => JSON.stringify(e) + "\n").join("");
-  return new Response(body, {
-    status: 200,
-    headers: { "content-type": "application/x-ndjson" },
-  });
-}
-
-const COMPLETED_STREAM = [
-  { event: "started", review_id: REVIEW_ID, summary: "", call_to_action: [] },
-  {
-    event: "completed",
-    result: {
-      overall_fairness: "fair",
-      agreement_type: "SaaS MSA",
-      summary: "Good",
-      call_to_action: [],
-      clauses: [],
-    },
-  },
-];
 
 describe("Navigate on success", () => {
   test("navigates to /contract/[uuid] on stream completed", async () => {

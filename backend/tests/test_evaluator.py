@@ -97,7 +97,10 @@ class TestEvaluatorToolDefinitions:
         assert "max 20 words" in schema["properties"]["explanation"]["description"]
         assert "max 15 words" in schema["properties"]["purpose"]["description"]
         assert "max 15 words" in schema["properties"]["market_standard"]["description"]
-        assert "One sentence or null" in schema["properties"]["recommended_redline"]["description"]
+        assert (
+            "One sentence or null"
+            in schema["properties"]["recommended_redline"]["description"]
+        )
 
 
 # --- Cycle 2: get-playbook-tool-handler ---

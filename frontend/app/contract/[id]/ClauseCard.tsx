@@ -16,6 +16,12 @@ const CLAUSE_TYPE = "font-semibold";
 const SEVERITY_BADGE = "text-xs font-medium text-foreground/50";
 const EXPLANATION = "mt-2 text-sm text-foreground/70";
 
+function explanationText(clause: ReviewClause): string {
+  if (clause.explanation) return clause.explanation;
+  if (clause.section_number === "ABSENT") return "Missing from contract";
+  return "\u2014";
+}
+
 export default function ClauseCard({
   clause,
   fairness,
@@ -32,7 +38,7 @@ export default function ClauseCard({
           <span className={SEVERITY_BADGE}>Severity: {clause.severity}/10</span>
         )}
       </h4>
-      <p className={EXPLANATION}>{clause.explanation}</p>
+      <p className={EXPLANATION}>{explanationText(clause)}</p>
     </div>
   );
 }

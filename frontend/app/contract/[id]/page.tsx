@@ -49,9 +49,7 @@ function groupByFairness(clauses: ReviewClause[]) {
     { dealbreaker: [], "non-standard": [], fair: [] },
   );
   for (const rating of Object.keys(groups) as FairnessRating[]) {
-    groups[rating].sort(
-      (a, b) => (b.severity ?? 0) - (a.severity ?? 0),
-    );
+    groups[rating].sort((a, b) => (b.severity ?? 0) - (a.severity ?? 0));
   }
   return groups;
 }

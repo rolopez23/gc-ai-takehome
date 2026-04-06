@@ -389,14 +389,20 @@ class TestRateLimitRetry:
     @patch("services.agents.base.asyncio.sleep", new_callable=AsyncMock)
     async def test_rate_limit_retry_exhausted(self, mock_sleep):
         """Raises after MAX_RATE_LIMIT_RETRIES rate limit retries are exhausted."""
-        from services.agents.base import MAX_RATE_LIMIT_RETRIES, AgentConfig, AgentRunner
+        from services.agents.base import (
+            MAX_RATE_LIMIT_RETRIES,
+            AgentConfig,
+            AgentRunner,
+        )
 
         config = AgentConfig("evaluator")
 
         mock_client = AsyncMock()
         # Raise rate limit error more times than allowed
         mock_client.messages.create = AsyncMock(
-            side_effect=[_make_rate_limit_error() for _ in range(MAX_RATE_LIMIT_RETRIES + 1)]
+            side_effect=[
+                _make_rate_limit_error() for _ in range(MAX_RATE_LIMIT_RETRIES + 1)
+            ]
         )
 
         runner = AgentRunner(config=config, tools=[], tool_handlers={})

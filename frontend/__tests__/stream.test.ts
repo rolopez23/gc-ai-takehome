@@ -70,9 +70,7 @@ describe("readNDJSONStream", () => {
   });
 
   test("handles trailing data without newline", async () => {
-    const response = mockResponse([
-      '{"event":"failed","reason":"error"}',
-    ]);
+    const response = mockResponse(['{"event":"failed","reason":"error"}']);
 
     const events = await collectEvents(response);
     expect(events).toHaveLength(1);
@@ -89,9 +87,7 @@ describe("readNDJSONStream", () => {
   });
 
   test("validates events via Zod and throws on invalid data", async () => {
-    const response = mockResponse([
-      '{"event":"unknown_type","foo":"bar"}\n',
-    ]);
+    const response = mockResponse(['{"event":"unknown_type","foo":"bar"}\n']);
 
     await expect(collectEvents(response)).rejects.toThrow();
   });
