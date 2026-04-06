@@ -3,9 +3,17 @@
   "checkpoint_id": "c2ec603d830a",
   "strategy": "manual-commit",
   "branch": "feat/agentic-eval-pipeline",
-  "checkpoints_count": 1,
+  "checkpoints_count": 3,
   "files_touched": [
-    ".claude/skills/btw-pull-request/skill.md"
+    ".claude/skills/btw-pull-request/skill.md",
+    "backend/tests/test_agent_base.py",
+    "backend/tests/test_evaluator.py",
+    "frontend/__tests__/error-display.test.tsx",
+    "frontend/__tests__/evaluate-contract-page.test.tsx",
+    "frontend/__tests__/stream.test.ts",
+    "frontend/__tests__/success-navigation.test.tsx",
+    "frontend/app/contract/[id]/page.tsx",
+    "frontend/app/evaluate-contract/page.tsx"
   ],
   "sessions": [
     {
@@ -13,13 +21,19 @@
       "transcript": "/c2/ec603d830a/0/full.jsonl",
       "content_hash": "/c2/ec603d830a/0/content_hash.txt",
       "prompt": "/c2/ec603d830a/0/prompt.txt"
+    },
+    {
+      "metadata": "/c2/ec603d830a/1/metadata.json",
+      "transcript": "/c2/ec603d830a/1/full.jsonl",
+      "content_hash": "/c2/ec603d830a/1/content_hash.txt",
+      "prompt": "/c2/ec603d830a/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 941,
-    "cache_creation_tokens": 304624,
-    "cache_read_tokens": 12963650,
-    "output_tokens": 70640,
-    "api_call_count": 120
+    "input_tokens": 5722,
+    "cache_creation_tokens": 1329403,
+    "cache_read_tokens": 188276393,
+    "output_tokens": 292447,
+    "api_call_count": 726
   }
 }
