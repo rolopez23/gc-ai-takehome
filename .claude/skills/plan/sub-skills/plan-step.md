@@ -70,6 +70,48 @@ machine. Verification proves correctness to the human — they are complementary
 ➖ is valid only when the step has genuinely no observable effect beyond what automated tests
 cover — e.g., pure refactoring of internal function signatures with no behavior change.
 
+**Important:** Auto Tests and Verify are complementary, not interchangeable. `tsc --noEmit` or
+`vitest` passing is an auto test, not verification. Verification means running the actual code
+and observing its behavior: curl against a live server, Playwright against a real browser, DB
+queries against real tables.
+
+### Bad Example: Confusing Auto Tests with Verification
+
+| Step | Auto Tests | Verify |
+|------|-----------|--------|
+| feedback-types | `tsc --noEmit` | 6 Vitest tests: Zod parse valid/invalid |
+| feedback-hook-and-controls | `tsc --noEmit` | 8 Vitest tests for FeedbackControls |
+| clause-feedback-ui | browser only | 6 Vitest tests + 14-point browser checklist |
+| review-feedback-ui | `tsc --noEmit` | `tsc` + 11-point browser checklist |
+
+**Why this is wrong:**
+- `tsc --noEmit` in the Auto Tests column is not a real test — it proves the code compiles,
+  not that it works. It belongs nowhere or as a secondary check.
+- Vitest tests in the Verify column are auto tests, not verification. They test code in
+  isolation via jsdom, not by running the real application.
+- "browser only" with no automated tests means you have verification but skipped auto tests.
+- The columns are swapped and muddled — auto tests should contain vitest/pytest, verification
+  should contain curl/Playwright/DB inspection.
+
+### Good Example: Verification Strategy Table
+
+A good plan includes a summary table showing how each step is tested AND verified:
+
+| Step | Auto Tests (vitest/pytest) | Verify (run the code) |
+|------|---------------------------|----------------------|
+| feedback-schema | pytest: models, constraints, schema validation | DB inspection: print columns/types |
+| review-feedback-upsert | pytest: create, update, 404 | curl: PUT create, PUT update, 404 |
+| review-feedback-read | pytest: exists, null, 404 | curl: GET after PUT, GET null, 404 |
+| clause-feedback-upsert | pytest: create, update, 404 | curl: PUT create, PUT update, 404 |
+| clause-feedback-bulk-read | pytest: list, empty, scoped, 404 | curl: GET scoped list, 404 |
+| feedback-frontend-plumbing | vitest: Zod schemas + component tests | ➖ (no observable surface until wired in) |
+| clause-feedback-ui | vitest: ClauseCard hover/focus-lock tests | Playwright: hover, click, comment, focus-lock, reload persistence |
+| review-feedback-ui | vitest: ScoreFeedback hover/focus-lock tests | Playwright: hover, click, comment, focus-lock, reload persistence |
+
+Note the clear separation: vitest/pytest are auto tests, curl/Playwright/DB inspection are
+verification. Frontend plumbing (types, hooks, components not yet wired in) gets ➖ for verify
+because there is genuinely no observable surface — but it still has auto tests.
+
 ---
 
 ## Template
