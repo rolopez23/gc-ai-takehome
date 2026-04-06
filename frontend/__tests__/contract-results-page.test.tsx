@@ -29,6 +29,7 @@ const COMPLETED_RESULT: ReviewCompleted = {
       fairness: "dealbreaker",
       market_standard: "Typically 12 months of fees",
       explanation: "Unlimited liability is unacceptable",
+      severity: 9,
     },
     {
       id: "d4e5f6a7-b8c9-4d0e-9f2a-3b4c5d6e7f80",
@@ -38,6 +39,7 @@ const COMPLETED_RESULT: ReviewCompleted = {
       fairness: "non-standard",
       market_standard: "Net 30",
       explanation: "Net 15 is aggressive but negotiable",
+      severity: 5,
     },
   ],
   completed_at: "2026-01-01T00:00:00Z",
@@ -169,5 +171,96 @@ describe("ContractPage", () => {
     const { default: ContractPage } = await import("@/app/contract/[id]/page");
     render(<ContractPage />);
     expect(screen.getByTestId("loading-shimmer")).toBeInTheDocument();
+  });
+
+  it("renders sections in severity order: dealbreaker, non-standard, fair", async () => {
+    const resultWithAllTiers: ReviewCompleted = {
+      ...COMPLETED_RESULT,
+      clauses: [
+        {
+          id: "c3d4e5f6-a7b8-4c9d-ae1f-2a3b4c5d6e7f",
+          section_number: "1.1",
+          clause_type: "Standard Clause",
+          purpose: "Standard",
+          fairness: "fair",
+          market_standard: "Standard",
+          explanation: "This is fair",
+        },
+        {
+          id: "d4e5f6a7-b8c9-4d0e-9f2a-3b4c5d6e7f80",
+          section_number: "2.1",
+          clause_type: "Risky Clause",
+          purpose: "Non-standard",
+          fairness: "non-standard",
+          market_standard: "Standard",
+          explanation: "This is non-standard",
+        },
+        {
+          id: "e5f6a7b8-c9d0-4e1f-aa3b-4c5d6e7f8091",
+          section_number: "3.1",
+          clause_type: "Dangerous Clause",
+          purpose: "Dealbreaker",
+          fairness: "dealbreaker",
+          market_standard: "Standard",
+          explanation: "This is a dealbreaker",
+        },
+      ],
+    };
+    mockFetch.mockReturnValue(mockFetchResponse(resultWithAllTiers));
+    const { default: ContractPage } = await import("@/app/contract/[id]/page");
+    render(<ContractPage />);
+    await waitFor(() => {
+      expect(screen.getByText("Evaluation complete")).toBeInTheDocument();
+    });
+    const sections = screen.getAllByRole("button");
+    expect(sections[0]).toHaveTextContent(/Dealbreaker/);
+    expect(sections[1]).toHaveTextContent(/Non-Standard/);
+    expect(sections[2]).toHaveTextContent(/Standard/);
+  });
+
+  it("sorts clauses within a bucket by severity (highest first)", async () => {
+    const resultWithSeverities: ReviewCompleted = {
+      ...COMPLETED_RESULT,
+      clauses: [
+        {
+          id: "c3d4e5f6-a7b8-4c9d-ae1f-2a3b4c5d6e7f",
+          section_number: "3.1",
+          clause_type: "Low Severity",
+          purpose: "Limits exposure",
+          fairness: "dealbreaker",
+          market_standard: "Standard",
+          explanation: "Low severity dealbreaker",
+          severity: 3,
+        },
+        {
+          id: "d4e5f6a7-b8c9-4d0e-9f2a-3b4c5d6e7f80",
+          section_number: "3.2",
+          clause_type: "High Severity",
+          purpose: "Critical issue",
+          fairness: "dealbreaker",
+          market_standard: "Standard",
+          explanation: "High severity dealbreaker",
+          severity: 9,
+        },
+      ],
+    };
+    mockFetch.mockReturnValue(mockFetchResponse(resultWithSeverities));
+    const { default: ContractPage } = await import("@/app/contract/[id]/page");
+    render(<ContractPage />);
+    await waitFor(() => {
+      expect(screen.getByText("Evaluation complete")).toBeInTheDocument();
+    });
+    // Expand the dealbreaker section (first button is the dealbreaker section header)
+    const user = (await import("@testing-library/user-event")).default;
+    const buttons = screen.getAllByRole("button");
+    const dealBreakerButton = buttons.find((b) =>
+      b.textContent?.includes("Dealbreaker"),
+    )!;
+    await user.setup().click(dealBreakerButton);
+    // Get clause cards within the expanded section
+    const section = screen.getByLabelText("Dealbreaker clauses");
+    const items = section.querySelectorAll("li");
+    expect(items[0]).toHaveTextContent("High Severity");
+    expect(items[1]).toHaveTextContent("Low Severity");
   });
 });
