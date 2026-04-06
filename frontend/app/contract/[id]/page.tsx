@@ -86,12 +86,14 @@ function EvaluationResults({ result }: { result: ReviewCompleted }) {
 
   return (
     <article className={PAGE_CONTAINER}>
-      <h1 className={PAGE_TITLE}>Evaluation complete</h1>
-      {result.overall_fairness && (
-        <div className="mt-4">
-          <ScoreBadge rating={result.overall_fairness} />
-        </div>
-      )}
+      <div className="sticky top-0 z-10 -mx-6 bg-background/95 backdrop-blur-sm px-6 pb-4 pt-12 -mt-12">
+        <h1 className={PAGE_TITLE}>Evaluation complete</h1>
+        {result.overall_fairness && (
+          <div className="mt-2">
+            <ScoreBadge rating={result.overall_fairness} />
+          </div>
+        )}
+      </div>
       {result.summary && (
         <div className="mt-4 rounded-r-lg border-l-2 border-foreground/20 bg-surface py-3 pl-4 pr-4">
           <p className="text-sm text-muted">{result.summary}</p>
