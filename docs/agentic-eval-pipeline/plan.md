@@ -62,6 +62,8 @@ Create:  frontend/__tests__/streaming-types.test.ts            — Streaming Zod
 | [fe-stream-utils](steps/fe-stream-utils.md)                           | fe-evaluate-page                             | —               |     ✅     |   ⚠️   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
 | [fe-evaluate-page](steps/fe-evaluate-page.md)                         | —                                            | —               |     ✅     |   ⚠️   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
 | [fe-results-buckets](steps/fe-results-buckets.md)                     | —                                            | —               |     ✅     |   ⚠️   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
+| [evaluator-prompt-tighten](#evaluator-prompt-tighten)                 | —                                            | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
+| [fe-streaming-ux](#fe-streaming-ux)                                   | —                                            | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
 
 **Legend:** ⬜ pending · ✅ passed · ❌ failed · ⚠️ incomplete · ➖ N/A
 
@@ -241,3 +243,43 @@ render in severity-tier buckets with scores.
 
 Files: `frontend/app/contract/[id]/page.tsx`, `frontend/app/contract/[id]/ClauseSection.tsx`
 Tests: `frontend/__tests__/contract-results-page.test.tsx` (update existing)
+
+### evaluator-prompt-tighten
+
+Minimize token usage in evaluator output. Free-form text fields are too verbose — the LLM
+returns paragraphs when we want scores and one-liners. Changes:
+
+- **Evaluator prompt**: instruct "1 sentence max" for `finding`, `explanation`, `purpose`,
+  `market_standard`, `recommended_redline`. Emphasize scores (`severity`, `fairness`,
+  `playbook_status`) over prose.
+- **Evaluator tool schema**: tighten `description` fields to reinforce brevity
+  (e.g., "One sentence. Max 20 words.")
+- **Headline prompt**: same treatment — summary should be 1-2 sentences, call_to_action
+  items should be brief action phrases not paragraphs
+
+Done when evaluator output is measurably shorter (before/after token comparison on a test
+contract).
+
+Files: `backend/services/agents/evaluator.py`, `backend/services/agents/headline.py`
+
+### fe-streaming-ux
+
+Replace the current shimmer-based loading with a streaming-aware UI that shows real-time
+pipeline progress:
+
+1. **Background shimmer**: subtle shimmer/pulse on the page background instead of placeholder
+   cards. The page itself feels "alive" while processing.
+2. **Status tracker**: show the current pipeline stage with a progress indicator
+   (Verifying → Splitting → Evaluating N/M → Generating summary → Complete)
+3. **Clause accumulation**: as `clause_evaluated` events arrive, render actual clause cards
+   incrementally — grouped into severity-tier buckets (dealbreaker → non-standard → fair).
+   New clauses animate in.
+4. **Clause counter**: "Evaluated 3 of 12 clauses" with a progress bar or counter
+5. **Bucket headers**: show bucket headers immediately after splitting event (with counts
+   updating as clauses arrive)
+
+The key insight: the evaluate page should progressively transform from "waiting" to "results"
+as events arrive — not stay in a loading state until everything finishes, then navigate away.
+
+Files: `frontend/app/evaluate-contract/page.tsx`, new components as needed
+Tests: `frontend/__tests__/evaluate-contract-page.test.tsx` (update)
