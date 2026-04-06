@@ -3,7 +3,7 @@
   "checkpoint_id": "38148721fee9",
   "strategy": "manual-commit",
   "branch": "feat/agentic-eval-pipeline",
-  "checkpoints_count": 2,
+  "checkpoints_count": 5,
   "files_touched": null,
   "sessions": [
     {
@@ -11,13 +11,19 @@
       "transcript": "/38/148721fee9/0/full.jsonl",
       "content_hash": "/38/148721fee9/0/content_hash.txt",
       "prompt": "/38/148721fee9/0/prompt.txt"
+    },
+    {
+      "metadata": "/38/148721fee9/1/metadata.json",
+      "transcript": "/38/148721fee9/1/full.jsonl",
+      "content_hash": "/38/148721fee9/1/content_hash.txt",
+      "prompt": "/38/148721fee9/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 844,
-    "cache_creation_tokens": 99907,
-    "cache_read_tokens": 3273557,
-    "output_tokens": 41251,
-    "api_call_count": 51
+    "input_tokens": 3914,
+    "cache_creation_tokens": 541065,
+    "cache_read_tokens": 32774857,
+    "output_tokens": 140181,
+    "api_call_count": 260
   }
 }
