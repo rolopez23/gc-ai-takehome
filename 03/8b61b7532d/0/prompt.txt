@@ -1,0 +1,47 @@
+Ok I want to handle everyhing on a worktree, alot of work is happening on a feature branch.  I want one last feature a new table for feedback and to add feedback on every clause and overall score.  Feedback will be thumbs up, thumbds down and an optional free text.  Lets first build out the schema, then api then link out the frontend.  Launch /problem-spec for this on a worktree
+
+---
+
+Contracts will be unique to the target, for now really each review on a clause or a contract can only have one piece of feedback (that will probably stay true anyways).
+
+---
+
+Feel free to handle editing if you don't think the scope is too big.
+
+---
+
+So ownernship is fine.  Really this is a one user app, one user kicks of an eval and we only want there feedback.  In the future we would only allow the requester to leave feedback, since they are the one running the eval.  I think the null is a good point, lets actually have two tables for feedback on reviews and on clauses.  I think that makes more sense.  I think that is a frontend issue, we can preserve, but want when they update.   I think thumbs, up, down, and text do a put.  On the frontend if they change we do a callout pulse to any comment they have.   
+
+API should not enforce, we do want to enforce showing on the frontend.  Early feedback will not hurt but it is there.
+
+---
+
+CAn you re-run the automated reviews?
+
+---
+
+I think clear comment, we can assume it is bad, thanks for the push back.  Let us debounce the call on the frontend.  YAGNI for regression we don't support re-running reviews. hmmm lets think more about fetching.  Lets split and defer the fetching.  Feedback is below the fold so I don't want to delay page load.  Feeback only shows after the fetch is complete or when a clause / high level score is hovered over.  When the user leaves teh feedabck or score we dissaper.  Add that to the frontend specification.
+
+---
+
+yes third stress test is the charm
+
+---
+
+Good callout of edge case! Mark it.  300ms is a good deboutce.  We are fixing the migraiton in another PR, like that we are catching minor issues.  I thnk we are good now.
+
+---
+
+Launch the /plan Also remember we are on a branch that is currently doing a lot of work.  We should be fine since this is a clean directory.
+
+---
+
+Those steps are two big.  Each api route shoudl definitely be it sown step.  I think the ux/ui can be one step (that allows good verification), but if you think you can break it into smaller verifiable steps taht is always prefered.
+
+---
+
+Can you look into verification more, trunning typsecript is not good verificaiton for the ui types.  Think of better verification if that is what we have.
+
+---
+
+you are missing the point on verification.  vitest is the auto-test.  Verificaiton should be running the code.  I would say for feedback-types lets look it into antoher step, same with the hooks and controls.  You can test clause and review feedback.  so lets have those tested with playwright.  I would combine thoe feedback-types and hooks-and-controls they are largely unverifiable uitl we test clause or review
