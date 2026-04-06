@@ -15,3 +15,7 @@ I want to make sure it doesn't disrupt work in progress any ideas? Let me know t
 ---
 
 yes
+
+---
+
+I did it it worked out greate.  Can you make a btw-pull-request skill that handles this workflow.  When you want to commit some unrelated files to a clean PR you can do this.
