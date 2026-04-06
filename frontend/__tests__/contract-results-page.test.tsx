@@ -122,14 +122,28 @@ describe('ContractPage', () => {
     expect(screen.getByText('This is a recipe, not a contract.')).toBeInTheDocument();
   });
 
-  it('shows error when evaluation failed', async () => {
+  it('shows friendly error when evaluation failed with known failure_code', async () => {
+    const failedWithCode: ReviewFailed = {
+      ...FAILED_RESULT,
+      failure_code: 'anthropic_error',
+    };
+    mockFetch.mockReturnValue(mockFetchResponse(failedWithCode));
+    const { default: ContractPage } = await import('@/app/contract/[id]/page');
+    render(<ContractPage />);
+    await waitFor(() => {
+      expect(screen.getByText('Evaluation failed')).toBeInTheDocument();
+    });
+    expect(screen.getByText(/couldn't reach our AI service/)).toBeInTheDocument();
+  });
+
+  it('shows generic error when evaluation failed with null failure_code', async () => {
     mockFetch.mockReturnValue(mockFetchResponse(FAILED_RESULT));
     const { default: ContractPage } = await import('@/app/contract/[id]/page');
     render(<ContractPage />);
     await waitFor(() => {
       expect(screen.getByText('Evaluation failed')).toBeInTheDocument();
     });
-    expect(screen.getByText('Document could not be processed')).toBeInTheDocument();
+    expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
   });
 
   it('shows not-found message on 404', async () => {

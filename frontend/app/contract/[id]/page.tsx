@@ -8,12 +8,13 @@ import { ReviewResponseSchema } from '@/app/evaluate-contract/types';
 import { FAIRNESS_SECTION_ORDER } from '@/app/evaluate-contract/fairness-utils';
 import { LoadingShimmer } from '@/app/evaluate-contract/LoadingShimmer';
 import { BACKEND_URL, POLL_INTERVAL, POLL_TIMEOUT, STATUS_TEXT } from '@/app/evaluate-contract/constants';
+import { getFailureMessage } from '@/app/evaluate-contract/failure-messages';
 import ScoreBadge from '@/app/contract/[id]/ScoreBadge';
 import ClauseSection from '@/app/contract/[id]/ClauseSection';
 
-const PAGE_CONTAINER = 'mx-auto max-w-2xl px-4 py-12';
-const PAGE_TITLE = 'text-3xl font-bold tracking-tight';
-const BACK_LINK = 'mt-6 inline-block text-sm text-foreground/60 underline hover:text-foreground';
+const PAGE_CONTAINER = 'mx-auto max-w-2xl px-6 pt-12';
+const PAGE_TITLE = 'text-2xl font-bold tracking-tight';
+const BACK_LINK = 'mt-6 inline-block text-sm text-muted underline hover:text-foreground';
 
 function LoadingState({ statusText }: { statusText: string }) {
   return (
@@ -59,9 +60,13 @@ function EvaluationResults({ result }: { result: ReviewCompleted }) {
           <ScoreBadge rating={result.overall_fairness} />
         </div>
       )}
-      {result.summary && <p className="mt-3 text-foreground/60">{result.summary}</p>}
+      {result.summary && (
+        <div className="mt-4 rounded-r-lg border-l-2 border-foreground/20 bg-surface py-3 pl-4 pr-4">
+          <p className="text-sm text-muted">{result.summary}</p>
+        </div>
+      )}
       {result.call_to_action && (
-        <ul className="mt-3 list-disc pl-5 text-sm text-foreground/70">
+        <ul className="mt-3 list-disc pl-5 text-sm text-muted">
           {result.call_to_action.map((item, i) => <li key={i}>{item}</li>)}
         </ul>
       )}
@@ -159,7 +164,7 @@ export default function ContractPage() {
   if (notFound) return <NoEvaluation />;
   if (error) return <EvaluationFailed message={error} />;
   if (!review) return <NoEvaluation />;
-  if (review.status === 'failed') return <EvaluationFailed message={review.failure_message || 'Evaluation failed'} />;
+  if (review.status === 'failed') return <EvaluationFailed message={getFailureMessage(review.failure_code)} />;
   if (review.status === 'completed') {
     if (review.overall_fairness) return <EvaluationResults result={review} />;
     return <NotAContract summary={review.summary} />;
