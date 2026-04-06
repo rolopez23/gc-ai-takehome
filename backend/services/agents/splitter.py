@@ -66,7 +66,7 @@ SPLITTER_TOOL = {
 AGREEMENT_TYPE_TO_PLAYBOOK = {
     "SaaS MSA": "SaaS Master Service Agreement",
     "NDA": "Mutual Non-Disclosure Agreement",
-    "Commercial MSA": "Commercial Master Services Agreement (Non-SaaS)",
+    "Commercial MSA": "Commercial Master Services Agreement \u2014 Non-SaaS",
     "DPA": "Data Processing Agreement",
 }
 

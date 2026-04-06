@@ -11,8 +11,8 @@ from alembic import op
 import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
-revision: str = "002"
-down_revision: Union[str, None] = "001"
+revision: str = "003"
+down_revision: Union[str, None] = "002"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -63,13 +63,16 @@ def upgrade() -> None:
     op.add_column(
         "review_clauses",
         sa.Column(
-            "is_cycle", sa.Boolean(), nullable=False, server_default=sa.text("0")
+            "is_cycle", sa.Boolean(), nullable=False, server_default=sa.text("false")
         ),
     )
     op.add_column(
         "review_clauses",
         sa.Column(
-            "is_synthetic", sa.Boolean(), nullable=False, server_default=sa.text("0")
+            "is_synthetic",
+            sa.Boolean(),
+            nullable=False,
+            server_default=sa.text("false"),
         ),
     )
 
