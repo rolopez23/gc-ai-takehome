@@ -42,19 +42,35 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-// Stream endpoint returns 404 so page falls back to polling
-const STREAM_UNAVAILABLE = new Response("", { status: 404 });
+function makeStreamResponse(events: object[]): Response {
+  const body = events.map((e) => JSON.stringify(e) + "\n").join("");
+  return new Response(body, {
+    status: 200,
+    headers: { "content-type": "application/x-ndjson" },
+  });
+}
+
+const COMPLETED_STREAM = [
+  { event: "started", review_id: REVIEW_ID, summary: "", call_to_action: [] },
+  {
+    event: "completed",
+    result: {
+      overall_fairness: "fair",
+      agreement_type: "SaaS MSA",
+      summary: "Good",
+      call_to_action: [],
+      clauses: [],
+    },
+  },
+];
 
 describe("Navigate on success", () => {
-  test("navigates to /contract/[uuid] on success", async () => {
+  test("navigates to /contract/[uuid] on stream completed", async () => {
     mockFetch
       .mockResolvedValueOnce(
         new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }),
       )
-      .mockResolvedValueOnce(STREAM_UNAVAILABLE)
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify(REVIEW_COMPLETED), { status: 200 }),
-      );
+      .mockResolvedValueOnce(makeStreamResponse(COMPLETED_STREAM));
 
     const EvaluateContractPage = (await import("@/app/evaluate-contract/page"))
       .default;
@@ -83,10 +99,7 @@ describe("Navigate on success", () => {
       .mockResolvedValueOnce(
         new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }),
       )
-      .mockResolvedValueOnce(new Response("", { status: 404 }))
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify(REVIEW_COMPLETED), { status: 200 }),
-      );
+      .mockResolvedValueOnce(makeStreamResponse(COMPLETED_STREAM));
 
     const EvaluateContractPage = (await import("@/app/evaluate-contract/page"))
       .default;

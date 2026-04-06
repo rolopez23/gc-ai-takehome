@@ -58,18 +58,26 @@ describe("Error display", () => {
     });
   });
 
-  test("shows friendly error when evaluation fails with known failure_code", async () => {
+  test("shows error when stream returns failed event", async () => {
     const uploadResponse = {
       contract_id: "452be08b-a29d-402f-8f44-6b1a0f976efa",
       review_id: "a9198839-1da3-4fb3-ac30-c462cc81ee4e",
       status: "pending",
     };
-    const failedReview = {
-      id: "a9198839-1da3-4fb3-ac30-c462cc81ee4e",
-      status: "failed",
-      failure_message: "API timeout",
-      failure_code: "timeout",
-    };
+    const streamBody =
+      [
+        JSON.stringify({
+          event: "started",
+          review_id: uploadResponse.review_id,
+          summary: "",
+          call_to_action: [],
+        }),
+        JSON.stringify({
+          event: "failed",
+          reason:
+            "An error occurred during contract evaluation. Please try again.",
+        }),
+      ].join("\n") + "\n";
 
     let callCount = 0;
     await stageFileAndSubmit(() => {
@@ -79,32 +87,38 @@ describe("Error display", () => {
           new Response(JSON.stringify(uploadResponse), { status: 201 }),
         );
       }
-      if (callCount === 2) {
-        // Stream endpoint unavailable — triggers polling fallback
-        return Promise.resolve(new Response("", { status: 404 }));
-      }
       return Promise.resolve(
-        new Response(JSON.stringify(failedReview), { status: 200 }),
+        new Response(streamBody, {
+          status: 200,
+          headers: { "content-type": "application/x-ndjson" },
+        }),
       );
     });
 
     await waitFor(() => {
-      expect(screen.getByText(/timed out/i)).toBeInTheDocument();
+      expect(screen.getByText(/error occurred/i)).toBeInTheDocument();
     });
   });
 
-  test("shows generic error when evaluation fails with null failure_code", async () => {
+  test("shows rejection reason when stream returns rejected event", async () => {
     const uploadResponse = {
       contract_id: "452be08b-a29d-402f-8f44-6b1a0f976efa",
       review_id: "a9198839-1da3-4fb3-ac30-c462cc81ee4e",
       status: "pending",
     };
-    const failedReview = {
-      id: "a9198839-1da3-4fb3-ac30-c462cc81ee4e",
-      status: "failed",
-      failure_message: null,
-      failure_code: null,
-    };
+    const streamBody =
+      [
+        JSON.stringify({
+          event: "started",
+          review_id: uploadResponse.review_id,
+          summary: "",
+          call_to_action: [],
+        }),
+        JSON.stringify({
+          event: "rejected",
+          reason: "This is a recipe, not a contract.",
+        }),
+      ].join("\n") + "\n";
 
     let callCount = 0;
     await stageFileAndSubmit(() => {
@@ -114,17 +128,16 @@ describe("Error display", () => {
           new Response(JSON.stringify(uploadResponse), { status: 201 }),
         );
       }
-      if (callCount === 2) {
-        // Stream endpoint unavailable — triggers polling fallback
-        return Promise.resolve(new Response("", { status: 404 }));
-      }
       return Promise.resolve(
-        new Response(JSON.stringify(failedReview), { status: 200 }),
+        new Response(streamBody, {
+          status: 200,
+          headers: { "content-type": "application/x-ndjson" },
+        }),
       );
     });
 
     await waitFor(() => {
-      expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
+      expect(screen.getByText(/recipe/i)).toBeInTheDocument();
     });
   });
 

@@ -4,17 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FileDropZone } from "@/app/evaluate-contract/FileDropZone";
 import { LoadingShimmer } from "@/app/evaluate-contract/LoadingShimmer";
-import {
-  BACKEND_URL,
-  POLL_INTERVAL,
-  POLL_TIMEOUT,
-  STATUS_TEXT,
-} from "@/app/evaluate-contract/constants";
-import {
-  UploadResponseSchema,
-  ReviewResponseSchema,
-} from "@/app/evaluate-contract/types";
-import { getFailureMessage } from "@/app/evaluate-contract/failure-messages";
+import { BACKEND_URL } from "@/app/evaluate-contract/constants";
+import { UploadResponseSchema } from "@/app/evaluate-contract/types";
 import { readNDJSONStream } from "@/app/evaluate-contract/stream";
 import type { StreamClause } from "@/app/evaluate-contract/stream-types";
 
@@ -49,25 +40,6 @@ async function uploadContract(
   return UploadResponseSchema.parse(await res.json());
 }
 
-async function pollReview(
-  reviewId: string,
-  signal: AbortSignal,
-  onStatus?: (s: string) => void,
-) {
-  const start = Date.now();
-  while (Date.now() - start < POLL_TIMEOUT) {
-    const res = await fetch(`${BACKEND_URL}/api/reviews/${reviewId}`, {
-      signal,
-    });
-    if (!res.ok) throw new Error("Failed to check review status");
-    const data = ReviewResponseSchema.parse(await res.json());
-    if (data.status === "completed" || data.status === "failed") return data;
-    onStatus?.(data.status);
-    await new Promise((r) => setTimeout(r, POLL_INTERVAL));
-  }
-  throw new Error("Evaluation timed out — please try again");
-}
-
 async function consumeStream(
   contractId: string,
   reviewId: string,
@@ -78,10 +50,9 @@ async function consumeStream(
     onSummary: (s: string) => void;
   },
 ): Promise<{ navigateTo?: string; error?: string }> {
-  const res = await fetch(
-    `${BACKEND_URL}/api/reviews/${reviewId}/stream`,
-    { signal },
-  );
+  const res = await fetch(`${BACKEND_URL}/api/reviews/${reviewId}/stream`, {
+    signal,
+  });
   if (!res.ok) throw new Error("Stream unavailable");
 
   let summaryBuffer = "";
@@ -131,7 +102,8 @@ async function consumeStream(
     }
   }
 
-  return {};
+  // Stream ended without a terminal event — treat as error
+  return { error: "Stream ended unexpectedly. Please try again." };
 }
 
 export default function EvaluateContractPage() {
@@ -169,41 +141,25 @@ export default function EvaluateContractPage() {
         true,
       );
 
-      // Try streaming first
-      try {
-        const result = await consumeStream(
-          contract_id,
-          review_id,
-          controller.signal,
-          {
-            onStatus: setStatusText,
-            onClause: (c) => setStreamClauses((prev) => [...prev, c]),
-            onSummary: setStreamSummary,
-          },
-        );
+      const result = await consumeStream(
+        contract_id,
+        review_id,
+        controller.signal,
+        {
+          onStatus: setStatusText,
+          onClause: (c) => setStreamClauses((prev) => [...prev, c]),
+          onSummary: setStreamSummary,
+        },
+      );
 
-        if (result.navigateTo) {
-          router.push(result.navigateTo);
-          return;
-        }
-        if (result.error) {
-          setError(result.error);
-          setIsLoading(false);
-          return;
-        }
-      } catch {
-        // Stream failed — fall back to polling with same review_id
-        const pollResult = await pollReview(
-          review_id,
-          controller.signal,
-          (s) => setStatusText(STATUS_TEXT[s] || "Processing..."),
-        );
-        if (pollResult.status === "completed") {
-          router.push(`/contract/${contract_id}`);
-        } else {
-          setError(getFailureMessage(pollResult.failure_code));
-          setIsLoading(false);
-        }
+      if (result.navigateTo) {
+        router.push(result.navigateTo);
+        return;
+      }
+      if (result.error) {
+        setError(result.error);
+        setIsLoading(false);
+        return;
       }
     } catch (e) {
       if (e instanceof DOMException && e.name === "AbortError") return;
