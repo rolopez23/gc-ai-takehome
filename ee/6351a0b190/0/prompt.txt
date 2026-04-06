@@ -37,3 +37,7 @@ Launch the /plan Also remember we are on a branch that is currently doing a lot 
 ---
 
 Those steps are two big.  Each api route shoudl definitely be it sown step.  I think the ux/ui can be one step (that allows good verification), but if you think you can break it into smaller verifiable steps taht is always prefered.
+
+---
+
+Can you look into verification more, trunning typsecript is not good verificaiton for the ui types.  Think of better verification if that is what we have.
