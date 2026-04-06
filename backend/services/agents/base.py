@@ -4,6 +4,7 @@ import logging
 import os
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from functools import lru_cache
 from typing import Any
 
 import anthropic
@@ -45,6 +46,12 @@ def _get_api_key() -> str:
     return os.getenv("ANTHROPIC_API_KEY", "")
 
 
+@lru_cache(maxsize=1)
+def _get_shared_client() -> anthropic.AsyncAnthropic:
+    """Return a shared Anthropic client instance (created once, reused)."""
+    return anthropic.AsyncAnthropic(api_key=_get_api_key())
+
+
 @dataclass
 class AgentResult:
     content: list
@@ -63,7 +70,7 @@ class AgentRunner:
         self.config = config
         self.tools = tools
         self.tool_handlers = tool_handlers
-        self.client = anthropic.AsyncAnthropic(api_key=_get_api_key())
+        self.client = _get_shared_client()
 
     async def _call_with_retry(
         self,
