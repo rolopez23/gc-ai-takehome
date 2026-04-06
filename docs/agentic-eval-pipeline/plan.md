@@ -63,13 +63,31 @@ Create:  frontend/__tests__/streaming-types.test.ts            — Streaming Zod
 
 **Legend:** ⬜ pending · ✅ passed · ❌ failed · ⚠️ incomplete · ➖ N/A
 
-**Workflow order per step:** Auto Tests → Verify → Simplify → Review → Understand → Human
+## Per-Cycle Workflow (MANDATORY)
 
-- **Auto Tests**: unit/integration tests passing (red-green-refactor, committed clean)
-- **Verify**: Proof the code works ([ref](https://simonwillison.net/2025/Dec/18/code-proven-to-work/)) — real curl, browser automation, DB inspection, file output. ➖ only when genuinely no observable effect exists.
-- **Simplify**: code has been through a simplify/refactor pass
-- **Review**: correctness review — bugs, edge cases, error handling
-- **Understand**: human passes `/pr-interactive-walkthrough` — all files rated Medium or High in the understanding assessment. Run with the step's commit range (before/after). Low on any file → ❌, follow up on low areas before sign-off
+Every cycle in every step follows this exact sequence. No batching, no skipping.
+
+```
+1. RED       — Write failing tests. Run them. Confirm they fail for the right reason.
+2. GREEN     — Write minimum code to pass. Run ALL tests. Confirm all pass.
+               → UPDATE PLAN: mark Auto Tests column (✅ or ❌)
+               → COMMIT (tests + code + plan update)
+3. REFACTOR  — Clean up if needed.
+               → COMMIT if anything changed
+4. VERIFY    — Prove it works (curl, DB inspect, run command, etc.)
+               → UPDATE PLAN: mark Verify column (✅, ❌, or ➖)
+               → COMMIT plan update
+5. SIMPLIFY  — Reduce unnecessary complexity. Fix if needed.
+               → UPDATE PLAN: mark Simplify column (✅ or ❌)
+               → COMMIT plan update (+ code changes if any)
+6. REVIEW    — Check for bugs, edge cases, error handling. Fix if needed.
+               → UPDATE PLAN: mark Review column (✅ or ❌)
+               → COMMIT plan update (+ code changes if any)
+```
+
+Each plan update gets its own commit so progress is visible in real time.
+
+- **Understand**: human passes `/pr-interactive-walkthrough` — all files rated Medium or High. Low on any file → ❌.
 - **Human**: developer has manually signed off
 
 **On failure:** ❌ in any column requires fixes before proceeding. Do not mark Human ✅ while any prior column is ❌ without explicit user instruction.
