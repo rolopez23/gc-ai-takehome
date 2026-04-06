@@ -1,119 +1,262 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FileDropZone } from "@/app/evaluate-contract/FileDropZone";
-import { LoadingShimmer } from "@/app/evaluate-contract/LoadingShimmer";
 import {
-  BACKEND_URL,
-  POLL_INTERVAL,
-  POLL_TIMEOUT,
-  STATUS_TEXT,
-} from "@/app/evaluate-contract/constants";
-import {
-  UploadResponseSchema,
-  ReviewResponseSchema,
-} from "@/app/evaluate-contract/types";
-import { getFailureMessage } from "@/app/evaluate-contract/failure-messages";
+  useContractStream,
+  type StreamStage,
+} from "@/app/evaluate-contract/useContractStream";
+import type { StreamClause } from "@/app/evaluate-contract/stream-types";
+import { getFairnessDisplay } from "@/app/evaluate-contract/fairness-utils";
 
 const ERROR_ALERT =
   "flex gap-3 rounded-lg border border-egregious-border bg-egregious-bg p-4 text-sm text-egregious-fg";
 
-async function uploadContract(
-  file: File,
-  instructions: string,
-  signal: AbortSignal,
-) {
-  const form = new FormData();
-  form.append("file", file);
-  if (instructions.trim()) form.append("instructions", instructions);
-  const res = await fetch(`${BACKEND_URL}/api/contracts/upload`, {
-    method: "POST",
-    body: form,
-    signal,
-  });
-  if (!res.ok) {
-    if (res.status === 413) throw new Error("File too large (max 10MB)");
-    if (res.status === 400) {
-      const data = await res.json();
-      throw new Error(data.detail || "Invalid file");
-    }
-    throw new Error("Upload failed");
+function stageHeadline(
+  stage: StreamStage,
+  agreementType: string | null,
+  totalClauses: number,
+  evaluatedCount: number,
+): string {
+  switch (stage) {
+    case "uploading":
+      return "Uploading document...";
+    case "verifying":
+      return "Verifying document...";
+    case "splitting":
+      return totalClauses > 0
+        ? `Splitting ${agreementType ?? "contract"} into ${totalClauses} clauses...`
+        : "Splitting into clauses...";
+    case "evaluating":
+      return totalClauses > 0
+        ? `Evaluating clauses (${evaluatedCount}/${totalClauses})...`
+        : "Evaluating clauses...";
+    case "summarizing":
+      return "Generating summary...";
+    default:
+      return "Processing...";
   }
-  return UploadResponseSchema.parse(await res.json());
 }
 
-async function pollReview(
-  reviewId: string,
-  signal: AbortSignal,
-  onStatus?: (s: string) => void,
-) {
-  const start = Date.now();
-  while (Date.now() - start < POLL_TIMEOUT) {
-    const res = await fetch(`${BACKEND_URL}/api/reviews/${reviewId}`, {
-      signal,
-    });
-    if (!res.ok) throw new Error("Failed to check review status");
-    const data = ReviewResponseSchema.parse(await res.json());
-    if (data.status === "completed" || data.status === "failed") return data;
-    onStatus?.(data.status);
-    await new Promise((r) => setTimeout(r, POLL_INTERVAL));
-  }
-  throw new Error("Evaluation timed out — please try again");
+function StatsDot({ color }: { color: string }) {
+  return (
+    <span
+      className={`inline-block h-2.5 w-2.5 rounded-full ${color}`}
+      aria-hidden="true"
+    />
+  );
+}
+
+function StatsBar({
+  buckets,
+}: {
+  buckets: { dealbreaker: number; nonStandard: number; fair: number };
+}) {
+  return (
+    <div
+      data-testid="stats-bar"
+      className="flex items-center justify-center gap-6 rounded-lg border border-foreground/[0.06] px-6 py-3 text-sm"
+    >
+      <span className="flex items-center gap-2">
+        <StatsDot color="bg-egregious-fg" />
+        <span className="text-foreground/70">Dealbreaker:</span>
+        <span className="font-semibold" data-testid="stat-dealbreaker">
+          {buckets.dealbreaker}
+        </span>
+      </span>
+      <span className="flex items-center gap-2">
+        <StatsDot color="bg-unfair-fg" />
+        <span className="text-foreground/70">Non-Standard:</span>
+        <span className="font-semibold" data-testid="stat-nonstandard">
+          {buckets.nonStandard}
+        </span>
+      </span>
+      <span className="flex items-center gap-2">
+        <StatsDot color="bg-fair-fg" />
+        <span className="text-foreground/70">Fair:</span>
+        <span className="font-semibold" data-testid="stat-fair">
+          {buckets.fair}
+        </span>
+      </span>
+    </div>
+  );
+}
+
+function ClausePreview({ clause }: { clause: StreamClause }) {
+  const { label, colorClass } = getFairnessDisplay(clause.fairness);
+  const findingText = clause.finding || clause.explanation || "Evaluating...";
+
+  return (
+    <div
+      data-testid="clause-preview"
+      className="rounded-lg border border-foreground/[0.06] p-4 text-sm animate-[fadeIn_200ms_ease-out]"
+    >
+      <div className="flex items-center gap-2">
+        <span className="font-mono text-xs text-foreground/50">
+          {clause.section_number}
+        </span>
+        <span className="font-medium">{clause.clause_type}</span>
+      </div>
+      <div className="mt-2 flex items-center gap-2">
+        <span
+          className={`inline-block rounded-full border px-2 py-0.5 text-xs font-semibold ${colorClass}`}
+        >
+          {label}
+        </span>
+        {clause.severity != null && (
+          <span className="text-xs text-foreground/50">
+            Severity: {clause.severity}/10
+          </span>
+        )}
+      </div>
+      <p className="mt-2 text-foreground/70 line-clamp-2">{findingText}</p>
+    </div>
+  );
+}
+
+function ProgressBar({
+  evaluated,
+  total,
+}: {
+  evaluated: number;
+  total: number;
+}) {
+  const pct = total > 0 ? Math.round((evaluated / total) * 100) : 0;
+
+  return (
+    <div data-testid="progress-bar" className="space-y-1.5">
+      <p className="text-center text-xs text-foreground/50">
+        Evaluated {evaluated} of {total} clauses
+      </p>
+      <div className="h-1.5 w-full rounded-full bg-foreground/[0.06] overflow-hidden">
+        <div
+          className="h-full rounded-full bg-foreground/30 transition-all duration-300 ease-out"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function StreamingView({
+  stage,
+  agreementType,
+  totalClauses,
+  evaluatedCount,
+  buckets,
+  lastClause,
+}: {
+  stage: StreamStage;
+  agreementType: string | null;
+  totalClauses: number;
+  evaluatedCount: number;
+  buckets: { dealbreaker: number; nonStandard: number; fair: number };
+  lastClause: StreamClause | null;
+}) {
+  const headline = stageHeadline(
+    stage,
+    agreementType,
+    totalClauses,
+    evaluatedCount,
+  );
+  const showStats =
+    stage === "evaluating" || stage === "summarizing" || stage === "completed";
+  const showProgress = stage === "evaluating" && totalClauses > 0;
+
+  return (
+    <div
+      data-testid="streaming-view"
+      className="streaming-bg min-h-[40vh] rounded-xl p-8 space-y-6"
+      role="status"
+    >
+      <p className="sr-only">Evaluating contract, please wait...</p>
+
+      <h2
+        data-testid="stage-headline"
+        className="text-center text-lg font-semibold tracking-tight animate-pulse"
+      >
+        {headline}
+      </h2>
+
+      {showStats && <StatsBar buckets={buckets} />}
+
+      {lastClause && <ClausePreview clause={lastClause} />}
+
+      {showProgress && (
+        <ProgressBar evaluated={evaluatedCount} total={totalClauses} />
+      )}
+    </div>
+  );
 }
 
 export default function EvaluateContractPage() {
   const [file, setFile] = useState<File | null>(null);
   const [instructions, setInstructions] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [statusText, setStatusText] = useState("Preparing evaluation...");
+  const { state, startStream } = useContractStream();
   const router = useRouter();
-  const controllerRef = useRef<AbortController | null>(null);
+
+  const isStreaming =
+    state.stage !== "idle" &&
+    state.stage !== "completed" &&
+    state.stage !== "failed" &&
+    state.stage !== "rejected";
 
   useEffect(() => {
-    return () => controllerRef.current?.abort();
-  }, []);
+    if (state.stage === "completed" && state.contractId) {
+      router.push(`/contract/${state.contractId}`);
+    }
+  }, [state.stage, state.contractId, router]);
 
   async function handleSubmit() {
     if (!file) return;
-    controllerRef.current?.abort();
-    const controller = new AbortController();
-    controllerRef.current = controller;
-    setError(null);
-    setIsLoading(true);
-    setStatusText("Preparing evaluation...");
-    try {
-      const { contract_id, review_id } = await uploadContract(
-        file,
-        instructions,
-        controller.signal,
-      );
-      const result = await pollReview(review_id, controller.signal, (s) =>
-        setStatusText(STATUS_TEXT[s] || "Processing..."),
-      );
-      if (result.status === "completed") {
-        router.push(`/contract/${contract_id}`);
-      } else {
-        setError(getFailureMessage(result.failure_code));
-        setIsLoading(false);
-      }
-    } catch (e) {
-      if (e instanceof DOMException && e.name === "AbortError") return;
-      setError(e instanceof Error ? e.message : "Something went wrong");
-      setIsLoading(false);
-    }
+    await startStream(file, instructions);
   }
 
   return (
     <div
       className="mx-auto max-w-2xl space-y-6 px-6 pt-12"
-      aria-busy={isLoading}
+      aria-busy={isStreaming}
     >
       <h1 className="text-2xl font-bold tracking-tight">Evaluate Contract</h1>
 
-      {isLoading ? (
-        <LoadingShimmer statusText={statusText} />
+      {isStreaming ? (
+        <StreamingView
+          stage={state.stage}
+          agreementType={state.agreementType}
+          totalClauses={state.totalClauses}
+          evaluatedCount={state.evaluatedCount}
+          buckets={state.buckets}
+          lastClause={state.lastClause}
+        />
+      ) : state.stage === "rejected" ? (
+        <div className="space-y-4">
+          <div className={ERROR_ALERT} role="alert">
+            <span>&#9888;</span>
+            <p>{state.error}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="rounded-lg bg-foreground px-6 py-3 text-sm font-medium text-background"
+          >
+            Try another
+          </button>
+        </div>
+      ) : state.stage === "failed" ? (
+        <div className="space-y-4">
+          <div className={ERROR_ALERT} role="alert">
+            <span>&#9888;</span>
+            <p>{state.error}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="rounded-lg bg-foreground px-6 py-3 text-sm font-medium text-background"
+          >
+            Try again
+          </button>
+        </div>
       ) : (
         <>
           <FileDropZone file={file} onFileChange={setFile} />
@@ -125,23 +268,16 @@ export default function EvaluateContractPage() {
             rows={4}
             className="w-full rounded-lg border border-foreground/20 bg-transparent px-4 py-3 text-sm placeholder:text-foreground/40 focus:border-foreground/40 focus:outline-none"
           />
+
+          <button
+            type="button"
+            disabled={!file || isStreaming}
+            onClick={handleSubmit}
+            className="w-full sm:w-auto rounded-lg bg-foreground px-6 py-3 text-sm font-medium text-background disabled:opacity-40"
+          >
+            Evaluate Contract
+          </button>
         </>
-      )}
-
-      <button
-        type="button"
-        disabled={!file || isLoading}
-        onClick={handleSubmit}
-        className="w-full sm:w-auto rounded-lg bg-foreground px-6 py-3 text-sm font-medium text-background disabled:opacity-40"
-      >
-        Evaluate Contract
-      </button>
-
-      {error && !isLoading && (
-        <div className={ERROR_ALERT} role="alert">
-          <span>⚠</span>
-          <p>{error}</p>
-        </div>
       )}
     </div>
   );
