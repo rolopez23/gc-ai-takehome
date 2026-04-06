@@ -315,12 +315,17 @@ class PipelineOrchestrator:
 
         except Exception as e:
             logger.exception("Pipeline failed with unexpected error")
+            # Store full error for debugging; send sanitized message to client
+            error_detail = str(e)
+            client_message = (
+                "An error occurred during contract evaluation. Please try again."
+            )
             try:
                 await self._set_review_status(
                     "failed",
-                    failure_message=str(e),
+                    failure_message=error_detail,
                     completed_at=datetime.now(UTC),
                 )
             except Exception:
                 logger.exception("Failed to update review status after error")
-            yield self.emitter.failed(str(e))
+            yield self.emitter.failed(client_message)

@@ -2,7 +2,7 @@ import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -43,6 +43,17 @@ async def stream_review(review_id: uuid.UUID):
 
         # Catches intermediate states (verifying, splitting, evaluating)
         if review.status != "pending":
+            raise HTTPException(status_code=409, detail="Review already in progress")
+
+        # Compare-and-swap: atomically set status to "verifying" only if still "pending".
+        # Prevents race condition where two /stream requests pass the guard simultaneously.
+        result = await db.execute(
+            update(ContractReview)
+            .where(ContractReview.id == review_id, ContractReview.status == "pending")
+            .values(status="verifying")
+        )
+        await db.commit()
+        if result.rowcount == 0:
             raise HTTPException(status_code=409, detail="Review already in progress")
 
         review_data = (review.id, review.contract_id, review.review_instructions)
