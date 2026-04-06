@@ -29,17 +29,17 @@ export function LoadingShimmer({ statusText }: { statusText: string }) {
             key={i}
             data-testid="shimmer-card"
             style={{ animationDelay: `${i * 150}ms` }}
-            className="mt-6 space-y-2.5 rounded-lg border border-foreground/[0.06] p-4"
+            className="mt-6 animate-pulse space-y-2.5 rounded-lg border border-foreground/[0.06] p-4"
           >
             <div className="flex items-center gap-3">
-              <ShimmerBar h="5" w="14" />
-              <ShimmerBar h="5" w="32" />
+              <div className={`bg-foreground/[0.04] h-5 w-14 rounded`} />
+              <div className={`bg-foreground/[0.04] h-5 w-32 rounded`} />
               <div className="ml-auto">
-                <ShimmerBar h="5" w="20" pill />
+                <div className={`bg-foreground/[0.04] h-5 w-20 rounded-full`} />
               </div>
             </div>
-            <ShimmerBar h="3.5" w="full" />
-            <ShimmerBar h="3.5" w="5/6" />
+            <div className={`bg-foreground/[0.04] h-3.5 w-full rounded`} />
+            <div className={`bg-foreground/[0.04] h-3.5 w-5/6 rounded`} />
           </div>
         ))}
       </div>
