@@ -772,3 +772,7 @@ Can you also run prettier on all the code?
 ---
 
 run prettier only on typescript files
+
+---
+
+for python do black https://github.com/psf/black
