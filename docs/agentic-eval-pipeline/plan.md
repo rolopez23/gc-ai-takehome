@@ -4,4 +4,4 @@
 
 | #  | Step                  | Auto Tests | Verify | Simplify | Review |
 | -- | --------------------- | :--------: | :----: | :------: | :----: |
-| 1  | schema-migration      |     ✅     |   ⬜   |    ⬜    |   ⬜   |
+| 1  | schema-migration      |     ✅     |   ✅   |    ⬜    |   ⬜   |
