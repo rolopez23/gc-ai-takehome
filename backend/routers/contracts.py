@@ -36,9 +36,7 @@ async def upload_contract(
 
     try:
         result = process_upload(file.filename or "unknown", file_bytes)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except NotImplementedError as e:
+    except (ValueError, NotImplementedError) as e:
         raise HTTPException(status_code=400, detail=str(e))
 
     contract = Contract(

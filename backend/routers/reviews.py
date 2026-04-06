@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from database import get_db
+from database import AsyncSessionLocal, get_db
 from models import ContractReview
 from schemas import ReviewDetailOut
 from services.orchestrator import PipelineOrchestrator
@@ -30,20 +30,26 @@ async def get_review(review_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/{review_id}/stream")
-async def stream_review(review_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    review = await db.get(ContractReview, review_id)
-    if not review:
-        raise HTTPException(status_code=404, detail="Review not found")
+async def stream_review(review_id: uuid.UUID):
+    # Use a short-lived session for pre-flight checks only — don't hold a connection
+    # from the pool for the entire streaming duration (which can be minutes).
+    async with AsyncSessionLocal() as db:
+        review = await db.get(ContractReview, review_id)
+        if not review:
+            raise HTTPException(status_code=404, detail="Review not found")
 
-    if review.status in TERMINAL_STATUSES:
-        raise HTTPException(status_code=409, detail="Review already completed")
+        if review.status in TERMINAL_STATUSES:
+            raise HTTPException(status_code=409, detail="Review already completed")
 
-    if review.status != "pending":
-        raise HTTPException(status_code=409, detail="Review already in progress")
+        # Catches intermediate states (verifying, splitting, evaluating)
+        if review.status != "pending":
+            raise HTTPException(status_code=409, detail="Review already in progress")
+
+        review_data = (review.id, review.contract_id, review.review_instructions)
 
     orchestrator = PipelineOrchestrator(
-        review_id=review.id,
-        contract_id=review.contract_id,
-        instructions=review.review_instructions,
+        review_id=review_data[0],
+        contract_id=review_data[1],
+        instructions=review_data[2],
     )
     return StreamingResponse(orchestrator.run(), media_type="application/x-ndjson")
