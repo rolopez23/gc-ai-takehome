@@ -243,3 +243,7 @@ Also we want Update to happen in teh cycle after each step, that makes it easier
 ---
 
 slightly different UPDATE-PLAN SHOULD Happy after 2, after, 5, after, 6 and after 7.  Also commit when you update the plan.
+
+---
+
+That works!
