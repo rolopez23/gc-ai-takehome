@@ -59,9 +59,9 @@ Create:  frontend/__tests__/streaming-types.test.ts            — Streaming Zod
 | [headline-synthesis](steps/headline-synthesis.md)                     | pipeline-orchestration                       | —               |     ✅     |   ✅   |    ✅    |   ✅   |     ⬜     |  ⬜   |
 | [pipeline-orchestration](steps/pipeline-orchestration.md)             | stream-endpoint                              | —               |     ✅     |   ✅   |    ✅    |   ✅   |     ⬜     |  ⬜   |
 | [stream-endpoint](steps/stream-endpoint.md)                           | frontend-streaming                           | —               |     ✅     |   ✅   |    ✅    |   ✅   |     ⬜     |  ⬜   |
-| [fe-stream-utils](steps/fe-stream-utils.md)                           | fe-evaluate-page                             | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
-| [fe-evaluate-page](steps/fe-evaluate-page.md)                         | —                                            | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
-| [fe-results-buckets](steps/fe-results-buckets.md)                     | —                                            | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
+| [fe-stream-utils](steps/fe-stream-utils.md)                           | fe-evaluate-page                             | —               |     ✅     |   ⚠️   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
+| [fe-evaluate-page](steps/fe-evaluate-page.md)                         | —                                            | —               |     ✅     |   ⚠️   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
+| [fe-results-buckets](steps/fe-results-buckets.md)                     | —                                            | —               |     ✅     |   ⚠️   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
 
 **Legend:** ⬜ pending · ✅ passed · ❌ failed · ⚠️ incomplete · ➖ N/A
 
