@@ -403,3 +403,7 @@ how did you verify the pipeline step? Just want to confirm
 ---
 
 Ok that makes sense, in good shape to run simplify
+
+---
+
+yes
