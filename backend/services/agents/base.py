@@ -38,6 +38,9 @@ class AgentConfig:
             self.max_tokens = AGENT_MAX_TOKENS.get(self.agent_type, 8192)
 
 
+MAX_RETRIES = 2
+
+
 def _get_api_key() -> str:
     return os.getenv("ANTHROPIC_API_KEY", "")
 
@@ -62,6 +65,26 @@ class AgentRunner:
         self.tool_handlers = tool_handlers
         self.client = anthropic.AsyncAnthropic(api_key=_get_api_key())
 
+    async def _call_with_retry(
+        self,
+        system: str,
+        messages: list[dict],
+        tool_choice: dict[str, str],
+    ):
+        for attempt in range(MAX_RETRIES + 1):
+            try:
+                return await self.client.messages.create(
+                    model=self.config.model,
+                    max_tokens=self.config.max_tokens,
+                    system=system,
+                    messages=messages,
+                    tools=self.tools,
+                    tool_choice=tool_choice,
+                )
+            except (anthropic.APIError, anthropic.APITimeoutError):
+                if attempt == MAX_RETRIES:
+                    raise
+
     async def run(
         self,
         system: str,
@@ -79,12 +102,9 @@ class AgentRunner:
         messages = list(messages)
 
         while True:
-            response = await self.client.messages.create(
-                model=self.config.model,
-                max_tokens=self.config.max_tokens,
+            response = await self._call_with_retry(
                 system=system,
                 messages=messages,
-                tools=self.tools,
                 tool_choice=tool_choice,
             )
 

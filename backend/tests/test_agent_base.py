@@ -169,3 +169,104 @@ class TestAgentRunnerHappyPath:
         await runner.run(system="test", messages=[{"role": "user", "content": "greet"}])
 
         handler.assert_called_once_with(tool_input)
+
+
+# ---------------------------------------------------------------------------
+# Cycle 3: retry-on-failure
+# ---------------------------------------------------------------------------
+
+
+class TestAgentRunnerRetry:
+    @pytest.mark.asyncio
+    async def test_retry_on_api_error(self):
+        """Runner retries on APIError and returns success on second attempt."""
+        from services.agents.base import AgentConfig, AgentRunner
+
+        config = AgentConfig("evaluator")
+        text_block = _make_text_block("ok")
+        success_response = _make_response([text_block], "end_turn")
+
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(
+            side_effect=[
+                anthropic.APIError(
+                    message="server error",
+                    request=MagicMock(),
+                    body=None,
+                ),
+                success_response,
+            ]
+        )
+
+        runner = AgentRunner(config=config, tools=[], tool_handlers={})
+        runner.client = mock_client
+
+        result = await runner.run(system="test", messages=[{"role": "user", "content": "hi"}])
+        assert result.stop_reason == "end_turn"
+        assert mock_client.messages.create.call_count == 2
+
+    @pytest.mark.asyncio
+    async def test_retry_exhausted_raises(self):
+        """Runner raises after 3 total attempts (2 retries)."""
+        from services.agents.base import AgentConfig, AgentRunner
+
+        config = AgentConfig("evaluator")
+
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(
+            side_effect=anthropic.APIError(
+                message="server error",
+                request=MagicMock(),
+                body=None,
+            )
+        )
+
+        runner = AgentRunner(config=config, tools=[], tool_handlers={})
+        runner.client = mock_client
+
+        with pytest.raises(anthropic.APIError):
+            await runner.run(system="test", messages=[{"role": "user", "content": "hi"}])
+
+        assert mock_client.messages.create.call_count == 3
+
+    @pytest.mark.asyncio
+    async def test_retry_on_timeout(self):
+        """Runner retries on APITimeoutError and returns success on second attempt."""
+        from services.agents.base import AgentConfig, AgentRunner
+
+        config = AgentConfig("evaluator")
+        text_block = _make_text_block("ok")
+        success_response = _make_response([text_block], "end_turn")
+
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(
+            side_effect=[
+                anthropic.APITimeoutError(request=MagicMock()),
+                success_response,
+            ]
+        )
+
+        runner = AgentRunner(config=config, tools=[], tool_handlers={})
+        runner.client = mock_client
+
+        result = await runner.run(system="test", messages=[{"role": "user", "content": "hi"}])
+        assert result.stop_reason == "end_turn"
+        assert mock_client.messages.create.call_count == 2
+
+    @pytest.mark.asyncio
+    async def test_no_retry_on_non_api_error(self):
+        """Runner raises immediately on non-API errors (no retry)."""
+        from services.agents.base import AgentConfig, AgentRunner
+
+        config = AgentConfig("evaluator")
+
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(side_effect=ValueError("bad input"))
+
+        runner = AgentRunner(config=config, tools=[], tool_handlers={})
+        runner.client = mock_client
+
+        with pytest.raises(ValueError, match="bad input"):
+            await runner.run(system="test", messages=[{"role": "user", "content": "hi"}])
+
+        assert mock_client.messages.create.call_count == 1
