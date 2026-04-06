@@ -50,9 +50,9 @@ Create:  frontend/__tests__/streaming-types.test.ts            — Streaming Zod
 
 | Step                                                                  | Blocks                                      | Branch / Commit | Auto Tests | Verify | Simplify | Review | Understand | Human |
 | --------------------------------------------------------------------- | ------------------------------------------- | --------------- | :--------: | :----: | :------: | :----: | :--------: | :---: |
-| [playbook-parser](steps/playbook-parser.md)                           | clause-splitter, clause-evaluator            | —               |     ✅     |   ✅   |    ✅    |   ✅   |     ⬜     |  ⬜   |
-| [schema-migration](steps/schema-migration.md)                         | pipeline-orchestration                       | —               |     ✅     |   ✅   |    ✅    |   ✅   |     ⬜     |  ⬜   |
-| [agent-core](steps/agent-core.md)                                     | contract-verifier, clause-splitter, clause-evaluator, headline-synthesis | — | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ |
+| [playbook-parser](steps/playbook-parser.md)                           | clause-splitter, clause-evaluator            | —               |     ✅     |   ✅   |    ✅    |   ✅   |     ✅     |  ⬜   |
+| [schema-migration](steps/schema-migration.md)                         | pipeline-orchestration                       | —               |     ✅     |   ✅   |    ✅    |   ✅   |     ✅     |  ⬜   |
+| [agent-core](steps/agent-core.md)                                     | contract-verifier, clause-splitter, clause-evaluator, headline-synthesis | — | ✅ | ✅ | ✅ | ✅ | ✅ | ⬜ |
 | [contract-verifier](steps/contract-verifier.md)                       | pipeline-orchestration                       | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
 | [clause-splitter](steps/clause-splitter.md)                           | pipeline-orchestration                       | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
 | [clause-evaluator](steps/clause-evaluator.md)                         | pipeline-orchestration                       | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
