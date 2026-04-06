@@ -1,0 +1,36 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "cb8aee5df1a2",
+  "session_id": "cb59f4e7-8cde-497b-b6ef-bad45798b634",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-06T08:19:32.922204Z",
+  "branch": "feat/agentic-eval-pipeline",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "backend/services/orchestrator.py"
+  ],
+  "agent": "Claude Code",
+  "turn_id": "dee7d7c4007c",
+  "token_usage": {
+    "input_tokens": 911,
+    "cache_creation_tokens": 140693,
+    "cache_read_tokens": 9643950,
+    "output_tokens": 66653,
+    "api_call_count": 98
+  },
+  "session_metrics": {
+    "turn_count": 3
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-06T08:19:32.358535Z",
+    "agent_lines": 0,
+    "agent_removed": 2,
+    "human_added": 0,
+    "human_modified": 15,
+    "human_removed": 1,
+    "total_committed": 0,
+    "total_lines_changed": 19,
+    "agent_percentage": 10.526315789473683,
+    "metric_version": 2
+  }
+}
