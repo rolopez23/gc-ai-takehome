@@ -1,0 +1,19 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "f155d60e2556",
+  "session_id": "cb59f4e7-8cde-497b-b6ef-bad45798b634",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-06T10:48:57.5638Z",
+  "branch": "feat/agentic-eval-pipeline",
+  "checkpoints_count": 1,
+  "files_touched": [],
+  "agent": "Claude Code",
+  "turn_id": "a1e3d4428b8a",
+  "token_usage": {
+    "input_tokens": 941,
+    "cache_creation_tokens": 304624,
+    "cache_read_tokens": 12963650,
+    "output_tokens": 70640,
+    "api_call_count": 120
+  }
+}
