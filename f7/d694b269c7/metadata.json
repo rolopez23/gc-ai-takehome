@@ -3,7 +3,7 @@
   "checkpoint_id": "f7d694b269c7",
   "strategy": "manual-commit",
   "branch": "feat/agentic-eval-pipeline",
-  "checkpoints_count": 1,
+  "checkpoints_count": 2,
   "files_touched": [
     ".claude/skills/plan/sub-skills/plan-step.md",
     "backend/services/agents/evaluator.py",
@@ -16,13 +16,19 @@
       "transcript": "/f7/d694b269c7/0/full.jsonl",
       "content_hash": "/f7/d694b269c7/0/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/f7/d694b269c7/1/metadata.json",
+      "transcript": "/f7/d694b269c7/1/full.jsonl",
+      "content_hash": "/f7/d694b269c7/1/content_hash.txt",
+      "prompt": "/f7/d694b269c7/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 3,
-    "cache_creation_tokens": 3688,
-    "cache_read_tokens": 385367,
-    "output_tokens": 1436,
-    "api_call_count": 3
+    "input_tokens": 3088,
+    "cache_creation_tokens": 460195,
+    "cache_read_tokens": 32911523,
+    "output_tokens": 103046,
+    "api_call_count": 225
   }
 }
