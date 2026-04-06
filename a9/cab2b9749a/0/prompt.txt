@@ -636,3 +636,11 @@ Reports saved to:
 - `docs/home-and-polish/reviews/polish-empty-and-error-states-2026-04-05.md`</result>
 <usage><total_tokens>31655</total_tokens><tool_uses>29</tool_uses><duration_ms>122001</duration_ms></usage>
 </task-notification>
+
+---
+
+I am seeing contract too large error quite a bit is that the token limit issue? Is the token limit at the maximum for our current model?
+
+---
+
+Lets tightent the prompt first.  Also call to action is fairly redudant / and encourage summary to be minimal
