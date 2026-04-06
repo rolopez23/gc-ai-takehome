@@ -42,12 +42,16 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+// Stream endpoint returns 404 so page falls back to polling
+const STREAM_UNAVAILABLE = new Response("", { status: 404 });
+
 describe("Navigate on success", () => {
   test("navigates to /contract/[uuid] on success", async () => {
     mockFetch
       .mockResolvedValueOnce(
         new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }),
       )
+      .mockResolvedValueOnce(STREAM_UNAVAILABLE)
       .mockResolvedValueOnce(
         new Response(JSON.stringify(REVIEW_COMPLETED), { status: 200 }),
       );
@@ -79,6 +83,7 @@ describe("Navigate on success", () => {
       .mockResolvedValueOnce(
         new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }),
       )
+      .mockResolvedValueOnce(new Response("", { status: 404 }))
       .mockResolvedValueOnce(
         new Response(JSON.stringify(REVIEW_COMPLETED), { status: 200 }),
       );

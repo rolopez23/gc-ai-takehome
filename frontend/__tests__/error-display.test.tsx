@@ -79,6 +79,10 @@ describe("Error display", () => {
           new Response(JSON.stringify(uploadResponse), { status: 201 }),
         );
       }
+      if (callCount === 2) {
+        // Stream endpoint unavailable — triggers polling fallback
+        return Promise.resolve(new Response("", { status: 404 }));
+      }
       return Promise.resolve(
         new Response(JSON.stringify(failedReview), { status: 200 }),
       );
@@ -109,6 +113,10 @@ describe("Error display", () => {
         return Promise.resolve(
           new Response(JSON.stringify(uploadResponse), { status: 201 }),
         );
+      }
+      if (callCount === 2) {
+        // Stream endpoint unavailable — triggers polling fallback
+        return Promise.resolve(new Response("", { status: 404 }));
       }
       return Promise.resolve(
         new Response(JSON.stringify(failedReview), { status: 200 }),
