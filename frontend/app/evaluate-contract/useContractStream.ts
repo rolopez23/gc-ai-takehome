@@ -26,6 +26,7 @@ export interface StreamState {
   clauses: StreamClause[];
   lastClause: StreamClause | null;
   buckets: { dealbreaker: number; nonStandard: number; fair: number };
+  absentCount: number;
   summary: string;
   callToAction: string[];
   error: string | null;
@@ -42,6 +43,7 @@ const INITIAL_STATE: StreamState = {
   clauses: [],
   lastClause: null,
   buckets: { dealbreaker: 0, nonStandard: 0, fair: 0 },
+  absentCount: 0,
   summary: "",
   callToAction: [],
   error: null,

@@ -17,8 +17,18 @@ const FAIRNESS_DISPLAY: Record<FairnessRating, FairnessDisplay> = {
   fair: { label: "Standard", colorClass: COLORS.pass },
 };
 
-export function getFairnessDisplay(rating: FairnessRating): FairnessDisplay {
-  return FAIRNESS_DISPLAY[rating];
+const ABSENT_DISPLAY: FairnessDisplay = {
+  label: "Missing",
+  colorClass: "text-foreground/50 bg-foreground/5 border-foreground/10",
+};
+
+export function getFairnessDisplay(
+  rating: FairnessRating | string,
+): FairnessDisplay {
+  if (rating in FAIRNESS_DISPLAY)
+    return FAIRNESS_DISPLAY[rating as FairnessRating];
+  if (rating === "absent") return ABSENT_DISPLAY;
+  return { label: rating, colorClass: COLORS.warning };
 }
 
 export const FAIRNESS_SECTION_ORDER: readonly FairnessRating[] = [

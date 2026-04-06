@@ -75,14 +75,28 @@ function ExpandableClauses({
 interface ClauseSectionProps {
   rating: FairnessRating;
   clauses: ReviewClause[];
+  title?: string;
 }
 
-export default function ClauseSection({ rating, clauses }: ClauseSectionProps) {
+export default function ClauseSection({
+  rating,
+  clauses,
+  title,
+}: ClauseSectionProps) {
   const { label } = getFairnessDisplay(rating);
+  const displayLabel = title ?? `${label} (${clauses.length})`;
 
-  if (clauses.length === 0) {
+  if (clauses.length === 0 && !title) {
     return <NoClauses rating={rating} label={label} />;
   }
 
-  return <ExpandableClauses label={label} rating={rating} clauses={clauses} />;
+  if (clauses.length === 0) return null;
+
+  return (
+    <ExpandableClauses
+      label={title ?? label}
+      rating={rating}
+      clauses={clauses}
+    />
+  );
 }

@@ -162,8 +162,9 @@ class PipelineOrchestrator:
 
                 await db.commit()
 
-            total_clause_count = len(split_result.clauses) + len(absent_clauses)
-            yield self.emitter.splitting(agreement_type, total_clause_count)
+            real_clause_count_total = len(split_result.clauses)
+            absent_count = len(absent_clauses)
+            yield self.emitter.splitting(agreement_type, real_clause_count_total)
 
             # --- Stage 3: Evaluate ---
             yield self.emitter.token("status", "Evaluating clauses...")
@@ -252,19 +253,22 @@ class PipelineOrchestrator:
                         }
                     )
 
-            # Emit clause_evaluated for synthetic absent clauses (already rated)
+            # Collect synthetic absent clauses separately — not emitted as
+            # clause_evaluated events. Included in completed result for the
+            # frontend to display in a "Missing from Contract" section.
+            absent_clause_results: list[dict] = []
             for srow in synthetic_rows:
-                synthetic_dict = {
-                    "section_number": srow.section_number,
-                    "clause_type": srow.clause_type,
-                    "status": "evaluated",
-                    "severity": srow.severity,
-                    "fairness": srow.fairness,
-                    "playbook_status": "ABSENT",
-                    "is_synthetic": True,
-                }
-                all_clause_results.append(synthetic_dict)
-                yield self.emitter.clause_evaluated(synthetic_dict)
+                absent_clause_results.append(
+                    {
+                        "section_number": srow.section_number,
+                        "clause_type": srow.clause_type,
+                        "status": "absent",
+                        "severity": srow.severity,
+                        "fairness": srow.fairness,
+                        "playbook_status": "ABSENT",
+                        "is_synthetic": True,
+                    }
+                )
 
             # --- Stage 4: Failure check ---
             real_clause_count = len(real_clause_data)
@@ -289,7 +293,6 @@ class PipelineOrchestrator:
             evaluated_clauses = [
                 c for c in all_clause_results if c.get("status") == "evaluated"
             ]
-            absent_count = len(absent_clauses)
 
             headline = await headline_agent.run(
                 agreement_type=agreement_type,
@@ -303,6 +306,7 @@ class PipelineOrchestrator:
 
             # --- Stage 6: Synthesize ---
             final = synthesize(agreement_type, all_clause_results, headline)
+            final["absent_clauses"] = absent_clause_results
             yield self.emitter.completed(final)
 
             # Persist final result

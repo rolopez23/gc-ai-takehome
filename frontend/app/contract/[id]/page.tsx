@@ -41,14 +41,23 @@ function LoadingState({ statusText }: { statusText: string }) {
 }
 
 function groupByFairness(clauses: ReviewClause[]) {
-  const groups = clauses.reduce<Record<FairnessRating, ReviewClause[]>>(
-    (acc, clause) => {
-      acc[clause.fairness].push(clause);
-      return acc;
-    },
-    { dealbreaker: [], "non-standard": [], fair: [] },
-  );
-  for (const rating of Object.keys(groups) as FairnessRating[]) {
+  const groups: Record<string, ReviewClause[]> = {
+    dealbreaker: [],
+    "non-standard": [],
+    fair: [],
+    absent: [],
+  };
+  for (const clause of clauses) {
+    if (clause.playbook_status === "ABSENT" || clause.is_synthetic) {
+      groups.absent.push(clause);
+    } else if (clause.fairness && clause.fairness in groups) {
+      groups[clause.fairness].push(clause);
+    } else {
+      // Unknown fairness — default to non-standard
+      groups["non-standard"].push(clause);
+    }
+  }
+  for (const rating of Object.keys(groups)) {
     groups[rating].sort((a, b) => (b.severity ?? 0) - (a.severity ?? 0));
   }
   return groups;
@@ -103,6 +112,13 @@ function EvaluationResults({ result }: { result: ReviewCompleted }) {
             clauses={grouped[rating]}
           />
         ))}
+        {grouped.absent.length > 0 && (
+          <ClauseSection
+            rating={"absent" as FairnessRating}
+            clauses={grouped.absent}
+            title={`Missing from Contract (${grouped.absent.length})`}
+          />
+        )}
       </div>
       <Link href="/evaluate-contract" className={BACK_LINK}>
         Evaluate another contract

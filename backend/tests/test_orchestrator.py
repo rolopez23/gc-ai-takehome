@@ -968,12 +968,13 @@ class TestOrchestratorParallelEvaluation:
         assert len(eval_calls) == 2
         assert "absent-1" not in eval_calls
 
-        # But synthetic clause still emits clause_evaluated event
+        # Synthetic clauses are NOT emitted as clause_evaluated events —
+        # they are included in the completed result's absent_clauses list
         clause_events = _find_events(events, "clause_evaluated")
         synthetic_events = [
             e for e in clause_events if e["clause"].get("section_number") == "absent-1"
         ]
-        assert len(synthetic_events) == 1
+        assert len(synthetic_events) == 0
 
     @patch("services.orchestrator.AsyncSessionLocal", _TestSession)
     @patch("services.orchestrator.VerifierAgent")
