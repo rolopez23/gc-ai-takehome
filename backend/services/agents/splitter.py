@@ -239,17 +239,15 @@ class SplitterAgent:
 
     def __init__(self):
         config = AgentConfig("splitter")
+
+        async def _handle_report_clauses(input_dict: dict) -> str:
+            return "Clauses received."
+
         self.runner = AgentRunner(
             config=config,
             tools=[SPLITTER_TOOL],
-            tool_handlers={"report_clauses": self._handle_report_clauses},
+            tool_handlers={"report_clauses": _handle_report_clauses},
         )
-        self._last_tool_input: dict | None = None
-
-    async def _handle_report_clauses(self, input_dict: dict) -> str:
-        """Store the tool input for later extraction."""
-        self._last_tool_input = input_dict
-        return "Clauses received."
 
     async def run(
         self,
@@ -262,16 +260,16 @@ class SplitterAgent:
 
         messages = build_user_message(pdf_blob, text)
 
-        await self.runner.run(
+        result = await self.runner.run(
             system=system,
             messages=messages,
             force_tool="report_clauses",
         )
 
-        if not self._last_tool_input:
+        tool_data = result.tool_results.get("report_clauses")
+        if not tool_data:
             raise RuntimeError("Splitter did not produce report_clauses tool output")
 
-        tool_data = self._last_tool_input
         clauses = [
             SplitterClause(
                 section_number=c["section_number"],
