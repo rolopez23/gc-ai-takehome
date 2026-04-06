@@ -171,8 +171,6 @@ class PipelineOrchestrator:
             await self._set_review_status("evaluating")
 
             semaphore = asyncio.Semaphore(MAX_CONCURRENT_EVALUATORS)
-            eval_results: list[tuple[str, uuid.UUID, EvaluatorResult | str]] = []
-            pending_events: list[str] = []
 
             async def evaluate_clause(
                 clause_row: ReviewClause,
@@ -226,6 +224,7 @@ class PipelineOrchestrator:
             # Emit events for real clauses
             failed_count = 0
             all_clause_results: list[dict] = []
+            row_id_to_clause = {cr.id: cd for cr, cd in real_clause_data}
 
             for status, row_id, result_or_error in results:
                 if status == "ok":
@@ -235,22 +234,19 @@ class PipelineOrchestrator:
                     yield self.emitter.clause_evaluated(result_dict)
                 else:
                     failed_count += 1
-                    # Find the clause data for this row
-                    for cr, cd in real_clause_data:
-                        if cr.id == row_id:
-                            yield self.emitter.clause_error(
-                                cd["section_number"],
-                                cd["clause_type"],
-                                str(result_or_error),
-                            )
-                            all_clause_results.append(
-                                {
-                                    "section_number": cd["section_number"],
-                                    "clause_type": cd["clause_type"],
-                                    "status": "error",
-                                }
-                            )
-                            break
+                    cd = row_id_to_clause[row_id]
+                    yield self.emitter.clause_error(
+                        cd["section_number"],
+                        cd["clause_type"],
+                        str(result_or_error),
+                    )
+                    all_clause_results.append(
+                        {
+                            "section_number": cd["section_number"],
+                            "clause_type": cd["clause_type"],
+                            "status": "error",
+                        }
+                    )
 
             # Emit clause_evaluated for synthetic absent clauses (already rated)
             for srow in synthetic_rows:
