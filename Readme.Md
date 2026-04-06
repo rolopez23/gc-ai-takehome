@@ -72,3 +72,7 @@ The app evaluates contracts against the GC AI Playbook (`docs/gc-ai-takehome/gc_
 - **Data Processing Agreement** (16 checks)
 
 Each check produces a result with a status (`PASS`, `TRIGGERED`, `PARTIAL`, `ABSENT`), severity score (1-10), quoted contract language, and a recommended redline. See `docs/gc-ai-takehome/contract_eval_prompt.md` for the full evaluation prompt schema.
+
+## Demo Video
+
+[Demo Video](https://drive.google.com/file/d/1W1fRnZdeumqCRJ5Ls5BvU0hRyd8rQgl6/view?usp=drive_link)
