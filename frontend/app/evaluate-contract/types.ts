@@ -28,7 +28,13 @@ export const UploadResponseSchema = z.object({
 export const ReviewPollingSchema = z.object({
   id: z.string().uuid(),
   contract_id: z.string().uuid(),
-  status: z.enum(["pending", "reading", "evaluating"]),
+  status: z.enum([
+    "pending",
+    "reading",
+    "evaluating",
+    "verifying",
+    "splitting",
+  ]),
 });
 
 export const ReviewCompletedSchema = z.object({
@@ -49,10 +55,17 @@ export const ReviewFailedSchema = z.object({
   failure_code: z.string().nullable(),
 });
 
+export const ReviewRejectedSchema = z.object({
+  id: z.string().uuid(),
+  status: z.literal("rejected"),
+  summary: z.string().nullable(),
+});
+
 export const ReviewResponseSchema = z.discriminatedUnion("status", [
   ReviewPollingSchema,
   ReviewCompletedSchema,
   ReviewFailedSchema,
+  ReviewRejectedSchema,
 ]);
 
 export type FairnessRating = z.infer<typeof FairnessRatingSchema>;

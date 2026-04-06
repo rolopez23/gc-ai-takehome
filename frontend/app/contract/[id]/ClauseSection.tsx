@@ -36,33 +36,33 @@ function NoClauses({
 }
 
 function ExpandableClauses({
-  label,
+  displayLabel,
+  ariaLabel,
   rating,
   clauses,
 }: {
-  label: string;
+  displayLabel: string;
+  ariaLabel: string;
   rating: FairnessRating;
   clauses: ReviewClause[];
 }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <section aria-label={`${label} clauses`}>
+    <section aria-label={ariaLabel}>
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
         aria-expanded={expanded}
         className={SECTION_HEADER}
       >
-        <span className="font-semibold">
-          {label} ({clauses.length})
-        </span>
+        <span className="font-semibold">{displayLabel}</span>
         <span className="text-foreground/40">{expanded ? "−" : "+"}</span>
       </button>
       {expanded && (
         <ul className={CLAUSE_LIST}>
           {clauses.map((clause) => (
-            <li key={clause.section_number}>
+            <li key={clause.id}>
               <ClauseCard clause={clause} fairness={rating} />
             </li>
           ))}
@@ -94,7 +94,8 @@ export default function ClauseSection({
 
   return (
     <ExpandableClauses
-      label={title ?? label}
+      displayLabel={displayLabel}
+      ariaLabel={`${title ?? label} clauses`}
       rating={rating}
       clauses={clauses}
     />
