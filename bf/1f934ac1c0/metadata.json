@@ -3,7 +3,7 @@
   "checkpoint_id": "bf1f934ac1c0",
   "strategy": "manual-commit",
   "branch": "feat/agentic-eval-pipeline",
-  "checkpoints_count": 1,
+  "checkpoints_count": 7,
   "files_touched": [
     ".gitignore",
     "backend/migrations/versions/003_agentic_pipeline.py"
@@ -14,13 +14,19 @@
       "transcript": "/bf/1f934ac1c0/0/full.jsonl",
       "content_hash": "/bf/1f934ac1c0/0/content_hash.txt",
       "prompt": "/bf/1f934ac1c0/0/prompt.txt"
+    },
+    {
+      "metadata": "/bf/1f934ac1c0/1/metadata.json",
+      "transcript": "/bf/1f934ac1c0/1/full.jsonl",
+      "content_hash": "/bf/1f934ac1c0/1/content_hash.txt",
+      "prompt": "/bf/1f934ac1c0/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 799,
-    "cache_creation_tokens": 34615,
-    "cache_read_tokens": 533465,
-    "output_tokens": 14439,
-    "api_call_count": 18
+    "input_tokens": 3798,
+    "cache_creation_tokens": 457477,
+    "cache_read_tokens": 22965553,
+    "output_tokens": 101409,
+    "api_call_count": 194
   }
 }
