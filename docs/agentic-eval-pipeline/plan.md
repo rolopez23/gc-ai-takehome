@@ -59,7 +59,9 @@ Create:  frontend/__tests__/streaming-types.test.ts            — Streaming Zod
 | [headline-synthesis](steps/headline-synthesis.md)                     | pipeline-orchestration                       | —               |     ✅     |   ✅   |    ✅    |   ✅   |     ⬜     |  ⬜   |
 | [pipeline-orchestration](steps/pipeline-orchestration.md)             | stream-endpoint                              | —               |     ✅     |   ✅   |    ✅    |   ✅   |     ⬜     |  ⬜   |
 | [stream-endpoint](steps/stream-endpoint.md)                           | frontend-streaming                           | —               |     ✅     |   ✅   |    ✅    |   ✅   |     ⬜     |  ⬜   |
-| [frontend-streaming](steps/frontend-streaming.md)                     | —                                            | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
+| [fe-stream-utils](steps/fe-stream-utils.md)                           | fe-evaluate-page                             | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
+| [fe-evaluate-page](steps/fe-evaluate-page.md)                         | —                                            | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
+| [fe-results-buckets](steps/fe-results-buckets.md)                     | —                                            | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
 
 **Legend:** ⬜ pending · ✅ passed · ❌ failed · ⚠️ incomplete · ➖ N/A
 
@@ -101,11 +103,29 @@ Phase 1 (parallel):  playbook-parser | schema-migration | agent-core
 Phase 2 (parallel):  contract-verifier | clause-splitter | clause-evaluator | headline-synthesis
 Phase 3 (sequential): pipeline-orchestration
 Phase 4 (sequential): stream-endpoint
-Phase 5 (sequential): frontend-streaming
+Phase 5 (parallel):  fe-stream-utils + fe-evaluate-page | fe-results-buckets
 ```
 
 Phase 1 steps have no dependencies on each other. Phase 2 steps each depend on agent-core
 (and splitter/evaluator also depend on playbook-parser), but are independent of each other.
+Phase 5: fe-stream-utils + fe-evaluate-page are coupled (page needs the reader), run as one
+agent. fe-results-buckets is independent, runs as a separate agent.
+
+## Post-Merge Workflow (MANDATORY)
+
+**Worktree agents handle only: RED → GREEN → COMMIT (Auto Tests).**
+
+Verify, Simplify, and Review are **skills that produce reports**. They CANNOT be self-reported
+by agents — they must run in the main session after merging worktree branches.
+
+After merging parallel agents:
+1. Run `/verify` — produces `docs/<feature>/verify/<step>-<date>.md`
+2. Run `/simplify` — 3 parallel review agents, fix findings, commit
+3. Run `/review` — 3 parallel review agents, fix findings, produces `docs/<feature>/reviews/<step>-<date>.md`
+4. Update plan dashboard with real results
+
+Agents marking their own Verify/Simplify/Review columns is **not valid**. Only the main
+session running the actual skills can mark those columns.
 
 ---
 
@@ -195,10 +215,29 @@ events as they're produced. Handles review-not-found, already-completed, and in-
 states. Done when the endpoint streams events end-to-end via httpx test client.
 [→ Detailed plan](steps/stream-endpoint.md)
 
-### frontend-streaming
+### fe-stream-utils
 
-Minimum viable frontend changes: NDJSON stream reader utility, new Zod schemas for streaming
-events (clean break from polling schemas), updated evaluate-contract page to consume the
-stream, severity-tier bucket rendering on the results page. Done when the frontend can upload
-a contract and display incrementally-arriving clauses in severity buckets.
-[→ Detailed plan](steps/frontend-streaming.md)
+New Zod schemas for all NDJSON streaming events (clean break from polling schemas) and an
+NDJSON stream reader utility that parses a ReadableStream into typed events. Done when all
+event types validate and the reader correctly handles partial line buffering.
+
+Files: `frontend/app/evaluate-contract/stream-types.ts`, `frontend/app/evaluate-contract/stream.ts`
+Tests: `frontend/__tests__/stream.test.ts`, `frontend/__tests__/stream-types.test.ts`
+
+### fe-evaluate-page
+
+Update the evaluate-contract page to consume the NDJSON stream after upload. Uploads with
+`stream=true`, opens `GET /api/reviews/{id}/stream`, shows status messages, renders clauses
+incrementally, handles rejected/failed events. Done when the page shows streaming progress.
+
+Files: `frontend/app/evaluate-contract/page.tsx`, `frontend/app/evaluate-contract/constants.ts`
+Tests: `frontend/__tests__/evaluate-contract-page.test.tsx` (update existing)
+
+### fe-results-buckets
+
+Update the results page to group clauses by fairness tier (dealbreaker → non-standard → fair)
+instead of the current grouping. Show severity score on each clause card. Done when clauses
+render in severity-tier buckets with scores.
+
+Files: `frontend/app/contract/[id]/page.tsx`, `frontend/app/contract/[id]/ClauseSection.tsx`
+Tests: `frontend/__tests__/contract-results-page.test.tsx` (update existing)
