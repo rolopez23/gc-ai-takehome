@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 
 from services.agents.base import AgentConfig, AgentRunner
-from services.agents.messages import build_user_message
+from services.agents.messages import append_instructions, build_user_message
 
 VERIFIER_TOOL = {
     "name": "verify_contract",
@@ -34,12 +34,7 @@ def build_verifier_prompt(instructions: str | None = None) -> str:
         "document is a contract or legal agreement. Do not analyze its contents deeply.\n\n"
         "Call the verify_contract tool with your determination."
     )
-    if instructions:
-        prompt += (
-            f'\n\n## Additional instructions from reviewer\n"{instructions}"\n'
-            "(Source: user-provided review instructions)"
-        )
-    return prompt
+    return append_instructions(prompt, instructions)
 
 
 @dataclass

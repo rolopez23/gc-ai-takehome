@@ -1,4 +1,4 @@
-"""Shared message-building helpers for agents."""
+"""Shared message-building and prompt helpers for agents."""
 
 import base64
 
@@ -39,3 +39,27 @@ def build_user_message(
         return [{"role": "user", "content": text}]
 
     return [{"role": "user", "content": content}]
+
+
+def append_instructions(
+    prompt: str,
+    instructions: str | None,
+    *,
+    relevance_note: str | None = None,
+) -> str:
+    """Append user-provided instructions to a system prompt in a standard format.
+
+    If instructions is None or empty, returns the prompt unchanged.
+    An optional relevance_note is appended after the instructions block
+    (e.g., "These instructions may not be relevant for this clause; if irrelevant, ignore.").
+    """
+    if not instructions:
+        return prompt
+
+    block = (
+        f'\n\n## Additional instructions from reviewer\n"{instructions}"\n'
+        "(Source: user-provided review instructions)"
+    )
+    if relevance_note:
+        block += f"\n{relevance_note}"
+    return prompt + block

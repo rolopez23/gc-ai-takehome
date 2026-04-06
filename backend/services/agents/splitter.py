@@ -4,7 +4,7 @@ import logging
 from dataclasses import dataclass
 
 from services.agents.base import AgentConfig, AgentRunner
-from services.agents.messages import build_user_message
+from services.agents.messages import append_instructions, build_user_message
 from services.playbook import (
     _cached_playbook,
     get_all_check_names,
@@ -96,18 +96,7 @@ def build_splitter_prompt(instructions: str | None) -> str:
 
     check_enum_text = "\n\n".join(check_sections)
 
-    instructions_block = ""
-    if instructions:
-        instructions_block = (
-            f"\n\n## User Instructions\n"
-            f"The user who uploaded this contract provided the following instructions. "
-            f"Source: user-provided review instructions.\n\n"
-            f"{instructions}\n\n"
-            f"These instructions may provide context for how to split or tag clauses. "
-            f"If they are not relevant to splitting, ignore them."
-        )
-
-    return f"""You are a contract clause splitter. Your job is to:
+    prompt = f"""You are a contract clause splitter. Your job is to:
 
 1. Read the contract document carefully.
 2. Determine the agreement type (one of: SaaS MSA, NDA, Commercial MSA, DPA, General).
@@ -138,7 +127,14 @@ If the contract lacks numbering, assign synthetic sequential identifiers: clause
 
 ## Output
 
-Call the report_clauses tool with the agreement type and all clauses found.{instructions_block}"""
+Call the report_clauses tool with the agreement type and all clauses found."""
+
+    return append_instructions(
+        prompt,
+        instructions,
+        relevance_note="These instructions may provide context for how to split or tag clauses. "
+        "If they are not relevant to splitting, ignore them.",
+    )
 
 
 # ---------------------------------------------------------------------------

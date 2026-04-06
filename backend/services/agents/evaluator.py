@@ -4,6 +4,7 @@ import json
 from dataclasses import dataclass
 
 from services.agents.base import AgentConfig, AgentRunner
+from services.agents.messages import append_instructions
 from services.playbook import get_playbook
 
 GET_PLAYBOOK_TOOL = {
@@ -118,13 +119,11 @@ def build_evaluator_prompt(instructions: str | None = None) -> str:
         "(fair/non-standard/dealbreaker), plus a severity score from 1-10.\n\n"
         "Evaluate carefully and ground your assessment in the playbook checks retrieved."
     )
-    if instructions:
-        prompt += (
-            f'\n\nAdditional instructions from the user:\n"{instructions}"\n'
-            "(Source: user-provided review instructions)\n"
-            "These instructions may not be relevant for this clause; if irrelevant, ignore."
-        )
-    return prompt
+    return append_instructions(
+        prompt,
+        instructions,
+        relevance_note="These instructions may not be relevant for this clause; if irrelevant, ignore.",
+    )
 
 
 async def handle_get_playbook(input_data: dict) -> dict:

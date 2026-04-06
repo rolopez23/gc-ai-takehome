@@ -4,6 +4,7 @@ import json
 from dataclasses import dataclass
 
 from services.agents.base import AgentConfig, AgentRunner
+from services.agents.messages import append_instructions
 
 HEADLINE_TOOL = {
     "name": "report_headline",
@@ -37,12 +38,7 @@ def build_headline_prompt(instructions: str | None = None) -> str:
         "Focus on the most significant issues first (dealbreaker > non-standard > fair).\n"
         "Use the report_headline tool to submit your results."
     )
-    if instructions:
-        prompt += (
-            f'\n\nAdditional instructions from the user:\n"{instructions}"\n'
-            "(Source: user-provided review instructions)"
-        )
-    return prompt
+    return append_instructions(prompt, instructions)
 
 
 @dataclass
