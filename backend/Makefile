@@ -1,4 +1,5 @@
 setup:
+	@bash scripts/ensure-env.sh
 	uv sync --extra dev
 	@command -v libreoffice >/dev/null 2>&1 || (echo "Installing LibreOffice (required for DOC/DOCX conversion)..." && brew install --cask libreoffice)
 
@@ -13,7 +14,7 @@ reset-db:
 	uv run alembic upgrade head
 
 dev:
-	portless contract-evaluator-server uv run uvicorn main:app --reload
+	uv run uvicorn main:app --reload
 
 dev.down:
 	@PID=$$(lsof -ti :8000) && kill $$PID && echo "Server stopped (PID $$PID)" || echo "No server running on :8000"
