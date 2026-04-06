@@ -243,12 +243,14 @@ class TestEventEmitter:
             assert line.count("\n") == 1, f"Line has multiple newlines: {line!r}"
             json.loads(line)  # Must be valid JSON
 
-    def test_emitter_tracks_events(self):
-        """Emitter stores all emitted events."""
+    def test_emitter_returns_valid_json(self):
+        """Emitter returns valid JSON strings."""
         emitter = self._make_emitter()
-        emitter.started(str(uuid.uuid4()))
-        emitter.token("status", "test")
-        assert len(emitter._events) == 2
+        line = emitter.started(str(uuid.uuid4()))
+        import json
+
+        parsed = json.loads(line.strip())
+        assert parsed["event"] == "started"
 
 
 # ---------------------------------------------------------------------------
@@ -562,20 +564,11 @@ class TestOrchestratorSplitAndPersist:
             return_value=VerifierResult(is_contract=True, reason=None)
         )
 
-        statuses_seen = []
-        original_run = AsyncMock(
+        mock_splitter.return_value.run = AsyncMock(
             return_value=SplitterResult(
                 agreement_type="NDA", clauses=_make_splitter_clauses(1)
             )
         )
-
-        async def capture_status(*args, **kwargs):
-            async with _TestSession() as db:
-                review = await db.get(ContractReview, review_id)
-                statuses_seen.append(review.status)
-            return await original_run(*args, **kwargs)
-
-        mock_splitter.return_value.run = capture_status
         mock_evaluator.return_value.run = AsyncMock(
             side_effect=lambda clause, cross_ref_text=None: _make_evaluator_result(
                 clause["section_number"], clause["clause_type"]
@@ -591,9 +584,12 @@ class TestOrchestratorSplitAndPersist:
         }
 
         orch = await self._make_orchestrator(review_id, contract_id)
-        await _collect_events(orch)
+        events = await _collect_events(orch)
 
-        assert "splitting" in statuses_seen
+        # Verify splitting event was emitted with agreement_type
+        split_event = _find_event(events, "splitting")
+        assert split_event is not None
+        assert split_event["agreement_type"] == "NDA"
 
     @patch("services.orchestrator.AsyncSessionLocal", _TestSession)
     @patch("services.orchestrator.VerifierAgent")

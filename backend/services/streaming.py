@@ -4,13 +4,8 @@ import json
 
 
 class EventEmitter:
-    def __init__(self):
-        self._events: list[str] = []
-
     def _emit(self, event: dict) -> str:
-        line = json.dumps(event) + "\n"
-        self._events.append(line)
-        return line
+        return json.dumps(event) + "\n"
 
     def started(self, review_id: str) -> str:
         return self._emit(

@@ -84,7 +84,6 @@ class PipelineOrchestrator:
 
             # --- Stage 2: Split ---
             yield self.emitter.token("status", "Splitting clauses...")
-            await self._set_review_status("splitting")
 
             splitter = SplitterAgent()
             split_result = await splitter.run(
@@ -92,7 +91,6 @@ class PipelineOrchestrator:
             )
             agreement_type = split_result.agreement_type
 
-            # Update agreement type on review
             await self._set_review_status("splitting", agreement_type=agreement_type)
 
             # Detect absent checks
@@ -127,15 +125,7 @@ class PipelineOrchestrator:
                     db.add(row)
                     clause_rows.append(row)
 
-                    clause_dict = {
-                        "section_number": clause.section_number,
-                        "clause_type": clause.clause_type,
-                        "text": clause.text,
-                        "relevant_checks": clause.relevant_checks,
-                        "cross_references": clause.cross_references,
-                        "is_cycle": clause.is_cycle,
-                    }
-                    real_clause_data.append((row, clause_dict))
+                    real_clause_data.append((row, asdict(clause)))
 
                 # Synthetic absent clauses
                 synthetic_rows: list[ReviewClause] = []
@@ -159,9 +149,6 @@ class PipelineOrchestrator:
                     synthetic_rows.append(row)
 
                 await db.commit()
-                # Refresh to get UUIDs assigned by DB
-                for row in clause_rows:
-                    await db.refresh(row)
 
             total_clause_count = len(split_result.clauses) + len(absent_clauses)
             yield self.emitter.splitting(agreement_type, total_clause_count)
@@ -219,14 +206,13 @@ class PipelineOrchestrator:
 
                 tasks.append(evaluate_clause(clause_row, clause_data, cross_ref_text))
 
-            results = await asyncio.gather(*tasks)
-
-            # Emit events for real clauses
+            # Run evaluators and stream results as they complete
             failed_count = 0
             all_clause_results: list[dict] = []
             row_id_to_clause = {cr.id: cd for cr, cd in real_clause_data}
 
-            for status, row_id, result_or_error in results:
+            for coro in asyncio.as_completed(tasks):
+                status, row_id, result_or_error = await coro
                 if status == "ok":
                     result_dict = asdict(result_or_error)
                     result_dict["status"] = "evaluated"
@@ -268,14 +254,13 @@ class PipelineOrchestrator:
                 real_clause_count > 0
                 and failed_count / real_clause_count > FAILURE_THRESHOLD
             ):
+                fail_msg = f"evaluators failed ({failed_count}/{real_clause_count} clauses, >{FAILURE_THRESHOLD:.0%} threshold)"
                 await self._set_review_status(
                     "failed",
-                    failure_message="evaluators failed (>10% clause failure rate)",
+                    failure_message=fail_msg,
                     completed_at=datetime.now(UTC),
                 )
-                yield self.emitter.failed(
-                    "evaluators failed (>10% clause failure rate)"
-                )
+                yield self.emitter.failed(fail_msg)
                 return
 
             # --- Stage 5: Headline ---
