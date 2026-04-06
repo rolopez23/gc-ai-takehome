@@ -46,6 +46,7 @@ class ReviewOut(BaseModel):
     summary: str | None
     call_to_action: list | None
     failure_message: str | None
+    failure_code: str | None = None
     created_at: datetime
     completed_at: datetime | None
 

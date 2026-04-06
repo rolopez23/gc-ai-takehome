@@ -113,6 +113,25 @@ def test_review_detail_with_clauses():
     assert data["clauses"][0]["section_number"] == "3.1"
 
 
+def test_review_out_includes_failure_code():
+    now = datetime.now(UTC)
+    review = ReviewOut(
+        id=uuid.uuid4(),
+        contract_id=uuid.uuid4(),
+        status="failed",
+        review_instructions=None,
+        overall_fairness=None,
+        summary=None,
+        call_to_action=None,
+        failure_message="Evaluation timed out",
+        failure_code="timeout",
+        created_at=now,
+        completed_at=None,
+    )
+    data = review.model_dump()
+    assert data["failure_code"] == "timeout"
+
+
 def test_clause_out():
     clause = ClauseOut(
         id=uuid.uuid4(),

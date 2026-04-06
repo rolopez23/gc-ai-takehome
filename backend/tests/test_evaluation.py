@@ -311,3 +311,15 @@ async def test_run_eval_status_committed_before_api_call(db):
         await run_evaluation(review.id, contract, db)
 
     assert captured_status["status"] == "evaluating"
+
+
+@pytest.mark.asyncio
+async def test_contract_review_has_failure_code(db):
+    contract = Contract(name="test.txt", upload_type="txt", original_blob=b"test", text="text")
+    db.add(contract)
+    await db.flush()
+    review = ContractReview(contract_id=contract.id, status="failed", failure_code="timeout")
+    db.add(review)
+    await db.commit()
+    await db.refresh(review)
+    assert review.failure_code == "timeout"

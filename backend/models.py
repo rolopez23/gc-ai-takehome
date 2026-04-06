@@ -33,6 +33,7 @@ class ContractReview(Base):
     summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     call_to_action: Mapped[list | None] = mapped_column(JSON, nullable=True)
     failure_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    failure_code: Mapped[str | None] = mapped_column(nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(UTC))
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
