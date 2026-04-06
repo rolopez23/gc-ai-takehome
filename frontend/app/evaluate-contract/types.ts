@@ -15,6 +15,8 @@ export const ReviewClauseSchema = z.object({
   market_standard: z.string().nullable(),
   explanation: z.string().nullable(),
   severity: z.number().min(1).max(10).optional().nullable(),
+  is_synthetic: z.boolean().optional(),
+  playbook_status: z.string().nullable().optional(),
 });
 
 export const UploadResponseSchema = z.object({
