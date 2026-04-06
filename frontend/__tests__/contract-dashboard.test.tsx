@@ -3,6 +3,23 @@ import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 const uuid = '550e8400-e29b-41d4-a716-446655440000';
+const uuid2 = '660e8400-e29b-41d4-a716-446655440001';
+
+const mockFetch = vi.fn();
+
+vi.mock('next/link', () => ({
+  default: ({ children, href }: { children: React.ReactNode; href: string }) => (
+    <a href={href}>{children}</a>
+  ),
+}));
+
+function mockFetchResponse(data: unknown, status = 200) {
+  return Promise.resolve({
+    ok: status >= 200 && status < 300,
+    status,
+    json: () => Promise.resolve(data),
+  });
+}
 
 // --- Cycle 1: Zod schema tests ---
 
@@ -54,5 +71,41 @@ describe('ContractListItemSchema', () => {
     };
     const result = ContractListItemSchema.safeParse(data);
     expect(result.success).toBe(false);
+  });
+});
+
+// --- Cycle 2: Empty state tests ---
+
+describe('Dashboard empty state', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    mockFetch.mockReset();
+    vi.stubGlobal('fetch', mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('shows empty state CTA when no contracts', async () => {
+    mockFetch.mockReturnValue(mockFetchResponse([]));
+    const { default: Home } = await import('@/app/page');
+    render(<Home />);
+    await waitFor(() => {
+      expect(screen.getByText('Evaluate your first contract')).toBeInTheDocument();
+    });
+    const link = screen.getByRole('link', { name: /get started/i });
+    expect(link).toHaveAttribute('href', '/evaluate-contract');
+  });
+
+  it('shows subtext in empty state', async () => {
+    mockFetch.mockReturnValue(mockFetchResponse([]));
+    const { default: Home } = await import('@/app/page');
+    render(<Home />);
+    await waitFor(() => {
+      expect(
+        screen.getByText('Upload a contract to get an AI-powered fairness analysis.'),
+      ).toBeInTheDocument();
+    });
   });
 });
