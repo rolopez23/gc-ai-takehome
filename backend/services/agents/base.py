@@ -11,11 +11,13 @@ import anthropic
 
 logger = logging.getLogger(__name__)
 
-AGENT_MODELS = {
-    "verifier": os.getenv("VERIFIER_MODEL", "claude-haiku-4-5-20251001"),
-    "splitter": os.getenv("SPLITTER_MODEL", "claude-haiku-4-5-20251001"),
-    "evaluator": os.getenv("EVALUATOR_MODEL", "claude-haiku-4-5-20251001"),
-    "headline": os.getenv("HEADLINE_MODEL", "claude-haiku-4-5-20251001"),
+_DEFAULT_MODEL = "claude-haiku-4-5-20251001"
+
+_AGENT_MODEL_ENV_VARS = {
+    "verifier": "VERIFIER_MODEL",
+    "splitter": "SPLITTER_MODEL",
+    "evaluator": "EVALUATOR_MODEL",
+    "headline": "HEADLINE_MODEL",
 }
 
 AGENT_MAX_TOKENS = {
@@ -26,6 +28,14 @@ AGENT_MAX_TOKENS = {
 }
 
 
+def _get_agent_model(agent_type: str) -> str:
+    """Lazily read the model env var for an agent type."""
+    env_var = _AGENT_MODEL_ENV_VARS.get(agent_type)
+    if env_var:
+        return os.getenv(env_var, _DEFAULT_MODEL)
+    return _DEFAULT_MODEL
+
+
 @dataclass
 class AgentConfig:
     agent_type: str
@@ -34,7 +44,7 @@ class AgentConfig:
 
     def __post_init__(self):
         if self.model is None:
-            self.model = AGENT_MODELS.get(self.agent_type, "claude-haiku-4-5-20251001")
+            self.model = _get_agent_model(self.agent_type)
         if self.max_tokens is None:
             self.max_tokens = AGENT_MAX_TOKENS.get(self.agent_type, 8192)
 

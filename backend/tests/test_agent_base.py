@@ -14,24 +14,19 @@ import pytest
 class TestAgentConfig:
     def test_agent_config_defaults(self):
         """AgentConfig('evaluator') uses default model and token budget."""
-        from services.agents.base import AGENT_MAX_TOKENS, AGENT_MODELS, AgentConfig
+        from services.agents.base import AGENT_MAX_TOKENS, AgentConfig, _get_agent_model
 
         config = AgentConfig("evaluator")
-        assert config.model == AGENT_MODELS["evaluator"]
+        assert config.model == _get_agent_model("evaluator")
         assert config.max_tokens == AGENT_MAX_TOKENS["evaluator"]
 
     def test_agent_config_env_override(self, monkeypatch):
-        """With EVALUATOR_MODEL env var set, AgentConfig picks it up."""
+        """With EVALUATOR_MODEL env var set, AgentConfig picks it up lazily."""
         monkeypatch.setenv("EVALUATOR_MODEL", "claude-sonnet-4-6")
 
-        # Force reimport so module-level os.getenv sees the new env
-        import importlib
+        from services.agents.base import AgentConfig
 
-        import services.agents.base as mod
-
-        importlib.reload(mod)
-
-        config = mod.AgentConfig("evaluator")
+        config = AgentConfig("evaluator")
         assert config.model == "claude-sonnet-4-6"
 
     def test_agent_config_custom_values(self):
