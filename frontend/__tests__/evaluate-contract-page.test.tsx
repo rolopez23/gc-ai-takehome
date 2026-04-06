@@ -54,6 +54,9 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+// Stream endpoint returns 404 so page falls back to polling
+const STREAM_UNAVAILABLE = new Response("", { status: 404 });
+
 async function selectFileAndSubmit() {
   const file = new File(["content"], "contract.txt", { type: "text/plain" });
   await userEvent.upload(screen.getByLabelText(/upload contract file/i), file);
@@ -78,6 +81,7 @@ describe("EvaluateContractPage", () => {
       .mockResolvedValueOnce(
         new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }),
       )
+      .mockResolvedValueOnce(STREAM_UNAVAILABLE)
       .mockResolvedValueOnce(
         new Response(JSON.stringify(REVIEW_COMPLETED), { status: 200 }),
       );
@@ -119,6 +123,7 @@ describe("EvaluateContractPage", () => {
       .mockResolvedValueOnce(
         new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }),
       )
+      .mockResolvedValueOnce(STREAM_UNAVAILABLE)
       .mockResolvedValueOnce(
         new Response(JSON.stringify(REVIEW_EVALUATING), { status: 200 }),
       )
@@ -142,6 +147,7 @@ describe("EvaluateContractPage", () => {
       .mockResolvedValueOnce(
         new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }),
       )
+      .mockResolvedValueOnce(STREAM_UNAVAILABLE)
       .mockResolvedValueOnce(
         new Response(JSON.stringify(REVIEW_FAILED), { status: 200 }),
       );
@@ -166,6 +172,7 @@ describe("EvaluateContractPage", () => {
       .mockResolvedValueOnce(
         new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 200 }),
       )
+      .mockResolvedValueOnce(STREAM_UNAVAILABLE)
       .mockResolvedValueOnce(
         new Response(JSON.stringify(REVIEW_EVALUATING), { status: 200 }),
       )

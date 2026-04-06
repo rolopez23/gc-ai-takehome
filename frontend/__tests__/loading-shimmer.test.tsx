@@ -128,6 +128,10 @@ describe("Loading shimmer", () => {
           new Response(JSON.stringify(UPLOAD_RESPONSE), { status: 201 }),
         );
       }
+      if (callCount === 2) {
+        // Stream endpoint unavailable — triggers polling fallback
+        return Promise.resolve(new Response("", { status: 404 }));
+      }
       return Promise.resolve(
         new Response(JSON.stringify(failedReview), { status: 200 }),
       );

@@ -15,6 +15,8 @@ import {
   ReviewResponseSchema,
 } from "@/app/evaluate-contract/types";
 import { getFailureMessage } from "@/app/evaluate-contract/failure-messages";
+import { readNDJSONStream } from "@/app/evaluate-contract/stream";
+import type { StreamClause } from "@/app/evaluate-contract/stream-types";
 
 const ERROR_ALERT =
   "flex gap-3 rounded-lg border border-egregious-border bg-egregious-bg p-4 text-sm text-egregious-fg";
@@ -23,11 +25,15 @@ async function uploadContract(
   file: File,
   instructions: string,
   signal: AbortSignal,
+  stream = false,
 ) {
   const form = new FormData();
   form.append("file", file);
   if (instructions.trim()) form.append("instructions", instructions);
-  const res = await fetch(`${BACKEND_URL}/api/contracts/upload`, {
+  const url = stream
+    ? `${BACKEND_URL}/api/contracts/upload?stream=true`
+    : `${BACKEND_URL}/api/contracts/upload`;
+  const res = await fetch(url, {
     method: "POST",
     body: form,
     signal,
@@ -62,12 +68,80 @@ async function pollReview(
   throw new Error("Evaluation timed out — please try again");
 }
 
+async function consumeStream(
+  contractId: string,
+  reviewId: string,
+  signal: AbortSignal,
+  callbacks: {
+    onStatus: (s: string) => void;
+    onClause: (c: StreamClause) => void;
+    onSummary: (s: string) => void;
+  },
+): Promise<{ navigateTo?: string; error?: string }> {
+  const res = await fetch(
+    `${BACKEND_URL}/api/reviews/${reviewId}/stream`,
+    { signal },
+  );
+  if (!res.ok) throw new Error("Stream unavailable");
+
+  let summaryBuffer = "";
+
+  for await (const event of readNDJSONStream(res)) {
+    if (signal.aborted) return {};
+
+    switch (event.event) {
+      case "started":
+        callbacks.onStatus("Evaluating contract...");
+        summaryBuffer = event.summary;
+        callbacks.onSummary(event.summary);
+        break;
+      case "verifying":
+        callbacks.onStatus("Verifying document...");
+        break;
+      case "splitting":
+        callbacks.onStatus(
+          `Splitting ${event.agreement_type} into ${event.clause_count} clauses...`,
+        );
+        break;
+      case "token":
+        if (event.field === "summary") {
+          summaryBuffer += event.text;
+          callbacks.onSummary(summaryBuffer);
+        }
+        callbacks.onStatus("Evaluating contract...");
+        break;
+      case "clause_evaluated":
+        callbacks.onClause(event.clause);
+        break;
+      case "replace":
+        if (event.field === "summary" && event.text !== undefined) {
+          summaryBuffer = event.text;
+          callbacks.onSummary(event.text);
+        }
+        break;
+      case "completed":
+        return { navigateTo: `/contract/${contractId}` };
+      case "rejected":
+        return { error: event.reason };
+      case "failed":
+        return { error: event.reason };
+      case "clause_error":
+        // Individual clause errors are non-fatal
+        break;
+    }
+  }
+
+  return {};
+}
+
 export default function EvaluateContractPage() {
   const [file, setFile] = useState<File | null>(null);
   const [instructions, setInstructions] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [statusText, setStatusText] = useState("Preparing evaluation...");
+  const [streamClauses, setStreamClauses] = useState<StreamClause[]>([]);
+  const [streamSummary, setStreamSummary] = useState("");
   const router = useRouter();
   const controllerRef = useRef<AbortController | null>(null);
 
@@ -83,20 +157,53 @@ export default function EvaluateContractPage() {
     setError(null);
     setIsLoading(true);
     setStatusText("Preparing evaluation...");
+    setStreamClauses([]);
+    setStreamSummary("");
+
     try {
+      // Upload with stream flag
       const { contract_id, review_id } = await uploadContract(
         file,
         instructions,
         controller.signal,
+        true,
       );
-      const result = await pollReview(review_id, controller.signal, (s) =>
-        setStatusText(STATUS_TEXT[s] || "Processing..."),
-      );
-      if (result.status === "completed") {
-        router.push(`/contract/${contract_id}`);
-      } else {
-        setError(getFailureMessage(result.failure_code));
-        setIsLoading(false);
+
+      // Try streaming first
+      try {
+        const result = await consumeStream(
+          contract_id,
+          review_id,
+          controller.signal,
+          {
+            onStatus: setStatusText,
+            onClause: (c) => setStreamClauses((prev) => [...prev, c]),
+            onSummary: setStreamSummary,
+          },
+        );
+
+        if (result.navigateTo) {
+          router.push(result.navigateTo);
+          return;
+        }
+        if (result.error) {
+          setError(result.error);
+          setIsLoading(false);
+          return;
+        }
+      } catch {
+        // Stream failed — fall back to polling with same review_id
+        const pollResult = await pollReview(
+          review_id,
+          controller.signal,
+          (s) => setStatusText(STATUS_TEXT[s] || "Processing..."),
+        );
+        if (pollResult.status === "completed") {
+          router.push(`/contract/${contract_id}`);
+        } else {
+          setError(getFailureMessage(pollResult.failure_code));
+          setIsLoading(false);
+        }
       }
     } catch (e) {
       if (e instanceof DOMException && e.name === "AbortError") return;
@@ -113,7 +220,40 @@ export default function EvaluateContractPage() {
       <h1 className="text-2xl font-bold tracking-tight">Evaluate Contract</h1>
 
       {isLoading ? (
-        <LoadingShimmer statusText={statusText} />
+        <>
+          <LoadingShimmer statusText={statusText} />
+          {streamClauses.length > 0 && (
+            <div data-testid="stream-clauses" className="space-y-3">
+              {streamClauses.map((clause, i) => (
+                <div
+                  key={`${clause.section_number}-${i}`}
+                  data-testid="stream-clause-card"
+                  className="rounded-lg border border-foreground/[0.06] p-4 text-sm"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs text-foreground/50">
+                      {clause.section_number}
+                    </span>
+                    <span className="font-medium">{clause.clause_type}</span>
+                  </div>
+                  {clause.explanation && (
+                    <p className="mt-1 text-foreground/70">
+                      {clause.explanation}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          {streamSummary && (
+            <p
+              data-testid="stream-summary"
+              className="text-sm text-foreground/70"
+            >
+              {streamSummary}
+            </p>
+          )}
+        </>
       ) : (
         <>
           <FileDropZone file={file} onFileChange={setFile} />
