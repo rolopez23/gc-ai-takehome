@@ -427,3 +427,7 @@ I think they should both exist but the frontend should call one of the other del
 ---
 
 I like the query parameter
+
+---
+
+lets run /simplify and /review if you have not
