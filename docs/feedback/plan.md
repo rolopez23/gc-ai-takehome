@@ -69,9 +69,68 @@ Modify:  frontend/app/contract/[id]/page.tsx                  — Use ScoreFeedb
 
 ## Branching Strategy
 
-Single feature branch (`feat/agentic-eval-pipeline`). Eight small sequential steps, each with
-its own commit(s). Use worktrees when dispatching parallel agents to avoid conflicts with other
-work on this branch.
+Single feature branch (`feat/agentic-eval-pipeline`). Use worktrees for parallel agent work,
+merge back to the main session for quality gates.
+
+---
+
+## Parallelization Strategy
+
+### Constraints
+
+- Skills (`/verify`, `/simplify`, `/review`) cannot run in sub-agents on worktrees.
+- V/S/R require the full context of a single Claude session to be valuable.
+- Agents only do: TDD cycles (implement + auto tests) → mark Auto Tests column.
+- Agents leave V/S/R columns ⬜ — these are handled after merge in the main session.
+
+### Dependency Graph
+
+```
+                    feedback-schema (Phase 1 — main session)
+                    /              \
+   review-feedback-upsert    clause-feedback-upsert    feedback-frontend-plumbing
+          |                         |                          |
+   review-feedback-read      clause-feedback-bulk-read         |
+          \                        /                          /
+           ---- Phase 3: merge + V/S/R (main session) ------
+                          |
+                  clause-feedback-ui   (Phase 4 — main session)
+                          |
+                  review-feedback-ui   (Phase 4 — main session)
+```
+
+### Execution Phases
+
+| Phase | Steps | Execution | V/S/R |
+|-------|-------|-----------|-------|
+| **1** | feedback-schema | Main session (sequential) | Full — small step, run immediately |
+| **2** | review-feedback-upsert → review-feedback-read (Agent A) | 3 worktree agents in parallel | **Deferred** — agents do implement + auto tests only |
+|       | clause-feedback-upsert → clause-feedback-bulk-read (Agent B) | | |
+|       | feedback-frontend-plumbing (Agent C) | | |
+| **3** | Merge all 3 worktrees | Main session | Full V/S/R pass on combined diff of all 5 steps |
+| **4** | clause-feedback-ui → review-feedback-ui | Main session (sequential) | Full per step — these touch shared files (`page.tsx`) |
+
+### Why This Split
+
+- **Phase 2 agents** touch completely different files: Agent A (`routers/reviews.py` review
+  endpoints + tests), Agent B (`routers/reviews.py` clause endpoints + tests), Agent C
+  (all frontend plumbing files). No merge conflicts expected.
+- **Phase 4 is sequential** because both UI steps modify `page.tsx` and share the `useFeedback`
+  hook import — parallel worktrees would conflict.
+- **V/S/R after merge** ensures the quality gates see the full picture: how the API endpoints
+  interact, whether schemas are consistent, whether the frontend plumbing matches the API
+  contracts.
+
+### Post-Agent Dashboard State (after Phase 2, before Phase 3 merge)
+
+| Step | Auto Tests | Verify | Simplify | Review |
+|------|:----------:|:------:|:--------:|:------:|
+| feedback-schema | ✅ | ✅ | ✅ | ✅ |
+| review-feedback-upsert | ✅ | ⬜ | ⬜ | ⬜ |
+| review-feedback-read | ✅ | ⬜ | ⬜ | ⬜ |
+| clause-feedback-upsert | ✅ | ⬜ | ⬜ | ⬜ |
+| clause-feedback-bulk-read | ✅ | ⬜ | ⬜ | ⬜ |
+| feedback-frontend-plumbing | ✅ | ➖ | ⬜ | ⬜ |
 
 ---
 
