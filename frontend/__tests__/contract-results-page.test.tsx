@@ -43,6 +43,7 @@ const FAILED_RESULT: ReviewFailed = {
   id: 'e5f6a7b8-c9d0-4e1f-aa3b-4c5d6e7f8091',
   status: 'failed',
   failure_message: 'Document could not be processed',
+  failure_code: null,
 };
 
 const PENDING_RESULT: ReviewPolling = {

@@ -52,7 +52,7 @@ describe('Error display', () => {
 
   test('shows error when evaluation fails', async () => {
     const uploadResponse = { contract_id: '452be08b-a29d-402f-8f44-6b1a0f976efa', review_id: 'a9198839-1da3-4fb3-ac30-c462cc81ee4e', status: 'pending' };
-    const failedReview = { id: 'a9198839-1da3-4fb3-ac30-c462cc81ee4e', status: 'failed', failure_message: 'API timeout' };
+    const failedReview = { id: 'a9198839-1da3-4fb3-ac30-c462cc81ee4e', status: 'failed', failure_message: 'API timeout', failure_code: 'timeout' };
 
     let callCount = 0;
     await stageFileAndSubmit(() => {

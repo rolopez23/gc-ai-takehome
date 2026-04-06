@@ -39,6 +39,7 @@ const REVIEW_FAILED = {
   id: REVIEW_ID,
   status: 'failed',
   failure_message: 'LLM unavailable',
+  failure_code: null,
 };
 
 let mockFetch: ReturnType<typeof vi.fn>;

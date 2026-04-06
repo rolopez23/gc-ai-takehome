@@ -67,7 +67,7 @@ describe('ReviewCompletedSchema', () => {
 
 describe('ReviewFailedSchema', () => {
   test('test_review_failed_parses', () => {
-    const data = { id: uuid, status: 'failed', failure_message: 'Unable to process document' };
+    const data = { id: uuid, status: 'failed', failure_message: 'Unable to process document', failure_code: 'unknown' };
     expect(ReviewFailedSchema.safeParse(data).success).toBe(true);
   });
 });
@@ -92,7 +92,7 @@ describe('ReviewResponseSchema', () => {
   });
 
   test('test_discriminated_union_failed', () => {
-    const data = { id: uuid, status: 'failed', failure_message: 'Error occurred' };
+    const data = { id: uuid, status: 'failed', failure_message: 'Error occurred', failure_code: null };
     const result = ReviewResponseSchema.safeParse(data);
     expect(result.success).toBe(true);
     if (result.success) {

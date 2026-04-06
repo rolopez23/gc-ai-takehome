@@ -39,6 +39,7 @@ export const ReviewFailedSchema = z.object({
   id: z.string().uuid(),
   status: z.literal('failed'),
   failure_message: z.string().nullable(),
+  failure_code: z.string().nullable(),
 });
 
 export const ReviewResponseSchema = z.discriminatedUnion('status', [
