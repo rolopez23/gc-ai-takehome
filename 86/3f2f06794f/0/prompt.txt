@@ -343,3 +343,19 @@ Defer sign off, I will do that at the end for all steps.
 ---
 
 yes launch those agents
+
+---
+
+I am losing steam lets go to phase 3
+
+---
+
+wait I see no files for verify / simply / or review are we running these steps? how do I know?
+
+---
+
+these should be skills that create reports. I think you are doing lightweight versions.
+
+---
+
+lets take the current state of the code and run verify simplify and review on it.
