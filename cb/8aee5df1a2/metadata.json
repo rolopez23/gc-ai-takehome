@@ -3,7 +3,7 @@
   "checkpoint_id": "cb8aee5df1a2",
   "strategy": "manual-commit",
   "branch": "feat/agentic-eval-pipeline",
-  "checkpoints_count": 2,
+  "checkpoints_count": 3,
   "files_touched": [
     "backend/services/orchestrator.py"
   ],
@@ -13,13 +13,19 @@
       "transcript": "/cb/8aee5df1a2/0/full.jsonl",
       "content_hash": "/cb/8aee5df1a2/0/content_hash.txt",
       "prompt": "/cb/8aee5df1a2/0/prompt.txt"
+    },
+    {
+      "metadata": "/cb/8aee5df1a2/1/metadata.json",
+      "transcript": "/cb/8aee5df1a2/1/full.jsonl",
+      "content_hash": "/cb/8aee5df1a2/1/content_hash.txt",
+      "prompt": "/cb/8aee5df1a2/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 911,
-    "cache_creation_tokens": 140693,
-    "cache_read_tokens": 9643950,
-    "output_tokens": 66653,
-    "api_call_count": 98
+    "input_tokens": 4154,
+    "cache_creation_tokens": 951796,
+    "cache_read_tokens": 75886206,
+    "output_tokens": 209291,
+    "api_call_count": 445
   }
 }
