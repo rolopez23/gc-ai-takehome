@@ -495,3 +495,7 @@ Great! It is now updated.  The shimmer is a little distracting can we tone it do
 ---
 
 Great last pieces how does it look do a quick review of the code It works much better end to end.
+
+---
+
+Two other minor fixes make the header and Evaluation complete / score sticky[Image #4] I always want this at the top of the screen.
