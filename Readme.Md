@@ -2,6 +2,8 @@
 
 AI-powered contract analysis tool that evaluates vendor contracts against a defined playbook of 132 checks across 4 agreement types (SaaS MSA, Mutual NDA, Commercial MSA, DPA).
 
+Built with the [Agent Harness](https://github.com/rolopez23/agent-harness) workflow.
+
 ## Stack
 
 | Layer    | Tech                                                         |
@@ -9,6 +11,7 @@ AI-powered contract analysis tool that evaluates vendor contracts against a defi
 | Frontend | Next.js 15, React 19, TypeScript, Tailwind CSS v4, Turbopack |
 | Backend  | Python 3.11+, FastAPI, SQLAlchemy 2.0 (async), Alembic       |
 | Database | PostgreSQL 16 (asyncpg)                                      |
+| AI       | Claude (Anthropic API)                                        |
 | Package  | npm (frontend), uv (backend)                                 |
 
 ## Prerequisites
@@ -17,49 +20,47 @@ AI-powered contract analysis tool that evaluates vendor contracts against a defi
 - Python 3.11+
 - [uv](https://docs.astral.sh/uv/) (Python package manager)
 - Docker (for PostgreSQL)
+- An [Anthropic API key](https://console.anthropic.com/)
 
-## Setup
+## Quick Start
 
 ### 1. Backend
 
 ```bash
 cd backend
-make setup    # install Python deps
-make db       # start Postgres + run migrations
-make dev      # start API server
+make setup    # prompts for API key if missing, installs Python deps + LibreOffice
+make db       # start Postgres via Docker + run migrations
+make dev      # start API server on http://localhost:8000
 ```
 
-API runs at `https://contract-evaluator-server.localhost`.
+`make setup` will check for a `.env` file with a valid `ANTHROPIC_API_KEY`. If one isn't found, it will prompt you to paste your key. You can also copy the template manually:
+
+```bash
+cp .env.tmpl .env
+# Edit .env and set your ANTHROPIC_API_KEY
+```
 
 ### 2. Frontend
 
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run dev   # start dev server on http://localhost:3000
 ```
 
-Dev server runs at `https://contract-evaluator.localhost`.
-
-### Portless
-
-All dev commands use [portless](https://github.com/vercel-labs/portless) for stable `.localhost` URLs with auto-assigned ports and HTTPS.
-
-| Service  | URL                                           |
-| -------- | --------------------------------------------- |
-| Frontend | `https://contract-evaluator.localhost`        |
-| Backend  | `https://contract-evaluator-server.localhost` |
-
-First-time setup: `portless trust` to install the local CA.
+Open [http://localhost:3000](http://localhost:3000) and upload a contract.
 
 ## Running Tests
 
 ```bash
+# Backend (uses in-memory SQLite — no Postgres required)
 cd backend
 uv run pytest tests/ -v
-```
 
-Tests use an in-memory SQLite database and don't require PostgreSQL.
+# Frontend
+cd frontend
+npm test
+```
 
 ## Domain
 
