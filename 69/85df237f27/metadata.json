@@ -1,0 +1,23 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "6985df237f27",
+  "strategy": "manual-commit",
+  "branch": "feat/agentic-eval-pipeline",
+  "checkpoints_count": 2,
+  "files_touched": null,
+  "sessions": [
+    {
+      "metadata": "/69/85df237f27/0/metadata.json",
+      "transcript": "/69/85df237f27/0/full.jsonl",
+      "content_hash": "/69/85df237f27/0/content_hash.txt",
+      "prompt": "/69/85df237f27/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 908,
+    "cache_creation_tokens": 140487,
+    "cache_read_tokens": 9492366,
+    "output_tokens": 66520,
+    "api_call_count": 97
+  }
+}
