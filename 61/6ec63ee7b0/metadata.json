@@ -1,0 +1,23 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "616ec63ee7b0",
+  "strategy": "manual-commit",
+  "branch": "agentic-flow/fe-cleanup",
+  "checkpoints_count": 1,
+  "files_touched": null,
+  "sessions": [
+    {
+      "metadata": "/61/6ec63ee7b0/0/metadata.json",
+      "transcript": "/61/6ec63ee7b0/0/full.jsonl",
+      "content_hash": "/61/6ec63ee7b0/0/content_hash.txt",
+      "prompt": "/61/6ec63ee7b0/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 3383,
+    "cache_creation_tokens": 512510,
+    "cache_read_tokens": 64298122,
+    "output_tokens": 127630,
+    "api_call_count": 353
+  }
+}
