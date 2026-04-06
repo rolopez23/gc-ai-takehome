@@ -1,7 +1,7 @@
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import DateTime, ForeignKey, LargeBinary, Text
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, LargeBinary, Text
 from sqlalchemy.orm import Mapped, deferred, mapped_column, relationship
 from sqlalchemy.types import JSON, Uuid
 
@@ -43,6 +43,8 @@ class ContractReview(Base):
         DateTime(timezone=True), nullable=True
     )
 
+    agreement_type: Mapped[str | None] = mapped_column(nullable=True)
+
     contract: Mapped["Contract"] = relationship(back_populates="reviews")
     clauses: Mapped[list["ReviewClause"]] = relationship(back_populates="review")
 
@@ -54,9 +56,22 @@ class ReviewClause(Base):
     review_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("contract_reviews.id"))
     section_number: Mapped[str] = mapped_column()
     clause_type: Mapped[str] = mapped_column()
-    purpose: Mapped[str] = mapped_column(Text)
-    fairness: Mapped[str] = mapped_column()
-    market_standard: Mapped[str] = mapped_column(Text)
-    explanation: Mapped[str] = mapped_column(Text)
+    purpose: Mapped[str | None] = mapped_column(Text, nullable=True)
+    fairness: Mapped[str | None] = mapped_column(nullable=True)
+    market_standard: Mapped[str | None] = mapped_column(Text, nullable=True)
+    explanation: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # Agentic pipeline columns
+    status: Mapped[str] = mapped_column(default="pending")
+    severity: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    playbook_status: Mapped[str | None] = mapped_column(nullable=True)
+    playbook_position: Mapped[str | None] = mapped_column(Text, nullable=True)
+    contract_language: Mapped[str | None] = mapped_column(Text, nullable=True)
+    finding: Mapped[str | None] = mapped_column(Text, nullable=True)
+    recommended_redline: Mapped[str | None] = mapped_column(Text, nullable=True)
+    relevant_checks: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    cross_references: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    is_cycle: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_synthetic: Mapped[bool] = mapped_column(Boolean, default=False)
 
     review: Mapped["ContractReview"] = relationship(back_populates="clauses")

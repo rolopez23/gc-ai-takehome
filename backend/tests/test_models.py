@@ -230,3 +230,117 @@ async def test_clause_relationship(db):
     result = await db.execute(stmt)
     loaded = result.scalar_one()
     assert len(loaded.clauses) == 2
+
+
+# --- Agentic pipeline column tests ---
+
+
+async def test_review_agreement_type(db):
+    c = Contract(name="f.pdf", upload_type="pdf", original_blob=b"x")
+    db.add(c)
+    await db.commit()
+
+    r = ContractReview(contract_id=c.id, agreement_type="NDA")
+    db.add(r)
+    await db.commit()
+
+    row = await db.get(ContractReview, r.id)
+    assert row.agreement_type == "NDA"
+
+
+async def test_review_agreement_type_default_null(db):
+    c = Contract(name="f.pdf", upload_type="pdf", original_blob=b"x")
+    db.add(c)
+    await db.commit()
+
+    r = ContractReview(contract_id=c.id)
+    db.add(r)
+    await db.commit()
+
+    row = await db.get(ContractReview, r.id)
+    assert row.agreement_type is None
+
+
+async def test_clause_agentic_fields(db):
+    """New agentic pipeline columns on ReviewClause round-trip correctly."""
+    c = Contract(name="f.pdf", upload_type="pdf", original_blob=b"x")
+    db.add(c)
+    await db.commit()
+
+    r = ContractReview(contract_id=c.id, status="completed")
+    db.add(r)
+    await db.commit()
+
+    clause = ReviewClause(
+        review_id=r.id,
+        section_number="4.1",
+        clause_type="indemnification",
+        status="evaluated",
+        severity=3,
+        playbook_status="flagged",
+        playbook_position="Section 4, paragraph 2",
+        contract_language="Vendor shall indemnify...",
+        finding="One-sided indemnification",
+        recommended_redline="Add mutual indemnification language",
+        relevant_checks=["check_indemnification", "check_liability"],
+        cross_references=["section_3.1", "section_5.2"],
+        is_cycle=True,
+        is_synthetic=False,
+        # evaluation fields filled in
+        purpose="Limits vendor liability",
+        fairness="non-standard",
+        market_standard="Mutual indemnification is standard",
+        explanation="Only vendor bears indemnification",
+    )
+    db.add(clause)
+    await db.commit()
+
+    row = await db.get(ReviewClause, clause.id)
+    assert row.status == "evaluated"
+    assert row.severity == 3
+    assert row.playbook_status == "flagged"
+    assert row.playbook_position == "Section 4, paragraph 2"
+    assert row.contract_language == "Vendor shall indemnify..."
+    assert row.finding == "One-sided indemnification"
+    assert row.recommended_redline == "Add mutual indemnification language"
+    assert row.relevant_checks == ["check_indemnification", "check_liability"]
+    assert row.cross_references == ["section_3.1", "section_5.2"]
+    assert row.is_cycle is True
+    assert row.is_synthetic is False
+
+
+async def test_clause_agentic_fields_default_null(db):
+    """New agentic fields default to null/false when not provided."""
+    c = Contract(name="f.pdf", upload_type="pdf", original_blob=b"x")
+    db.add(c)
+    await db.commit()
+
+    r = ContractReview(contract_id=c.id, status="completed")
+    db.add(r)
+    await db.commit()
+
+    clause = ReviewClause(
+        review_id=r.id,
+        section_number="1.0",
+        clause_type="termination",
+    )
+    db.add(clause)
+    await db.commit()
+
+    row = await db.get(ReviewClause, clause.id)
+    assert row.status == "pending"
+    assert row.severity is None
+    assert row.playbook_status is None
+    assert row.playbook_position is None
+    assert row.contract_language is None
+    assert row.finding is None
+    assert row.recommended_redline is None
+    assert row.relevant_checks is None
+    assert row.cross_references is None
+    assert row.is_cycle is False
+    assert row.is_synthetic is False
+    # evaluation fields should be null when clause inserted at split time
+    assert row.purpose is None
+    assert row.fairness is None
+    assert row.market_standard is None
+    assert row.explanation is None
