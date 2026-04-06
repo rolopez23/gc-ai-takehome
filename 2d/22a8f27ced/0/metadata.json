@@ -1,0 +1,37 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "2d22a8f27ced",
+  "session_id": "d618d650-fa7f-4b62-801a-445579a2015b",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-06T08:08:05.016878Z",
+  "branch": "feat/agentic-eval-pipeline",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "backend/services/agents/base.py",
+    "backend/services/agents/verifier.py"
+  ],
+  "agent": "Claude Code",
+  "turn_id": "472ad8977228",
+  "token_usage": {
+    "input_tokens": 3236,
+    "cache_creation_tokens": 806960,
+    "cache_read_tokens": 64685220,
+    "output_tokens": 138319,
+    "api_call_count": 342
+  },
+  "session_metrics": {
+    "turn_count": 41
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-06T08:08:03.740647Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 55,
+    "human_modified": 2,
+    "human_removed": 0,
+    "total_committed": 55,
+    "total_lines_changed": 65,
+    "agent_percentage": 0,
+    "metric_version": 2
+  }
+}
