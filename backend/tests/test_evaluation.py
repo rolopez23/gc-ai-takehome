@@ -323,3 +323,74 @@ async def test_contract_review_has_failure_code(db):
     await db.commit()
     await db.refresh(review)
     assert review.failure_code == "timeout"
+
+
+@pytest.mark.asyncio
+async def test_run_eval_timeout_sets_failure_code(db):
+    contract, review = await _create_contract_and_review(db)
+
+    with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
+        mock_instance = MockClient.return_value
+        mock_instance.messages.create = AsyncMock(side_effect=anthropic.APITimeoutError(
+            request=httpx.Request("POST", "https://api.anthropic.com"),
+        ))
+        await run_evaluation(review.id, contract, db)
+
+    await db.refresh(review)
+    assert review.failure_code == "timeout"
+
+
+@pytest.mark.asyncio
+async def test_run_eval_api_error_sets_failure_code(db):
+    contract, review = await _create_contract_and_review(db)
+
+    with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
+        mock_instance = MockClient.return_value
+        mock_instance.messages.create = AsyncMock(side_effect=anthropic.APIError(
+            message="test error",
+            request=httpx.Request("POST", "https://api.anthropic.com"),
+            body=None,
+        ))
+        await run_evaluation(review.id, contract, db)
+
+    await db.refresh(review)
+    assert review.failure_code == "anthropic_error"
+
+
+@pytest.mark.asyncio
+async def test_run_eval_max_tokens_sets_failure_code(db):
+    contract, review = await _create_contract_and_review(db)
+
+    with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
+        mock_instance = MockClient.return_value
+        mock_instance.messages.create = AsyncMock(return_value=_mock_max_tokens_response())
+        await run_evaluation(review.id, contract, db)
+
+    await db.refresh(review)
+    assert review.failure_code == "too_large"
+
+
+@pytest.mark.asyncio
+async def test_run_eval_parse_failure_sets_failure_code(db):
+    contract, review = await _create_contract_and_review(db)
+
+    with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
+        mock_instance = MockClient.return_value
+        mock_instance.messages.create = AsyncMock(return_value=_mock_garbage_response())
+        await run_evaluation(review.id, contract, db)
+
+    await db.refresh(review)
+    assert review.failure_code == "parse_error"
+
+
+@pytest.mark.asyncio
+async def test_run_eval_unexpected_error_sets_failure_code(db):
+    contract, review = await _create_contract_and_review(db)
+
+    with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
+        mock_instance = MockClient.return_value
+        mock_instance.messages.create = AsyncMock(side_effect=RuntimeError("boom"))
+        await run_evaluation(review.id, contract, db)
+
+    await db.refresh(review)
+    assert review.failure_code == "unknown"

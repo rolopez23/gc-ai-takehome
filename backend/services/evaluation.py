@@ -84,9 +84,10 @@ def parse_response(raw_text: str) -> tuple[str, dict]:
         return ("parse_error", {"message": str(e)})
 
 
-async def _fail_review(review: ContractReview, message: str, db: AsyncSession):
+async def _fail_review(review: ContractReview, message: str, db: AsyncSession, *, failure_code: str):
     review.status = "failed"
     review.failure_message = message
+    review.failure_code = failure_code
     review.completed_at = datetime.now(UTC)
     await db.commit()
 
@@ -110,16 +111,16 @@ async def run_evaluation(review_id, contract: Contract, db: AsyncSession):
         message = await client.messages.create(**params, timeout=EVAL_TIMEOUT)
 
         if message.stop_reason == "max_tokens":
-            await _fail_review(review, "Contract too large to evaluate", db)
+            await _fail_review(review, "Contract too large to evaluate", db, failure_code="too_large")
             return
 
         if not message.content:
-            await _fail_review(review, "Empty response from Claude", db)
+            await _fail_review(review, "Empty response from Claude", db, failure_code="anthropic_error")
             return
 
         content = message.content[0]
         if content.type != "text":
-            await _fail_review(review, "Unexpected response type from Claude", db)
+            await _fail_review(review, "Unexpected response type from Claude", db, failure_code="anthropic_error")
             return
 
         kind, data = parse_response(content.text)
@@ -151,14 +152,14 @@ async def run_evaluation(review_id, contract: Contract, db: AsyncSession):
             await db.commit()
             return
 
-        await _fail_review(review, f"Invalid response from Claude: {data['message']}", db)
+        await _fail_review(review, f"Invalid response from Claude: {data['message']}", db, failure_code="parse_error")
 
     except anthropic.APITimeoutError:
-        await _fail_review(review, "Evaluation timed out (90s)", db)
+        await _fail_review(review, "Evaluation timed out (90s)", db, failure_code="timeout")
     except anthropic.APIError as e:
-        await _fail_review(review, f"Anthropic API error: {e}", db)
+        await _fail_review(review, f"Anthropic API error: {e}", db, failure_code="anthropic_error")
     except Exception as e:
-        await _fail_review(review, f"Evaluation failed: {e}", db)
+        await _fail_review(review, f"Evaluation failed: {e}", db, failure_code="unknown")
 
 
 async def evaluate_contract_task(review_id: uuid.UUID, contract_id: uuid.UUID):
@@ -181,4 +182,4 @@ async def evaluate_contract_task(review_id: uuid.UUID, contract_id: uuid.UUID):
         except Exception as e:
             review = await db.get(ContractReview, review_id)
             if review and review.status != "failed":
-                await _fail_review(review, f"Pipeline error: {e}", db)
+                await _fail_review(review, f"Pipeline error: {e}", db, failure_code="unknown")
