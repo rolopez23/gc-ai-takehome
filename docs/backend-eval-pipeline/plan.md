@@ -79,6 +79,7 @@ Batch 3 (parallel):   12-upload-page + 13-results-page
 | 11 | [frontend-types-cleanup](steps/frontend-types-cleanup.md)            | 12, 13               | seq   |     ✅     |   ✅   |    ✅    |   ✅   |  ✅   |
 | 12 | [upload-page](steps/upload-page.md)                                  | —                    | B3    |     ✅     |   ✅   |    ✅    |   ✅   |  ✅   |
 | 13 | [results-page](steps/results-page.md)                                | —                    | B3    |     ✅     |   ✅   |    ✅    |   ✅   |  ✅   |
+| 14 | playbook-parser                                                      | —                    | seq   |     ✅     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
 
 **Legend:** ⬜ pending · ✅ passed · ❌ failed · ⚠️ incomplete · ➖ N/A
 

@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
 from database import engine
+from services.playbook import validate_playbook
 
 load_dotenv()
 
@@ -27,6 +28,7 @@ def _check_api_key():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     _check_api_key()
+    validate_playbook()
     async with engine.begin() as conn:
         await conn.execute(text("SELECT 1"))
     yield
