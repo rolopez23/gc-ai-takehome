@@ -15,6 +15,7 @@ import ClauseSection from '@/app/contract/[id]/ClauseSection';
 const PAGE_CONTAINER = 'mx-auto max-w-2xl px-6 pt-12';
 const PAGE_TITLE = 'text-2xl font-bold tracking-tight';
 const BACK_LINK = 'mt-6 inline-block text-sm text-muted underline hover:text-foreground';
+const ERROR_ALERT = 'flex gap-3 rounded-lg border border-egregious-border bg-egregious-bg p-4 text-sm text-egregious-fg';
 
 function LoadingState({ statusText }: { statusText: string }) {
   return (
@@ -100,7 +101,7 @@ function EvaluationFailed({ message }: { message: string }) {
   return (
     <div className={PAGE_CONTAINER}>
       <h1 className={PAGE_TITLE}>Evaluation failed</h1>
-      <div className="mt-4 flex gap-3 rounded-lg border border-egregious-border bg-egregious-bg p-4 text-sm text-egregious-fg" role="alert">
+      <div className={`mt-4 ${ERROR_ALERT}`} role="alert">
         <span>⚠</span>
         <p>{message}</p>
       </div>

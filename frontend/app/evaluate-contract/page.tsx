@@ -8,6 +8,8 @@ import { BACKEND_URL, POLL_INTERVAL, POLL_TIMEOUT, STATUS_TEXT } from '@/app/eva
 import { UploadResponseSchema, ReviewResponseSchema } from '@/app/evaluate-contract/types';
 import { getFailureMessage } from '@/app/evaluate-contract/failure-messages';
 
+const ERROR_ALERT = 'flex gap-3 rounded-lg border border-egregious-border bg-egregious-bg p-4 text-sm text-egregious-fg';
+
 async function uploadContract(file: File, instructions: string, signal: AbortSignal) {
   const form = new FormData();
   form.append('file', file);
@@ -110,7 +112,7 @@ export default function EvaluateContractPage() {
       </button>
 
       {error && !isLoading && (
-        <div className="flex gap-3 rounded-lg border border-egregious-border bg-egregious-bg p-4 text-sm text-egregious-fg" role="alert">
+        <div className={ERROR_ALERT} role="alert">
           <span>⚠</span>
           <p>{error}</p>
         </div>
