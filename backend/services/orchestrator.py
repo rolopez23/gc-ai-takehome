@@ -41,6 +41,9 @@ class PipelineOrchestrator:
         """Update review status and optional fields."""
         async with AsyncSessionLocal() as db:
             review = await db.get(ContractReview, self.review_id)
+            if review is None:
+                logger.error("Review %s not found during status update", self.review_id)
+                return
             review.status = status
             for key, value in kwargs.items():
                 setattr(review, key, value)
@@ -54,7 +57,9 @@ class PipelineOrchestrator:
                 .where(Contract.id == self.contract_id)
                 .options(undefer(Contract.pdf_blob))
             )
-            contract = result.scalar_one()
+            contract = result.scalar_one_or_none()
+            if contract is None:
+                raise RuntimeError(f"Contract {self.contract_id} not found")
             return contract.pdf_blob, contract.text
 
     async def run(self) -> AsyncGenerator[str, None]:
@@ -102,6 +107,12 @@ class PipelineOrchestrator:
             # Build section_number -> text map for cross-reference resolution
             section_text_map: dict[str, str] = {}
             for clause in split_result.clauses:
+                if clause.section_number in section_text_map:
+                    logger.warning(
+                        "Duplicate section_number '%s' in splitter output — "
+                        "cross-reference resolution will use the last occurrence",
+                        clause.section_number,
+                    )
                 section_text_map[clause.section_number] = clause.text
 
             # Persist all clauses (real + synthetic) to DB
@@ -208,11 +219,17 @@ class PipelineOrchestrator:
 
             # Run evaluators and stream results as they complete
             failed_count = 0
+            evaluated_count = 0
+            real_count = len(real_clause_data)
             all_clause_results: list[dict] = []
             row_id_to_clause = {cr.id: cd for cr, cd in real_clause_data}
 
             for coro in asyncio.as_completed(tasks):
                 status, row_id, result_or_error = await coro
+                evaluated_count += 1
+                yield self.emitter.token(
+                    "status", f"Evaluated clause {evaluated_count} of {real_count}..."
+                )
                 if status == "ok":
                     result_dict = asdict(result_or_error)
                     result_dict["status"] = "evaluated"
