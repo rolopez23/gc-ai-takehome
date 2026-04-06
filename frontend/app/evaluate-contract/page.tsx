@@ -6,6 +6,7 @@ import { FileDropZone } from '@/app/evaluate-contract/FileDropZone';
 import { LoadingShimmer } from '@/app/evaluate-contract/LoadingShimmer';
 import { BACKEND_URL, POLL_INTERVAL, POLL_TIMEOUT, STATUS_TEXT } from '@/app/evaluate-contract/constants';
 import { UploadResponseSchema, ReviewResponseSchema } from '@/app/evaluate-contract/types';
+import { getFailureMessage } from '@/app/evaluate-contract/failure-messages';
 
 async function uploadContract(file: File, instructions: string, signal: AbortSignal) {
   const form = new FormData();
@@ -69,7 +70,7 @@ export default function EvaluateContractPage() {
       if (result.status === 'completed') {
         router.push(`/contract/${contract_id}`);
       } else {
-        setError(result.failure_message);
+        setError(getFailureMessage(result.failure_code));
         setIsLoading(false);
       }
     } catch (e) {
@@ -80,8 +81,8 @@ export default function EvaluateContractPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 px-4 py-12" aria-busy={isLoading}>
-      <h1 className="text-3xl font-bold tracking-tight">Evaluate Contract</h1>
+    <div className="mx-auto max-w-2xl space-y-6 px-6 pt-12" aria-busy={isLoading}>
+      <h1 className="text-2xl font-bold tracking-tight">Evaluate Contract</h1>
 
       {isLoading ? (
         <LoadingShimmer statusText={statusText} />
@@ -103,13 +104,16 @@ export default function EvaluateContractPage() {
         type="button"
         disabled={!file || isLoading}
         onClick={handleSubmit}
-        className="rounded-lg bg-foreground px-6 py-3 text-sm font-medium text-background disabled:opacity-40"
+        className="w-full sm:w-auto rounded-lg bg-foreground px-6 py-3 text-sm font-medium text-background disabled:opacity-40"
       >
         Evaluate Contract
       </button>
 
       {error && !isLoading && (
-        <p className="text-sm text-red-500" role="alert">{error}</p>
+        <div className="flex gap-3 rounded-lg border border-egregious-border bg-egregious-bg p-4 text-sm text-egregious-fg" role="alert">
+          <span>⚠</span>
+          <p>{error}</p>
+        </div>
       )}
     </div>
   );

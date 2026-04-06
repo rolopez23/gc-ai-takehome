@@ -78,7 +78,7 @@ export function FileDropZone({ file, onFileChange }: FileDropZoneProps) {
 
   if (file) {
     return (
-      <div className="flex items-center justify-between rounded-lg border border-foreground/20 p-4">
+      <div className="flex items-center justify-between rounded-lg border border-border p-4">
         <div>
           <p className="font-medium">{file.name}</p>
           <p className="text-sm text-foreground/60">
@@ -88,7 +88,7 @@ export function FileDropZone({ file, onFileChange }: FileDropZoneProps) {
         <button
           type="button"
           onClick={handleRemove}
-          className="rounded-md px-3 py-1 text-sm text-foreground/60 hover:bg-foreground/10"
+          className="rounded-md px-3 py-1 text-sm text-foreground/60 hover:bg-foreground/[0.05]"
         >
           Remove
         </button>
@@ -103,7 +103,7 @@ export function FileDropZone({ file, onFileChange }: FileDropZoneProps) {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       className={`flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-12 text-center ${
-        isDragging ? 'border-blue-400 bg-blue-50/10' : 'border-foreground/20'
+        isDragging ? 'border-foreground/40 bg-foreground/[0.03]' : 'border-border'
       }`}
     >
       <p className="text-foreground/60">Drag and drop your contract here</p>

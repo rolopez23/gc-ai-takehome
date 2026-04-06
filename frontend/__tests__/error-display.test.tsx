@@ -50,7 +50,7 @@ describe('Error display', () => {
     });
   });
 
-  test('shows error when evaluation fails', async () => {
+  test('shows friendly error when evaluation fails with known failure_code', async () => {
     const uploadResponse = { contract_id: '452be08b-a29d-402f-8f44-6b1a0f976efa', review_id: 'a9198839-1da3-4fb3-ac30-c462cc81ee4e', status: 'pending' };
     const failedReview = { id: 'a9198839-1da3-4fb3-ac30-c462cc81ee4e', status: 'failed', failure_message: 'API timeout', failure_code: 'timeout' };
 
@@ -64,7 +64,25 @@ describe('Error display', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText(/API timeout/i)).toBeInTheDocument();
+      expect(screen.getByText(/timed out/i)).toBeInTheDocument();
+    });
+  });
+
+  test('shows generic error when evaluation fails with null failure_code', async () => {
+    const uploadResponse = { contract_id: '452be08b-a29d-402f-8f44-6b1a0f976efa', review_id: 'a9198839-1da3-4fb3-ac30-c462cc81ee4e', status: 'pending' };
+    const failedReview = { id: 'a9198839-1da3-4fb3-ac30-c462cc81ee4e', status: 'failed', failure_message: null, failure_code: null };
+
+    let callCount = 0;
+    await stageFileAndSubmit(() => {
+      callCount++;
+      if (callCount === 1) {
+        return Promise.resolve(new Response(JSON.stringify(uploadResponse), { status: 201 }));
+      }
+      return Promise.resolve(new Response(JSON.stringify(failedReview), { status: 200 }));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
     });
   });
 

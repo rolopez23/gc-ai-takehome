@@ -127,7 +127,7 @@ describe('EvaluateContractPage', () => {
     await selectFileAndSubmit();
 
     await waitFor(() => {
-      expect(screen.getByRole('alert')).toHaveTextContent('LLM unavailable');
+      expect(screen.getByRole('alert')).toHaveTextContent('Something went wrong');
     });
   });
 
