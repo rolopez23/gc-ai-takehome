@@ -463,3 +463,7 @@ lets try up to 3 times.  Do 3 evaluators.   I think lets have the evaluate smart
 ---
 
 Go for it remember if you do worktrees we verify / simplify / review after!
+
+---
+
+Some clean up I want us to make sure the backend is sending compelte / failure on every stream as the last message.  I want to make sure the frontend can process too.  Also make sure the frontend no longer launches the polling
