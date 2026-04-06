@@ -1,5 +1,5 @@
-import { z } from 'zod';
-import { FairnessRatingSchema } from '@/app/evaluate-contract/types';
+import { z } from "zod";
+import { FairnessRatingSchema } from "@/app/evaluate-contract/types";
 
 export const ContractListItemSchema = z.object({
   id: z.string().uuid(),

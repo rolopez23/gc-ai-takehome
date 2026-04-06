@@ -1,6 +1,10 @@
-import { z } from 'zod';
+import { z } from "zod";
 
-export const FairnessRatingSchema = z.enum(['fair', 'non-standard', 'dealbreaker']);
+export const FairnessRatingSchema = z.enum([
+  "fair",
+  "non-standard",
+  "dealbreaker",
+]);
 
 export const ReviewClauseSchema = z.object({
   id: z.string().uuid(),
@@ -15,19 +19,19 @@ export const ReviewClauseSchema = z.object({
 export const UploadResponseSchema = z.object({
   contract_id: z.string().uuid(),
   review_id: z.string().uuid(),
-  status: z.literal('pending'),
+  status: z.literal("pending"),
 });
 
 export const ReviewPollingSchema = z.object({
   id: z.string().uuid(),
   contract_id: z.string().uuid(),
-  status: z.enum(['pending', 'reading', 'evaluating']),
+  status: z.enum(["pending", "reading", "evaluating"]),
 });
 
 export const ReviewCompletedSchema = z.object({
   id: z.string().uuid(),
   contract_id: z.string().uuid(),
-  status: z.literal('completed'),
+  status: z.literal("completed"),
   overall_fairness: FairnessRatingSchema.nullable(),
   summary: z.string().nullable(),
   call_to_action: z.array(z.string()).nullable(),
@@ -37,12 +41,12 @@ export const ReviewCompletedSchema = z.object({
 
 export const ReviewFailedSchema = z.object({
   id: z.string().uuid(),
-  status: z.literal('failed'),
+  status: z.literal("failed"),
   failure_message: z.string().nullable(),
   failure_code: z.string().nullable(),
 });
 
-export const ReviewResponseSchema = z.discriminatedUnion('status', [
+export const ReviewResponseSchema = z.discriminatedUnion("status", [
   ReviewPollingSchema,
   ReviewCompletedSchema,
   ReviewFailedSchema,

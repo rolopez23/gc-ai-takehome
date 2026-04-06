@@ -335,3 +335,91 @@
 **What happened**: PR walkthrough covered 18 file groups across full milestone. Too large for deep comprehension — skill works better at step-level granularity.
 **Where it surfaced**: Human review
 **Pattern tag**: `walkthrough-scope-too-large`
+
+### 2026-04-05 · home-and-polish/all-steps (post-human)
+
+**Category**: Human correction
+**Error class**: Context
+**What happened**: Deferred Verify/Simplify/Review to the end instead of running per-step. User corrected: "You should never defer those. You should only defer Understand/Human." This is the 5th occurrence of workflow-steps-skipped.
+**Where it surfaced**: Human review
+**Pattern tag**: `workflow-steps-skipped`
+
+### 2026-04-05 · home-and-polish/all-steps (post-human)
+
+**Category**: Human correction
+**Error class**: Context
+**What happened**: Ran simplify/review as summary lists instead of invoking actual sub-skills with parallel agents. User: "It seems like you are not running the sub-skills just doing a list. Slow down. Trust the workflow."
+**Where it surfaced**: Human review
+**Pattern tag**: `skills-shortcutted-as-lists`
+
+### 2026-04-05 · home-and-polish/all-steps (post-human)
+
+**Category**: Human correction
+**Error class**: Context
+**What happened**: Implementation agents were split from VSR — agents implemented code, then VSR was supposed to happen separately. User corrected: "agents run through the complete tree in the future, rather than the cherry pick." Background/worktree agents must run full workflow (implement + tests + verify + simplify + review).
+**Where it surfaced**: Human review
+**Pattern tag**: `agents-skip-workflow`
+
+### 2026-04-05 · home-and-polish/all-steps (post-human)
+
+**Category**: Human correction
+**Error class**: Context
+**What happened**: Plan dashboard not updated after completing steps. User had to ask "what I am not seeing updates to the plan for all these completed steps." This is the 3rd occurrence of plan-not-updated.
+**Where it surfaced**: Human review
+**Pattern tag**: `plan-not-updated`
+
+### 2026-04-05 · home-and-polish/polish-loading-shimmer (post-human)
+
+**Category**: Missed edge case
+**Error class**: Skill
+**What happened**: CSS animationDelay on card wrapper div but animate-pulse on inner ShimmerBar child component. CSS animationDelay only affects animations on the element it's set on, not children. Neither review nor simplify caught this — only surfaced during verification.
+**Where it surfaced**: Verify step
+**Pattern tag**: `css-animation-misplacement`
+
+### 2026-04-05 · home-and-polish/all-steps (post-human)
+
+**Category**: Human correction
+**Error class**: Context
+**What happened**: CORS/portless mismatch caused frontend to fail silently. Agent didn't flag the friction proactively — user had to say "fix the porting issue." Should have recognized portless + CORS regex incompatibility early and suggested dropping portless.
+**Where it surfaced**: Human review
+**Pattern tag**: `env-config-mismatch`
+
+### 2026-04-05 · home-and-polish/all-steps (post-human)
+
+**Category**: Human correction
+**Error class**: Specification
+**What happened**: Token limit errors ("contract too large") were caused by overly verbose prompt output, not actually large contracts. User had to identify root cause and drive prompt tightening. No automated step considered prompt token efficiency.
+**Where it surfaced**: Human review
+**Pattern tag**: `prompt-output-not-optimized`
+
+### 2026-04-05 · home-and-polish/walkthrough (post-human)
+
+**Category**: Human correction
+**Error class**: Context
+**What happened**: User drove multiple CSS cleanups during walkthrough — class name extraction, spacing fixes, label renames. These should have been caught by simplify, not discovered during understand.
+**Where it surfaced**: PR walkthrough (human review)
+**Pattern tag**: `simplify-missed-frontend-cleanup`
+
+### 2026-04-05 · home-and-polish/all-steps (post-human)
+
+**Category**: Human correction
+**Error class**: Context
+**What happened**: App was broken (non-working) at points during implementation and commits were made in that state. User rule: "An unworking environment at the end of any step is a code red. You need to fix or stop and report. You should never commit if the app is not working e2e."
+**Where it surfaced**: Human review
+**Pattern tag**: `broken-app-committed`
+
+### 2026-04-05 · home-and-polish/all-steps (self-reflection)
+
+**Category**: Bad assumption
+**Error class**: Context
+**What happened**: Wasted turns debugging portless when dropping it entirely was simpler. Should have recognized the cost/benefit and suggested the simpler path earlier.
+**Where it surfaced**: Self-review
+**Pattern tag**: `overcomplicating-env-setup`
+
+### 2026-04-05 · home-and-polish/all-steps (self-reflection)
+
+**Category**: Skill gap
+**Error class**: Context
+**What happened**: User only trusts verification as proof of correctness — review/simplify passing is not evidence the code works. Agent treated review/simplify passing as sufficient confidence signal. Verification is the only real gate.
+**Where it surfaced**: Human review
+**Pattern tag**: `verification-is-proof`

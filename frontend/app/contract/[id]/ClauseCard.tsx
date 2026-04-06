@@ -1,18 +1,27 @@
-import type { FairnessRating, ReviewClause } from '@/app/evaluate-contract/types';
+import type {
+  FairnessRating,
+  ReviewClause,
+} from "@/app/evaluate-contract/types";
 
 const FAIRNESS_BORDER: Record<FairnessRating, string> = {
-  fair: 'border-fair-border',
-  'non-standard': 'border-unfair-border',
-  dealbreaker: 'border-egregious-border',
+  fair: "border-fair-border",
+  "non-standard": "border-unfair-border",
+  dealbreaker: "border-egregious-border",
 };
 
-const CARD = 'rounded-lg border border-foreground/10 p-4';
-const SECTION_HEADER = 'flex items-baseline gap-2';
-const SECTION_NUMBER = 'text-sm font-medium text-foreground/50';
-const CLAUSE_TYPE = 'font-semibold';
-const EXPLANATION = 'mt-2 text-sm text-foreground/70';
+const CARD = "rounded-lg border border-foreground/10 p-4";
+const SECTION_HEADER = "flex items-baseline gap-2";
+const SECTION_NUMBER = "text-sm font-medium text-foreground/50";
+const CLAUSE_TYPE = "font-semibold";
+const EXPLANATION = "mt-2 text-sm text-foreground/70";
 
-export default function ClauseCard({ clause, fairness }: { clause: ReviewClause; fairness: FairnessRating }) {
+export default function ClauseCard({
+  clause,
+  fairness,
+}: {
+  clause: ReviewClause;
+  fairness: FairnessRating;
+}) {
   return (
     <div className={`${CARD} border-l-2 ${FAIRNESS_BORDER[fairness]}`}>
       <h4 className={SECTION_HEADER}>

@@ -1,15 +1,18 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { BACKEND_URL, STATUS_TEXT } from '@/app/evaluate-contract/constants';
-import { ContractListItemSchema, type ContractListItem } from '@/app/contract-list-types';
-import { z } from 'zod';
-import ScoreBadge from '@/app/contract/[id]/ScoreBadge';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { BACKEND_URL, STATUS_TEXT } from "@/app/evaluate-contract/constants";
+import {
+  ContractListItemSchema,
+  type ContractListItem,
+} from "@/app/contract-list-types";
+import { z } from "zod";
+import ScoreBadge from "@/app/contract/[id]/ScoreBadge";
 
 function timeAgo(dateStr: string) {
   const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-  if (seconds < 60) return 'just now';
+  if (seconds < 60) return "just now";
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes}m ago`;
   const hours = Math.floor(minutes / 60);
@@ -39,7 +42,9 @@ export default function Home() {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
         <span className="text-2xl text-muted">◆</span>
-        <h1 className="mt-4 text-2xl font-bold">Evaluate your first contract</h1>
+        <h1 className="mt-4 text-2xl font-bold">
+          Evaluate your first contract
+        </h1>
         <p className="mt-2 max-w-sm text-sm text-muted">
           Upload a contract to get an AI-powered fairness analysis.
         </p>
@@ -74,7 +79,9 @@ export default function Home() {
             <div className="truncate font-medium">{contract.name}</div>
             <div className="mt-1 flex items-center gap-2 text-sm">
               <StatusDisplay contract={contract} />
-              <span className="ml-auto text-xs text-muted">{timeAgo(contract.created_at)}</span>
+              <span className="ml-auto text-xs text-muted">
+                {timeAgo(contract.created_at)}
+              </span>
             </div>
           </Link>
         ))}
@@ -88,15 +95,14 @@ function StatusDisplay({ contract }: { contract: ContractListItem }) {
     return <span className="text-egregious-fg">Failed</span>;
   }
 
-  if (
-    contract.review_status === 'completed' &&
-    contract.overall_fairness
-  ) {
+  if (contract.review_status === "completed" && contract.overall_fairness) {
     return <ScoreBadge rating={contract.overall_fairness} />;
   }
 
   if (contract.review_status && contract.review_status in STATUS_TEXT) {
-    return <span className="text-muted">{STATUS_TEXT[contract.review_status]}</span>;
+    return (
+      <span className="text-muted">{STATUS_TEXT[contract.review_status]}</span>
+    );
   }
 
   return null;

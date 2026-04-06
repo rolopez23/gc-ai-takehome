@@ -1,21 +1,33 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import Link from 'next/link';
-import type { ReviewResponse, ReviewCompleted, ReviewClause, FairnessRating } from '@/app/evaluate-contract/types';
-import { ReviewResponseSchema } from '@/app/evaluate-contract/types';
-import { FAIRNESS_SECTION_ORDER } from '@/app/evaluate-contract/fairness-utils';
-import { LoadingShimmer } from '@/app/evaluate-contract/LoadingShimmer';
-import { BACKEND_URL, POLL_INTERVAL, POLL_TIMEOUT, STATUS_TEXT } from '@/app/evaluate-contract/constants';
-import { getFailureMessage } from '@/app/evaluate-contract/failure-messages';
-import ScoreBadge from '@/app/contract/[id]/ScoreBadge';
-import ClauseSection from '@/app/contract/[id]/ClauseSection';
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import type {
+  ReviewResponse,
+  ReviewCompleted,
+  ReviewClause,
+  FairnessRating,
+} from "@/app/evaluate-contract/types";
+import { ReviewResponseSchema } from "@/app/evaluate-contract/types";
+import { FAIRNESS_SECTION_ORDER } from "@/app/evaluate-contract/fairness-utils";
+import { LoadingShimmer } from "@/app/evaluate-contract/LoadingShimmer";
+import {
+  BACKEND_URL,
+  POLL_INTERVAL,
+  POLL_TIMEOUT,
+  STATUS_TEXT,
+} from "@/app/evaluate-contract/constants";
+import { getFailureMessage } from "@/app/evaluate-contract/failure-messages";
+import ScoreBadge from "@/app/contract/[id]/ScoreBadge";
+import ClauseSection from "@/app/contract/[id]/ClauseSection";
 
-const PAGE_CONTAINER = 'mx-auto max-w-2xl px-6 pt-12';
-const PAGE_TITLE = 'text-2xl font-bold tracking-tight';
-const BACK_LINK = 'mt-6 inline-block text-sm text-muted underline hover:text-foreground';
-const ERROR_ALERT = 'flex gap-3 rounded-lg border border-egregious-border bg-egregious-bg p-4 text-sm text-egregious-fg';
+const PAGE_CONTAINER = "mx-auto max-w-2xl px-6 pt-12";
+const PAGE_TITLE = "text-2xl font-bold tracking-tight";
+const BACK_LINK =
+  "mt-6 inline-block text-sm text-muted underline hover:text-foreground";
+const ERROR_ALERT =
+  "flex gap-3 rounded-lg border border-egregious-border bg-egregious-bg p-4 text-sm text-egregious-fg";
 
 function LoadingState({ statusText }: { statusText: string }) {
   return (
@@ -34,7 +46,7 @@ function groupByFairness(clauses: ReviewClause[]) {
       groups[clause.fairness].push(clause);
       return groups;
     },
-    { dealbreaker: [], 'non-standard': [], fair: [] },
+    { dealbreaker: [], "non-standard": [], fair: [] },
   );
 }
 
@@ -43,8 +55,13 @@ function NoEvaluation() {
     <div className="mx-auto max-w-2xl px-6 flex min-h-[60vh] flex-col items-center justify-center text-center">
       <span className="text-2xl text-muted">◆</span>
       <h1 className="text-2xl font-bold mt-4">No evaluation found</h1>
-      <p className="mt-2 text-sm text-muted max-w-sm">This evaluation may have expired or the link is invalid.</p>
-      <Link href="/evaluate-contract" className="mt-6 rounded-lg bg-foreground px-6 py-3 text-sm font-medium text-background">
+      <p className="mt-2 text-sm text-muted max-w-sm">
+        This evaluation may have expired or the link is invalid.
+      </p>
+      <Link
+        href="/evaluate-contract"
+        className="mt-6 rounded-lg bg-foreground px-6 py-3 text-sm font-medium text-background"
+      >
         Evaluate a contract
       </Link>
     </div>
@@ -69,12 +86,18 @@ function EvaluationResults({ result }: { result: ReviewCompleted }) {
       )}
       {result.call_to_action && (
         <ul className="mt-3 list-disc pl-5 text-sm text-muted">
-          {result.call_to_action.map((item, i) => <li key={i}>{item}</li>)}
+          {result.call_to_action.map((item, i) => (
+            <li key={i}>{item}</li>
+          ))}
         </ul>
       )}
       <div className="mt-6 space-y-3">
         {FAIRNESS_SECTION_ORDER.map((rating) => (
-          <ClauseSection key={rating} rating={rating} clauses={grouped[rating]} />
+          <ClauseSection
+            key={rating}
+            rating={rating}
+            clauses={grouped[rating]}
+          />
         ))}
       </div>
       <Link href="/evaluate-contract" className={BACK_LINK}>
@@ -89,8 +112,13 @@ function NotAContract({ summary }: { summary: string | null }) {
     <div className="mx-auto max-w-2xl px-6 flex min-h-[60vh] flex-col items-center justify-center text-center">
       <span className="text-2xl text-muted">◆</span>
       <h1 className="text-2xl font-bold mt-4">Not a contract</h1>
-      <p className="mt-2 text-sm text-muted max-w-sm">{summary || 'The uploaded document does not appear to be a contract.'}</p>
-      <Link href="/evaluate-contract" className="mt-6 rounded-lg bg-foreground px-6 py-3 text-sm font-medium text-background">
+      <p className="mt-2 text-sm text-muted max-w-sm">
+        {summary || "The uploaded document does not appear to be a contract."}
+      </p>
+      <Link
+        href="/evaluate-contract"
+        className="mt-6 rounded-lg bg-foreground px-6 py-3 text-sm font-medium text-background"
+      >
         Try another document
       </Link>
     </div>
@@ -105,7 +133,10 @@ function EvaluationFailed({ message }: { message: string }) {
         <span>⚠</span>
         <p>{message}</p>
       </div>
-      <Link href="/evaluate-contract" className="mt-6 inline-block rounded-lg bg-foreground px-6 py-3 text-sm font-medium text-background">
+      <Link
+        href="/evaluate-contract"
+        className="mt-6 inline-block rounded-lg bg-foreground px-6 py-3 text-sm font-medium text-background"
+      >
         Try again
       </Link>
     </div>
@@ -118,7 +149,7 @@ export default function ContractPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
-  const [statusText, setStatusText] = useState('Preparing evaluation...');
+  const [statusText, setStatusText] = useState("Preparing evaluation...");
 
   useEffect(() => {
     let cancelled = false;
@@ -136,24 +167,26 @@ export default function ContractPage() {
             setLoading(false);
             return;
           }
-          if (!res.ok) throw new Error('Failed to fetch review');
+          if (!res.ok) throw new Error("Failed to fetch review");
           const data = ReviewResponseSchema.parse(await res.json());
           setReview(data);
-          if (data.status === 'completed' || data.status === 'failed') {
+          if (data.status === "completed" || data.status === "failed") {
             setLoading(false);
             return;
           }
-          setStatusText(STATUS_TEXT[data.status] || 'Processing...');
+          setStatusText(STATUS_TEXT[data.status] || "Processing...");
           await new Promise((r) => setTimeout(r, POLL_INTERVAL));
         }
         if (!cancelled) {
-          setError('Evaluation timed out — please try again');
+          setError("Evaluation timed out — please try again");
           setLoading(false);
         }
       } catch (e) {
         if (!cancelled) {
-          if (e instanceof DOMException && e.name === 'AbortError') return;
-          setError('Connection error — please check your network and try again');
+          if (e instanceof DOMException && e.name === "AbortError") return;
+          setError(
+            "Connection error — please check your network and try again",
+          );
           setLoading(false);
         }
       }
@@ -170,8 +203,11 @@ export default function ContractPage() {
   if (notFound) return <NoEvaluation />;
   if (error) return <EvaluationFailed message={error} />;
   if (!review) return <NoEvaluation />;
-  if (review.status === 'failed') return <EvaluationFailed message={getFailureMessage(review.failure_code)} />;
-  if (review.status === 'completed') {
+  if (review.status === "failed")
+    return (
+      <EvaluationFailed message={getFailureMessage(review.failure_code)} />
+    );
+  if (review.status === "completed") {
     if (review.overall_fairness) return <EvaluationResults result={review} />;
     return <NotAContract summary={review.summary} />;
   }

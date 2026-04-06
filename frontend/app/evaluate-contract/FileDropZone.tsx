@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useRef, useState } from 'react';
+import { useRef, useState } from "react";
 import {
   ALLOWED_EXTENSIONS,
   validateFileExtension,
   validateFileSize,
-} from '@/app/evaluate-contract/validation';
+} from "@/app/evaluate-contract/validation";
 
 interface FileDropZoneProps {
   file: File | null;
@@ -29,13 +29,13 @@ export function FileDropZone({ file, onFileChange }: FileDropZoneProps) {
 
     if (!validateFileExtension(incoming.name)) {
       setError(
-        `File type not allowed. Accepted formats: ${ALLOWED_EXTENSIONS.join(', ')}`,
+        `File type not allowed. Accepted formats: ${ALLOWED_EXTENSIONS.join(", ")}`,
       );
       return;
     }
 
     if (!validateFileSize(incoming.size)) {
-      setError('File is too large. Maximum size is 10 MB.');
+      setError("File is too large. Maximum size is 10 MB.");
       return;
     }
 
@@ -49,7 +49,7 @@ export function FileDropZone({ file, onFileChange }: FileDropZoneProps) {
 
   function handleRemove() {
     onFileChange(null);
-    if (inputRef.current) inputRef.current.value = '';
+    if (inputRef.current) inputRef.current.value = "";
   }
 
   function handleDragEnter(e: React.DragEvent) {
@@ -103,7 +103,9 @@ export function FileDropZone({ file, onFileChange }: FileDropZoneProps) {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       className={`flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-12 text-center ${
-        isDragging ? 'border-foreground/40 bg-foreground/[0.03]' : 'border-border'
+        isDragging
+          ? "border-foreground/40 bg-foreground/[0.03]"
+          : "border-border"
       }`}
     >
       <p className="text-foreground/60">Drag and drop your contract here</p>
@@ -120,7 +122,7 @@ export function FileDropZone({ file, onFileChange }: FileDropZoneProps) {
         ref={inputRef}
         type="file"
         aria-label="Upload contract file"
-        accept={ALLOWED_EXTENSIONS.join(',')}
+        accept={ALLOWED_EXTENSIONS.join(",")}
         className="hidden"
         onChange={handleInputChange}
       />

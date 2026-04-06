@@ -133,8 +133,9 @@ pull their weight on which types of changes. A reviewer that is consistently "Re
 small diffs may not be worth running there; one that is consistently "Noisy" on UI changes
 is worth noting.
 
-## Update the Plan
+## Update the Plan (MANDATORY)
 
+**You MUST update plan.md immediately after this skill completes — not later, not batched.**
 Update the Review column in plan.md:
 - **All findings dismissed or clean** → ✅
 - **Valid findings raised** → ❌ — address findings (fix or explicitly accept) before Human
