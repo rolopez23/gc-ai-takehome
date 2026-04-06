@@ -68,12 +68,12 @@
     background-color: var(--background);
   }
   50% {
-    background-color: color-mix(in srgb, var(--background) 92%, var(--foreground));
+    background-color: color-mix(in srgb, var(--background) 97%, var(--foreground));
   }
 }
 
 .streaming-bg {
-  animation: shimmer-bg 2s ease-in-out infinite;
+  animation: shimmer-bg 3.5s ease-in-out infinite;
 }
 
 body {
