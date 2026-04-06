@@ -1,0 +1,750 @@
+Ok some cleanup.  Lets make the home page 1) Show all contracts evaluated.  2) Navigate to the page.  Lets also clean up each page with a design audit improve the layout and the loading screen.  also the status is not updating on the backend it is always pending.  Kick up these improvements with /problem-spec also feel free to add any relevant todos from @TODO.md
+
+---
+
+Name of contract / status / fairness link to contract page.  Do join data.  Keep evaluate a seperate page for now.  I think it is fine to be similar to now say upload failed lets map reasons to a useful user facing error message (Can't conenct to anthropic / file too large).   Lets dive deeper into the todos next
+
+---
+
+just the two you metnioned
+
+---
+
+Agentic PR will deal with this.  2. Yes that already works.  Lets have the bug be the first part of the plan! Roll it into general frontend cleanup.  Use /frontend-design skill to improve and plan
+
+---
+
+<task-notification>
+<task-id>af55e22d0b1858aae</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/af55e22d0b1858aae.output</output-file>
+<status>completed</status>
+<summary>Agent "Pre-mortem stress test" completed</summary>
+<result>### Pre-Mortem Findings
+
+**Scope Creep — "Design audit" becomes an endless bikeshed.**
+The spec lists "visual design audit for hierarchy, spacing, and typography" across three pages as a success criterion but defines zero measurable thresholds. Six months later, the PR sat open for two weeks while reviewers debated font sizes and padding values, blocking the status bug fix from shipping. **Question that catches it:** "What specific visual properties must change, and who signs off?"
+
+**Assumption Failure — `flush()` to `commit()` breaks error rollback.**
+The spec prescribes changing line 99 from `flush()` to `commit()`. But `run_evaluation` continues after that commit. If the Anthropic call fails and `_fail_review` issues its own `commit()`, the session state is fine — but if any code between the early commit and the final commit raises an unexpected exception, the review is stuck in "evaluating" permanently with no rollback path. The outer `evaluate_contract_task` catch handler re-fetches the review, but a stale session or closed connection after a mid-evaluation crash leaves an orphan. **Question:** "What happens to a review committed as 'evaluating' if the process crashes before the final commit?"
+
+**Hidden Dependency — Multiple reviews per contract.**
+The list endpoint joins `ContractReview` but the spec assumes one review per contract. The upload endpoint creates a new review each time. If a user re-uploads or the same contract gets multiple reviews, `GET /api/contracts/` must decide which review to surface. The spec says nothing about this, and a naive join returns duplicate rows or picks arbitrarily. **Question:** "Which review is returned when a contract has more than one?"
+
+**Edge Case at Scale — No pagination, growing list.**
+The spec explicitly defers pagination. With even modest usage (hundreds of contracts), the home page fetches the entire list with joined review data in a single query. The "Open Questions: None" line is false confidence. **Question:** "At what row count does the unpaginated list degrade, and is that within six-month projected usage?"
+
+**Interface Drift — Frontend polls `/api/reviews/{id}` but backend only exposes `/api/contracts/{id}/review`.**
+The evaluate-contract page polls `BACKEND_URL/api/reviews/${reviewId}` (line 33), but `contracts.py` mounts the review endpoint at `/api/contracts/{contract_id}/review`. If the spec work only modifies the contracts router, the polling path either relies on an undocumented reviews router or is already broken. The spec never mentions this route. **Question:** "Does `/api/reviews/{id}` exist, and if so, where is it defined?"
+
+**Misunderstood Actors — No empty-state design.**
+The home page replaces a static hero with a contract list. For brand-new users, that list is empty. The spec defines no empty state, so the first experience is a blank page with no affordance to evaluate a contract. **Question:** "What does the home page show when there are zero contracts?"</result>
+<usage><total_tokens>17223</total_tokens><tool_uses>5</tool_uses><duration_ms>27794</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a2a57b6e669b365dc</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/a2a57b6e669b365dc.output</output-file>
+<status>completed</status>
+<summary>Agent "Socratic probe stress test" completed</summary>
+<result>### Socratic Questions
+
+1. **One review per contract assumption.** The model has a one-to-many relationship (`Contract.reviews`), but the spec's list endpoint and detail page both assume exactly one review per contract. What happens when a user re-evaluates the same contract -- should the dashboard show the latest review, all reviews, or is re-evaluation intentionally blocked?
+
+2. **`flush()` to `commit()` side effects.** The spec prescribes changing line 99 from `flush()` to `commit()`. If `commit()` is called and the subsequent LLM call fails, the review is now persisted as "evaluating" in a committed transaction. Has it been confirmed that `_fail_review` reliably updates the status in all error paths after this early commit, including if the background task process crashes?
+
+3. **Empty list is the only zero-state.** The spec replaces the hero page with a contract list. For a brand-new user with zero contracts, what do they see? Is a designed empty state needed, or is a bare empty list acceptable?
+
+4. **"Not a contract" display on dashboard.** When `overall_fairness` is `None` (the "not a contract" path), the spec says the list shows `overall_fairness`. What should the dashboard row display for these entries -- a label like "N/A", omit the badge, or hide the row entirely?
+
+5. **Polling from the home page.** The dashboard shows `review_status`. If a user uploads a contract and navigates to the home page while evaluation is still running, does the dashboard poll for status updates, or is it a static snapshot that requires a manual refresh?
+
+6. **Multiple concurrent evaluations.** The spec lists no rate limiting or queuing. If a user uploads 10 contracts rapidly, all 10 background tasks hit the Anthropic API simultaneously. Has it been validated that this is acceptable, or should there be concurrency control?
+
+7. **Error message mapping scope.** The spec says "map backend errors to friendly messages" but only gives three examples. The backend already stores `failure_message` on the review. Is the frontend supposed to parse and re-map these stored messages, or just display them verbatim? The detail page currently shows `review.failure_message` directly.
+
+8. **Sort order stability.** The list endpoint sorts by `created_at desc`. If two contracts are created in the same second (same timestamp precision), is the ordering deterministic? Does the current datetime column have sufficient precision?
+
+9. **Failed evaluations on the dashboard.** The spec says the list shows "review status" and "overall fairness rating." For failed evaluations, should the row be visually distinct (e.g., error styling), or treated the same as pending/evaluating rows?</result>
+<usage><total_tokens>18593</total_tokens><tool_uses>5</tool_uses><duration_ms>23907</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a99fb44d507fc192f</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/a99fb44d507fc192f.output</output-file>
+<status>completed</status>
+<summary>Agent "Red team stress test" completed</summary>
+<result>### Red Team Findings
+
+**1. The `flush()` to `commit()` fix has a subtle concurrency risk the spec doesn't acknowledge.**
+Line 99 commits mid-task inside `run_evaluation`, but the session is also used for the final commit on lines 143/151. If the Anthropic call fails after the early commit, the review is now in "evaluating" status and committed -- but `_fail_review` uses the same session. If that session has been invalidated (e.g., connection dropped between the two commits), the review is permanently stuck at "evaluating" with no recovery path. The spec treats this as a one-line fix but it introduces a split-transaction with no rollback strategy.
+
+**Satisfying response:** Acknowledge the two-commit window and add a status recovery mechanism (e.g., a sweep that marks stale "evaluating" reviews as failed after a timeout).
+
+**2. Contract-to-review is one-to-many, but `ContractListOut` assumes one review per contract.**
+The model has `reviews: list["ContractReview"]` -- a contract can have multiple reviews. The spec's `review_status` and `overall_fairness` fields are singular. Which review do you join? The latest? The spec doesn't say. Once re-evaluation is added (already implied by the "instructions passthrough" feature), this ambiguity becomes a bug.
+
+**Satisfying response:** Explicitly state "latest review by `created_at`" in the interface contract, and add a unique constraint or documented convention.
+
+**3. "Design audit" success criterion is unmeasurable.**
+Criterion 6 -- "pass a visual design audit for hierarchy, spacing, and typography" -- has no definition of who audits, what standards apply, or what passing looks like. This will either block sign-off indefinitely or get rubber-stamped.
+
+**Satisfying response:** Replace with specific, verifiable checks (e.g., "consistent spacing scale," "type hierarchy uses at most 3 sizes," or link to a reference screenshot).
+
+**4. Error UX scope will expand once touched.**
+The spec lists friendly error mapping, but the backend error messages (`_fail_review`) are freeform strings, not error codes. The frontend has no stable contract to match on. The moment you need to distinguish "timeout" from "API key invalid" for different user guidance, you need structured error codes -- which means a backend schema change not in scope.
+
+**Satisfying response:** Add an `error_code` enum field to `ContractReview` now, or explicitly accept that error display will be best-effort string matching.
+
+**5. "No open questions" is a red flag.**
+The spec claims all decisions are resolved, but the one-to-many ambiguity (finding 2) and error code gap (finding 4) are unresolved design decisions masquerading as implementation details.</result>
+<usage><total_tokens>17826</total_tokens><tool_uses>7</tool_uses><duration_ms>34495</duration_ms></usage>
+</task-notification>
+
+---
+
+1. Yes only pull last review.  2. I would prefer (a) if cheakp but can live with b.  Empty state a call to action evaluate your first contract.  You can hid the standard evaluate button and make it prominent, lets add a new column failure_code that is deterministic as too-large, anthropic-error, unknown (and any other prominent failure cases you see).
+
+---
+
+That works for now
+
+---
+
+Lets do the design polish now and spec out the work.
+
+---
+
+Make a section for each itme to design polish that component.
+
+---
+
+I see N/A in verify that is bad.  I would say take a screenshot on updated compoentn with playwright and evaluate using your taste if it is in improvement (and suggest any you see).  Verify the chagnes desired were made. Remember always verify.
+
+---
+
+Can we split up design-polish into polish-x component polish-y-component. I prefer tiny steps, also feel free to split up any steps you think are overly compound.
+
+---
+
+Ok lets make a parrelization strategy what can be parralelized, is it you orchestraing, should we launch more sessiosn? etc
+
+---
+
+Make it so! Feel free to defer human understanding and review to good checkpoints or the end.
+
+---
+
+<task-notification>
+<task-id>bmz5xxxr5</task-id>
+<tool-use-id>toolu_01RhoHAdcFrAs75vwBs7Au1k</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/bmz5xxxr5.output</output-file>
+<status>completed</status>
+<summary>Background command "Start frontend dev server" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>abda66ad87392d7c4</task-id>
+<tool-use-id>toolu_019CfTPB6sumokaqNKx63GfT</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/abda66ad87392d7c4.output</output-file>
+<status>completed</status>
+<summary>Agent "Reuse review fix-status-bug" completed</summary>
+<result>No reuse issues found. The new test follows the same patterns already established in `test_evaluation.py` -- it reuses the existing `_create_contract_and_review` and `_mock_success_response` helpers, and the `flush`-to-`commit` change in `evaluation.py` aligns with how other status updates in that same file already use `db.commit()`.</result>
+<usage><total_tokens>12254</total_tokens><tool_uses>2</tool_uses><duration_ms>9769</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a2fff96711bcf8da5</task-id>
+<tool-use-id>toolu_01TatDN6FQmNt798Njnj2eUX</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/a2fff96711bcf8da5.output</output-file>
+<status>completed</status>
+<summary>Agent "Quality review fix-status-bug" completed</summary>
+<result>**Findings:**
+
+1. **Stringly-typed status**: `review.status = "evaluating"` and the test assertion `== "evaluating"` rely on a raw string literal. The same pattern appears throughout the file (`"failed"`, etc.). An enum or constants would prevent typo bugs.
+
+2. **Mid-transaction commit changes error-handling semantics**: The `flush` to `commit` change means `run_evaluation` now owns the transaction boundary for the status update, but `_fail_review` also calls `db.commit()`. If the API call raises an unexpected exception after the "evaluating" commit, there is no rollback path to clear that status -- the review stays stuck as "evaluating" permanently.
+
+3. **Test uses `db.refresh` inside the mock but never verifies isolation**: The test proves the commit happened before the API call, but does not assert that a failure after this point correctly resets the status, which is the risk the commit introduces.
+
+No issues with parameter sprawl, unnecessary comments, or copy-paste.</result>
+<usage><total_tokens>11330</total_tokens><tool_uses>1</tool_uses><duration_ms>14987</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a22d6c2485753cb7e</task-id>
+<tool-use-id>toolu_01UusfQZGYRPiWU1rz5r34tr</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/a22d6c2485753cb7e.output</output-file>
+<status>completed</status>
+<summary>Agent "Efficiency review fix-status-bug" completed</summary>
+<result>## Findings
+
+**Split-transaction double-commit.** The `flush` -&gt; `commit` change means `run_evaluation` now performs **two separate commits** on the happy path (line 100 and line 144/152) and **two commits** on every failure path (line 100 plus `_fail_review` at line 92). The original `flush` kept everything in one transaction, so a failure after the status update would roll back cleanly. Now, if the API call or parsing fails, the "evaluating" status is already persisted and requires a second round-trip to the database via `_fail_review` to correct it.
+
+**Specific concerns:**
+
+1. **Extra DB round-trip on every call.** Every invocation now hits the database with a commit before the API call and another after -- doubling write I/O on the hot path.
+2. **Orphaned "evaluating" state.** If the process crashes between the first commit and `_fail_review` (e.g., OOM, container kill), the review is stuck as "evaluating" permanently with no recovery mechanism visible in this code.
+3. **No efficiency issue in the test itself**, though the test's `db.refresh` inside the mock adds a query per test run -- negligible.
+
+**Severity: low-to-moderate.** The extra commit is one small write, but the orphan risk is the real concern.</result>
+<usage><total_tokens>13039</total_tokens><tool_uses>1</tool_uses><duration_ms>16837</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>aef7a25f8b1730609</task-id>
+<tool-use-id>toolu_01GQteoTmzAxyk2iGiNfL557</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/aef7a25f8b1730609.output</output-file>
+<status>completed</status>
+<summary>Agent "Standard review fix-status-bug" completed</summary>
+<result>The session factory has `expire_on_commit=False`, which neutralizes the bug I was investigating. With that setting, objects remain usable after commit without needing a refresh.
+
+## Review Result
+
+**Clean bill of health.**
+
+The change from `flush()` to `commit()` is correct and directly addresses the spec requirement: polling clients on a separate connection/transaction will now see `"evaluating"` status because it is committed to the database, not just flushed within an uncommitted transaction.
+
+Key points verified:
+
+- `expire_on_commit=False` is set on both production and test session factories (`/Users/robertlopez/repos/gc-ai-takehome/backend/database.py`, line 12), so the early commit does not expire loaded objects or cause `MissingGreenlet` errors.
+- The error paths (`_fail_review`) already call `db.commit()`, so having two commits in the happy path is consistent with the existing pattern.
+- The test correctly verifies that status is committed before the API call by refreshing the review object inside the mocked API call and asserting `"evaluating"`.
+
+No bugs, edge case gaps, error handling issues, or contract violations found.</result>
+<usage><total_tokens>14101</total_tokens><tool_uses>3</tool_uses><duration_ms>32579</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a0401fd0edbc19739</task-id>
+<tool-use-id>toolu_01BbE92EZuFL5rP4fo2qcP5u</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/a0401fd0edbc19739.output</output-file>
+<status>completed</status>
+<summary>Agent "Adversarial review fix-status-bug" completed</summary>
+<result>
+
+1. **No matching rollback on failure.** The `flush()` was inside an implicit transaction; changing to `commit()` means if the LLM call or later processing fails, the status is permanently "evaluating" with no rollback path. The function's error handlers likely only roll back uncommitted state.
+
+2. **Breaks transactional atomicity.** A mid-function `commit()` splits what was a single unit of work into two transactions. Any subsequent `commit()` at the end of the function now cannot atomically revert the status change if something goes wrong between the two commits.
+
+3. **Test doesn't verify the failure path.** The test only checks the happy path. It never asserts what happens to `review.status` when the API call raises an exception after the early commit.
+
+4. **Test uses the same session as production code.** `db.refresh(review)` inside `capture_status` re-reads via the same session object passed to `run_evaluation`. This doesn't actually prove a separate polling connection would see "evaluating" — it could be reading from the session's identity map, not the database.
+
+5. **Silent permanent stale status.** Combined with the spec explicitly accepting "no recovery sweep," this commit guarantees orphaned "evaluating" rows in production with zero alerting or observability.
+
+6. **Race with concurrent callers.** If `run_evaluation` is called twice for the same review (retry, queue duplicate), both will commit "evaluating" and proceed to make parallel LLM calls with no guard.
+
+7. **`captured_status` dict is never checked for KeyError.** If `capture_status` is never called (mock wiring broken), the `assert` line throws `KeyError`, not a clear test failure message.
+
+8. **No test for the commit itself.** The test asserts status but never verifies that `commit()` was actually called vs `flush()`. The behavioral difference (visibility to other sessions) is untested. (speculative)
+
+9. **Assumes single `commit()` call is safe for the session's lifecycle.** If the caller of `run_evaluation` expects to manage the transaction (e.g., a middleware that commits/rollbacks), this mid-function commit violates that contract. (speculative)
+
+10. **No index or timeout on "evaluating" status.** Polling queries filtering by `status = 'evaluating'` have no indicated index support, and no TTL or timeout is set on the status, making the polling spec fragile at any real scale. (speculative)</result>
+<usage><total_tokens>8918</total_tokens><tool_uses>0</tool_uses><duration_ms>19808</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a269426bbc72ab998</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/a269426bbc72ab998.output</output-file>
+<status>completed</status>
+<summary>Agent "Edge-case review fix-status-bug" completed</summary>
+<result>The `async_sessionmaker` context manager does auto-rollback on exit if the session is in a failed state. So the outer except on line 182 would be operating on a session that hasn't been rolled back yet — but `db.get` on line 183 after a failed `db.commit` on line 100 would raise `InvalidRequestError` because the session needs rollback first.
+
+However, wait — line 100's commit is *outside* the inner try block (lines 102-162) but *inside* the outer try block (line 168 `async with`). If line 100 raises, it propagates to line 182's except. The `db.get` on line 183 would fail on the dirty session without a rollback.
+
+```json
+[
+  {
+    "location": "backend/services/evaluation.py:182-185",
+    "trigger_condition": "db.commit() on line 100 raises; outer except reuses session without rollback",
+    "guard_snippet": "except Exception as e:\n    await db.rollback()\n    review = await db.get(ContractReview, review_id)",
+    "potential_consequence": "db.get fails on dirty session; review stuck in pre-commit state silently"
+  }
+]
+```</result>
+<usage><total_tokens>14054</total_tokens><tool_uses>3</tool_uses><duration_ms>41777</duration_ms></usage>
+</task-notification>
+
+---
+
+Yes! that is fine they have to be run sith the skilsl but can be parrelized.
+
+---
+
+<task-notification>
+<task-id>a8936d3aa2c6050f3</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/a8936d3aa2c6050f3.output</output-file>
+<status>completed</status>
+<summary>Agent "VSR: add-failure-code-column" completed</summary>
+<result>Here is the summary:
+
+---
+
+## Results
+
+### 1. Verify: Incomplete
+
+Code-level verification passes on all checks: model, schema, migration (up/down), migration chain, and tests are all correct and consistent. **Could not run live checks** (psql column check, API response check) because Bash and WebFetch were denied by tool permissions. You will need to run these two commands manually:
+
+```bash
+psql "postgresql://app:app@localhost:5432/app" -c "\d contract_reviews" | grep failure_code
+curl -s http://localhost:8000/api/reviews/&lt;some_id&gt; | python3 -c "import sys,json; print(json.load(sys.stdin).get('failure_code'))"
+```
+
+### 2. Simplify: Clean
+
+Minimal, well-scoped change. No duplication, no unnecessary logic, no reuse opportunities missed. The stringly-typed `failure_code` is intentional per the step plan.
+
+### 3. Review: No bugs found
+
+| # | Finding | Triage |
+|---|---------|--------|
+| 1 | `ReviewOut.failure_code` has `= None` default while other nullable fields don't -- minor inconsistency | **Valid** (low) |
+| 2 | No DB-level enum constraint on failure_code values | **Speculative** (low) |
+
+Migration is reversible. Nullable column is safe for existing rows (get NULL). No type mismatches between model and schema.
+
+**Reports saved to:**
+- `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/verify/add-failure-code-column-2026-04-05.md`
+- `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/reviews/add-failure-code-column-2026-04-05.md`</result>
+<usage><total_tokens>21509</total_tokens><tool_uses>17</tool_uses><duration_ms>77752</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a39d9c4b77599e171</task-id>
+<tool-use-id>toolu_017uQRekf2DkkkAGps4qYMRb</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/a39d9c4b77599e171.output</output-file>
+<status>completed</status>
+<summary>Agent "VSR: wire-failure-codes" completed</summary>
+<result>Here is the summary:
+
+**Verify**: All 6 failure_code tests pass. All 8 `_fail_review` call sites in `evaluation.py` have a `failure_code=` keyword arg. The model column is nullable (correct for backcompat), and the schema exposes it in both list and detail responses. DB check was skipped (psql access denied).
+
+**Simplify**: Diff is minimal (9 lines in evaluation.py). The keyword-only arg pattern (`*, failure_code: str`) is good practice. Test duplication across the 5 new tests is acceptable -- parametrizing would save lines but reduce readability.
+
+**Review**: All code assignments are correct. Three low-severity findings, none blocking:
+1. No enum/Literal type for the 5 failure code strings (fine while co-located in one file).
+2. Two call sites (empty response, non-text content) lack dedicated failure_code assertions in tests.
+3. Pipeline error path in `evaluate_contract_task` is untested.
+
+**Verdict**: Ship as-is.
+
+Reports saved to:
+- `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/verify/wire-failure-codes-2026-04-05.md`
+- `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/reviews/wire-failure-codes-2026-04-05.md`</result>
+<usage><total_tokens>26532</total_tokens><tool_uses>18</tool_uses><duration_ms>83719</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a00fc8c2265598886</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/a00fc8c2265598886.output</output-file>
+<status>completed</status>
+<summary>Agent "VSR: contract-list-api" completed</summary>
+<result>Here is the summary:
+
+**Verify:** Incomplete -- Bash and WebFetch were both denied, so I could not hit `localhost:8000`. Code analysis confirms the schema excludes blob fields, the outerjoin nulls work correctly for reviewless contracts, and `review_status` maps from `ContractReview.status` (not `Contract.status`). Live endpoint confirmation is deferred.
+
+**Simplify:** The subquery approach is standard. `ContractListOut` duplicates 4 fields from `ContractOut` instead of inheriting -- minor DRY opportunity. No dead code introduced.
+
+**Review -- one medium finding:** If two `ContractReview` rows for the same contract share identical `created_at` timestamps, the second outerjoin matches both, producing duplicate rows in the list. Fix: use `ROW_NUMBER() OVER (PARTITION BY contract_id ORDER BY created_at DESC)` with a tiebreaker (e.g., `id`), or add `ContractReview.id` as a secondary sort in the current subquery approach. Low probability in production (microsecond precision) but a real correctness gap.
+
+All other findings are low priority or cosmetic (no pagination, no composite index, schema could inherit).
+
+**Reports saved to:**
+- `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/verify/contract-list-api-2026-04-05.md`
+- `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/reviews/contract-list-api-2026-04-05.md`</result>
+<usage><total_tokens>24710</total_tokens><tool_uses>15</tool_uses><duration_ms>86498</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a7912988fc51a1c2e</task-id>
+<tool-use-id>toolu_01Wsw9DZd2d75ELDVuQLxzoY</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/a7912988fc51a1c2e.output</output-file>
+<status>completed</status>
+<summary>Agent "VSR: polish-fairness-tokens" completed</summary>
+<result>Done. Here is the summary:
+
+**Verify:** All 13 fairness-related tests pass. Grep confirms zero residual hardcoded Tailwind color classes (`text-red-600`, etc.) anywhere in the frontend. Visual verification via Playwright was blocked by sandbox restrictions on `curl`/`WebFetch` to localhost -- recommend a quick manual check.
+
+**Simplify:** Nothing to simplify. It is a 3-line constant swap.
+
+**Review: APPROVED.** The new semantic token names (`text-egregious-fg`, `bg-unfair-bg`, etc.) match the CSS custom properties defined in `globals.css` lines 9-17 (light) and 27-35 (dark), bridged to Tailwind via `--color-*` aliases at lines 45-53. `ScoreBadge.tsx` picks up the new tokens automatically through `getFairnessDisplay()`. All tests assert against the imported `COLORS` constant rather than hardcoded strings, so no test updates were needed.
+
+**Reports saved to:**
+- `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/verify/polish-fairness-tokens-2026-04-05.md`
+- `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/reviews/polish-fairness-tokens-2026-04-05.md`</result>
+<usage><total_tokens>20007</total_tokens><tool_uses>24</tool_uses><duration_ms>76712</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>ad63ab364f323f60d</task-id>
+<tool-use-id>toolu_01WhRwke7kxEt7ZuwkR2SiGq</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/ad63ab364f323f60d.output</output-file>
+<status>completed</status>
+<summary>Agent "VSR: polish-loading-shimmer" completed</summary>
+<result>## Summary
+
+All 7 shimmer tests pass. Two reports saved:
+
+- **Verify**: `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/verify/polish-loading-shimmer-2026-04-05.md`
+- **Review**: `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/reviews/polish-loading-shimmer-2026-04-05.md`
+
+### Key finding: `animationDelay` is a no-op
+
+The `animationDelay` on card wrapper divs does nothing visually. The card divs have no CSS animation -- `animate-pulse` lives on the inner `ShimmerBar` components, and `animation-delay` does not cascade to children. The test passes because it only checks that the style attribute exists on the DOM, not that any stagger is visible.
+
+**Fix options**: (1) add an animation to the card div itself so the delay has something to delay, (2) pass the delay down into each ShimmerBar, or (3) remove the delay entirely since the fade-in already provides adequate polish.
+
+### Minor findings
+
+- The outer `space-y-6` is now dead code (only one child inside it).
+- `bg-foreground/[0.04]` is very faint -- worth a visual spot-check.
+- Fade-in wrapper, `data-testid` additions, and key change from `[1,2,3]` to `[0,1,2]` are all correct.</result>
+<usage><total_tokens>19214</total_tokens><tool_uses>10</tool_uses><duration_ms>63158</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>ac432f6c899150e09</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/ac432f6c899150e09.output</output-file>
+<status>completed</status>
+<summary>Agent "VSR: polish-clause-cards" completed</summary>
+<result>Done. Here is the summary:
+
+**Verify:** All 10 clause-related unit tests pass with no regressions across the full suite. Browser verification is incomplete because the backend is not running -- needs re-verification when available.
+
+**Simplify:** `FAIRNESS_BORDER` in ClauseCard duplicates border tokens already present in `fairness-utils.ts` `COLORS`, but the duplication is only 3 lines and extracting just the border portion would require restructuring COLORS. Low priority.
+
+**Review -- two findings worth noting:**
+1. **`fairness` prop is typed as `string` instead of `FairnessRating`** (medium). The caller already passes a `FairnessRating`, so this should be tightened. This would also make the `?? ''` fallback unnecessary.
+2. **No broken callers.** ClauseCard is used only in ClauseSection (updated in this commit) and the test file.
+
+The `border-border` token change on ClauseSection is correct and aligns with shadcn/Tailwind conventions.
+
+Reports saved to:
+- `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/verify/polish-clause-cards-2026-04-05.md`
+- `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/reviews/polish-clause-cards-2026-04-05.md`</result>
+<usage><total_tokens>21060</total_tokens><tool_uses>17</tool_uses><duration_ms>99500</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a686a051c05811951</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/a686a051c05811951.output</output-file>
+<status>completed</status>
+<summary>Agent "VSR: polish-nav-shell" completed</summary>
+<result>Done. Here is the summary:
+
+**Verify**: BLOCKED. The dev server on port 4148 is returning HTTP 500 on all routes -- this is a server-wide issue, not specific to the nav component. Browser automation could not confirm visual presence or navigation behavior. The server needs a restart before re-running verification.
+
+**Simplify**: Nothing to simplify. The Nav component is 19 lines, no state, no props, no `'use client'` -- already minimal.
+
+**Review**: Approved. The component uses the correct semantic tokens (`border-border`, `text-muted`, `text-foreground`), `max-w-2xl` matches existing page containers, `&lt;nav&gt;` provides the proper landmark element, and Next.js `&lt;Link&gt;` handles client-side routing. Only minor optional nit: an `aria-label` on `&lt;nav&gt;` could help if more nav landmarks are added later.
+
+**Reports saved**:
+- `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/verify/polish-nav-shell-2026-04-05.md`
+- `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/reviews/polish-nav-shell-2026-04-05.md`</result>
+<usage><total_tokens>23718</total_tokens><tool_uses>27</tool_uses><duration_ms>142991</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a68f994d0102a4c0a</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/a68f994d0102a4c0a.output</output-file>
+<status>completed</status>
+<summary>Agent "VSR: polish-color-system" completed</summary>
+<result>Here is the summary:
+
+---
+
+**Verify**: Build passes cleanly -- all routes compile, no broken CSS variable references. Visual verification was blocked because the dev server on port 4148 is returning 500 on all routes (a pre-existing runtime issue, not caused by this commit). The CSS and font import are structurally correct per the build.
+
+**Simplify**: Nothing to simplify. The diff is tight: 14 CSS variables added to `:root`, mirrored symmetrically in the dark-mode block, all 14 registered in `@theme inline`, one font swap from Inter to DM_Sans. No dead code, no duplication.
+
+**Review -- PASS, no blocking issues**:
+- All 9 fairness tokens have both light and dark values (confirmed line-by-line).
+- `@theme inline` is complete -- 1:1 with `:root` variables, no orphans.
+- DM_Sans import is correct with proper `--font-sans` variable wiring.
+- Contrast: foreground on background exceeds WCAG AAA in both modes. Muted text (#78716c on #fafaf9) is 4.6:1 -- passes AA but borderline; worth monitoring if used at very small sizes.
+- `--accent` from the design spec was intentionally omitted (nothing references it).
+- `fadeIn` keyframe is scaffolding for the shimmer step -- expected to be unused now.
+
+**Action needed**: Restart the frontend dev server to clear the 500 errors, then visually confirm DM Sans rendering and warm stone background.
+
+Reports saved to:
+- `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/verify/polish-color-system-2026-04-05.md`
+- `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/reviews/polish-color-system-2026-04-05.md`</result>
+<usage><total_tokens>25735</total_tokens><tool_uses>26</tool_uses><duration_ms>157559</duration_ms></usage>
+</task-notification>
+
+---
+
+fix the porting issue that is annoying feel free to abort out of portless if it is not easier.
+
+---
+
+<task-notification>
+<task-id>bkrlle472</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/bkrlle472.output</output-file>
+<status>completed</status>
+<summary>Background command "Start frontend on port 3000" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+go for it
+
+---
+
+wait by finished are your running the complete workflow / updating the pan
+
+---
+
+<task-notification>
+<task-id>abc63a78febf919a9</task-id>
+<tool-use-id>toolu_01GrnJw8PMZMdwZmuJ8ct3gx</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/abc63a78febf919a9.output</output-file>
+<status>completed</status>
+<summary>Agent "VSR: failure-message-mapping" completed</summary>
+<result>**Summary**: All 5 tests pass. Code is minimal and correct. `getFailureMessage` handles null, undefined, empty string, unknown codes, and known codes. The Zod schema (`failure_code: z.string().nullable()`) matches the backend `ReviewOut`. No issues found across verify, simplify, or review.
+
+Reports saved to:
+- `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/verify/failure-message-mapping-2026-04-05.md`
+- `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/reviews/failure-message-mapping-2026-04-05.md`</result>
+<usage><total_tokens>16607</total_tokens><tool_uses>11</tool_uses><duration_ms>50615</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a8de6610dcee33511</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/a8de6610dcee33511.output</output-file>
+<status>completed</status>
+<summary>Agent "VSR: polish-evaluate-page" completed</summary>
+<result>Done. Here is the summary:
+
+**Verify**: PASS. Screenshot confirms display-tier title (`text-2xl`), correct spacing (`px-6 pt-12`), `border-border` on the FileDropZone, and auto-width button. All 6 error-display tests pass. `getFailureMessage` is correctly called with `result.failure_code` on the failed path, and the alert div uses `role="alert"` with egregious design tokens.
+
+**Simplify**: No unnecessary changes found. The error alert markup is clean and minimal.
+
+**Review**: PASS, no blocking issues. Two non-blocking observations for future polish:
+1. The `&lt;textarea&gt;` in `page.tsx` line 98 still uses `border-foreground/20` instead of `border-border` (out of scope for this step).
+2. The inline validation error in `FileDropZone.tsx` line 118 uses `text-red-500` rather than egregious tokens (acceptable since it is a different error type).
+
+Reports saved to:
+- `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/verify/polish-evaluate-page-2026-04-05.md`
+- `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/reviews/polish-evaluate-page-2026-04-05.md`</result>
+<usage><total_tokens>21496</total_tokens><tool_uses>14</tool_uses><duration_ms>65301</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a700311cceb650cf8</task-id>
+<tool-use-id>toolu_01Fy7qLjnhcGf6t74YocrUpn</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/a700311cceb650cf8.output</output-file>
+<status>completed</status>
+<summary>Agent "VSR: dashboard-ui" completed</summary>
+<result>Done. Here is the summary:
+
+**Verify -- PASS.** The dashboard at localhost:3000 renders 17 contracts with names, relative timestamps, and Fair/Unfair badges. Every row links to the correct `/contract/{uuid}`. The "Evaluate Contract" button links to `/evaluate-contract`. Empty state could not be tested live (dev DB has data) but is covered by unit tests.
+
+**Simplify -- Clean.** `timeAgo` is not duplicated. `StatusDisplay` is properly extracted. Fetch-on-mount without caching is acceptable at this scale.
+
+**Review -- PASS with two non-blocking flags:**
+1. **Zod strictness mismatch:** Frontend `FairnessRatingSchema` restricts to three enum values, but backend `overall_fairness` is `str | None`. A parse failure silently shows empty state. Acceptable but worth watching.
+2. **Loading state returns null:** Brief flash of nothing during fetch. A skeleton loader would improve UX but is not blocking.
+
+Reports saved to:
+- `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/verify/dashboard-ui-2026-04-05.md`
+- `/Users/robertlopez/repos/gc-ai-takehome/docs/home-and-polish/reviews/dashboard-ui-2026-04-05.md`</result>
+<usage><total_tokens>32147</total_tokens><tool_uses>29</tool_uses><duration_ms>99985</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a576182ef80ad2351</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-gc-ai-takehome/b72b2180-1dd3-42e6-9f94-23ed2003d18f/tasks/a576182ef80ad2351.output</output-file>
+<status>completed</status>
+<summary>Agent "VSR: detail+error states" completed</summary>
+<result>All four reports written. Here is the summary.
+
+---
+
+**Verify + Simplify + Review complete for both steps. All PASS.**
+
+**Verify results (Playwright-confirmed):**
+- **polish-detail-page**: text-2xl title, blockquote summary with border-l-2 and bg-surface, text-muted on call-to-action and back link, getFailureMessage wired correctly.
+- **polish-empty-and-error-states**: NoEvaluation centered with diamond icon and primary CTA button. EvaluationFailed uses egregious-token alert box with role="alert" and primary CTA. NotAContract follows same centered pattern.
+
+**Simplify findings:**
+- Alert box markup is duplicated between `contract/[id]/page.tsx` (line 103) and `evaluate-contract/page.tsx` (line 113), but at 4 lines it falls under the step plan's &gt;5-line extraction threshold. No `ErrorAlert` component needed yet.
+- No dead code found. All constants are used.
+
+**Review findings (no blockers):**
+- `getFailureMessage` import resolves correctly, handles null/undefined with unknown fallback.
+- Zero `text-foreground/60` or `/70` remaining in `page.tsx`.
+- Residual `text-foreground/70` exists in `ClauseCard.tsx` line 13 and `text-foreground/60` in `FileDropZone.tsx` and `LoadingShimmer.tsx` -- out of scope for these steps.
+- Primary CTA button style is consistent across all three dead-end states (minor `inline-block` addition on EvaluationFailed is correct for its block-flow context).
+- `min-h-[60vh]` used on NoEvaluation and NotAContract; intentionally absent from EvaluationFailed (top-aligned layout with title).
+
+**Reports saved to:**
+- `docs/home-and-polish/verify/polish-detail-page-2026-04-05.md`
+- `docs/home-and-polish/verify/polish-empty-and-error-states-2026-04-05.md`
+- `docs/home-and-polish/reviews/polish-detail-page-2026-04-05.md`
+- `docs/home-and-polish/reviews/polish-empty-and-error-states-2026-04-05.md`</result>
+<usage><total_tokens>31655</total_tokens><tool_uses>29</tool_uses><duration_ms>122001</duration_ms></usage>
+</task-notification>
+
+---
+
+I am seeing contract too large error quite a bit is that the token limit issue? Is the token limit at the maximum for our current model?
+
+---
+
+Lets tightent the prompt first.  Also call to action is fairly redudant / and encourage summary to be minimal
+
+---
+
+I will e2e test
+
+---
+
+nice! ok lets do the walkthrough.
+
+---
+
+code snippets still
+
+---
+
+changed the localhost for cors since there is a next backend missmatch
+
+---
+
+it is more deterministic and not bounded.  It is nullable because hopefully we don't have many failures
+
+---
+
+where is teh from_attributes you did not show that code.  It is becauswe we now return a list of contracts to the user on the initial endpoint.
+
+---
+
+the mapping between the dict and teh database?
+
+---
+
+the shorter outputs.  One sentence caps and not neceassrily having a call to action.
+
+---
+
+we only have certain defined failure modes not unbounded input. We changed to add failure codes which are deterministic and bounded unlike message which is unbounded.
+
+---
+
+we need to commit to make sure in process status updated, flush did not persist to db so polling could not forward.  the * indidcates it is a kwyeroka dand not unbounded?
+
+---
+
+ahhh I remember * indicates a python variable is keyword based not just positional
+
+---
+
+because we want to link contracts and reviews.  Is this the most effecient join pattern/
+
+---
+
+it was causing testing errors, we need port for cors
+
+---
+
+to handle theming dark mode and default
+
+---
+
+In the layout means we always see it so that it persists across pages.
+
+---
+
+that is defining the default font for the body if we don't override it through css classes
+
+---
+
+Hmm mlets cleant u that class names here.  Make them beter also lets change ContractAI to your contracts.  Ineterrupt the walkthrought to edit poealse
+
+---
+
+We can generate the nav server side.
+
+---
+
+because the backend sends it, the data contract changed.
+
+---
+
+brittle in dark mode, and not configurable enought
+
+---
+
+we can either not have a code or the code could fail a lookup, really testing two things.
+
+---
+
+fyi we lost any formatting on the code can you update going forward. Status we don't have as defined of a schema, I think we could sue an enum though
+
+---
+
+hmm lest clean up the display.  Lets pass along the Pending, Reading or Evaluation rather than always hard coding evaluating.
+
+---
+
+or status is failed so no need to check it
+
+---
+
+fialure code because we know it is in a terminal state and we don't show the status badge.  overall_fairness: null indicates it is not a contract so we use that display
+
+---
+
+let clean up that class.
