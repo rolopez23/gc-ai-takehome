@@ -33,7 +33,7 @@ export default function ClauseCard({
 }) {
   return (
     <div
-      className={`${CARD} border-l-2 ${FAIRNESS_BORDER[fairness] ?? "border-foreground/10"}`}
+      className={`${CARD} border-l-4 ${FAIRNESS_BORDER[fairness] ?? "border-foreground/10"}`}
     >
       <h4 className={SECTION_HEADER}>
         <span className={SECTION_NUMBER}>{clause.section_number}</span>
