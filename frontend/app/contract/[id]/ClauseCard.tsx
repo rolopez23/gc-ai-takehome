@@ -4,10 +4,10 @@ import type {
 } from "@/app/evaluate-contract/types";
 
 const FAIRNESS_BORDER: Record<string, string> = {
-  fair: "border-fair-border",
-  "non-standard": "border-unfair-border",
-  dealbreaker: "border-egregious-border",
-  absent: "border-gray-300",
+  fair: "border-l-fair-border",
+  "non-standard": "border-l-unfair-border",
+  dealbreaker: "border-l-egregious-border",
+  absent: "border-l-gray-300",
 };
 
 const CARD = "rounded-lg border border-foreground/10 p-4";

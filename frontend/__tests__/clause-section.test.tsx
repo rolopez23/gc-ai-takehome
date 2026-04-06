@@ -51,7 +51,7 @@ describe("ClauseCard", () => {
     );
     const card = container.firstChild as HTMLElement;
     expect(card.className).toContain("border-l-2");
-    expect(card.className).toContain("border-egregious-border");
+    expect(card.className).toContain("border-l-egregious-border");
   });
 });
 
