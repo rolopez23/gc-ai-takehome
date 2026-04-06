@@ -39,10 +39,11 @@ function groupByFairness(clauses: ReviewClause[]) {
 
 function NoEvaluation() {
   return (
-    <div className={PAGE_CONTAINER}>
-      <h1 className={PAGE_TITLE}>No evaluation found</h1>
-      <p className="mt-2 text-foreground/60">This evaluation may have expired or the link is invalid.</p>
-      <Link href="/evaluate-contract" className={BACK_LINK}>
+    <div className="mx-auto max-w-2xl px-6 flex min-h-[60vh] flex-col items-center justify-center text-center">
+      <span className="text-2xl text-muted">◆</span>
+      <h1 className="text-2xl font-bold mt-4">No evaluation found</h1>
+      <p className="mt-2 text-sm text-muted max-w-sm">This evaluation may have expired or the link is invalid.</p>
+      <Link href="/evaluate-contract" className="mt-6 rounded-lg bg-foreground px-6 py-3 text-sm font-medium text-background">
         Evaluate a contract
       </Link>
     </div>
@@ -84,10 +85,11 @@ function EvaluationResults({ result }: { result: ReviewCompleted }) {
 
 function NotAContract({ summary }: { summary: string | null }) {
   return (
-    <div className={PAGE_CONTAINER}>
-      <h1 className={PAGE_TITLE}>Not a contract</h1>
-      <p className="mt-2 text-foreground/60">{summary || 'The uploaded document does not appear to be a contract.'}</p>
-      <Link href="/evaluate-contract" className={BACK_LINK}>
+    <div className="mx-auto max-w-2xl px-6 flex min-h-[60vh] flex-col items-center justify-center text-center">
+      <span className="text-2xl text-muted">◆</span>
+      <h1 className="text-2xl font-bold mt-4">Not a contract</h1>
+      <p className="mt-2 text-sm text-muted max-w-sm">{summary || 'The uploaded document does not appear to be a contract.'}</p>
+      <Link href="/evaluate-contract" className="mt-6 rounded-lg bg-foreground px-6 py-3 text-sm font-medium text-background">
         Try another document
       </Link>
     </div>
@@ -98,8 +100,11 @@ function EvaluationFailed({ message }: { message: string }) {
   return (
     <div className={PAGE_CONTAINER}>
       <h1 className={PAGE_TITLE}>Evaluation failed</h1>
-      <p className="mt-2 text-foreground/60">{message}</p>
-      <Link href="/evaluate-contract" className={BACK_LINK}>
+      <div className="mt-4 flex gap-3 rounded-lg border border-egregious-border bg-egregious-bg p-4 text-sm text-egregious-fg" role="alert">
+        <span>⚠</span>
+        <p>{message}</p>
+      </div>
+      <Link href="/evaluate-contract" className="mt-6 inline-block rounded-lg bg-foreground px-6 py-3 text-sm font-medium text-background">
         Try again
       </Link>
     </div>
