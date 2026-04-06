@@ -41,13 +41,19 @@ function LoadingState({ statusText }: { statusText: string }) {
 }
 
 function groupByFairness(clauses: ReviewClause[]) {
-  return clauses.reduce<Record<FairnessRating, ReviewClause[]>>(
-    (groups, clause) => {
-      groups[clause.fairness].push(clause);
-      return groups;
+  const groups = clauses.reduce<Record<FairnessRating, ReviewClause[]>>(
+    (acc, clause) => {
+      acc[clause.fairness].push(clause);
+      return acc;
     },
     { dealbreaker: [], "non-standard": [], fair: [] },
   );
+  for (const rating of Object.keys(groups) as FairnessRating[]) {
+    groups[rating].sort(
+      (a, b) => (b.severity ?? 0) - (a.severity ?? 0),
+    );
+  }
+  return groups;
 }
 
 function NoEvaluation() {

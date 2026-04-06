@@ -14,6 +14,7 @@ export const ReviewClauseSchema = z.object({
   fairness: FairnessRatingSchema,
   market_standard: z.string(),
   explanation: z.string(),
+  severity: z.number().min(1).max(10).optional(),
 });
 
 export const UploadResponseSchema = z.object({
