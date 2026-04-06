@@ -1,0 +1,23 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "445b8cf9f534",
+  "session_id": "b72b2180-1dd3-42e6-9f94-23ed2003d18f",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-06T03:10:56.944714Z",
+  "branch": "agentic-flow/fe-cleanup",
+  "checkpoints_count": 1,
+  "files_touched": [],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-6[1m]",
+  "turn_id": "16082cb55234",
+  "token_usage": {
+    "input_tokens": 3217,
+    "cache_creation_tokens": 257284,
+    "cache_read_tokens": 44008384,
+    "output_tokens": 103261,
+    "api_call_count": 252
+  },
+  "session_metrics": {
+    "turn_count": 57
+  }
+}
