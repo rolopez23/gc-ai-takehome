@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { BACKEND_URL } from '@/app/evaluate-contract/constants';
+import { BACKEND_URL, STATUS_TEXT } from '@/app/evaluate-contract/constants';
 import { ContractListItemSchema, type ContractListItem } from '@/app/contract-list-types';
 import { z } from 'zod';
 import ScoreBadge from '@/app/contract/[id]/ScoreBadge';
@@ -95,12 +95,8 @@ function StatusDisplay({ contract }: { contract: ContractListItem }) {
     return <ScoreBadge rating={contract.overall_fairness} />;
   }
 
-  if (
-    contract.review_status === 'pending' ||
-    contract.review_status === 'reading' ||
-    contract.review_status === 'evaluating'
-  ) {
-    return <span className="text-muted">Evaluating...</span>;
+  if (contract.review_status && contract.review_status in STATUS_TEXT) {
+    return <span className="text-muted">{STATUS_TEXT[contract.review_status]}</span>;
   }
 
   return null;
