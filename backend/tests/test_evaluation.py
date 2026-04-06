@@ -293,3 +293,21 @@ async def test_run_eval_parse_failure(db):
     await db.refresh(review)
     assert review.status == "failed"
     assert "invalid response" in review.failure_message.lower()
+
+
+@pytest.mark.asyncio
+async def test_run_eval_status_committed_before_api_call(db):
+    contract, review = await _create_contract_and_review(db)
+    captured_status = {}
+
+    async def capture_status(**kwargs):
+        await db.refresh(review)
+        captured_status["status"] = review.status
+        return _mock_success_response()
+
+    with patch("services.evaluation.anthropic.AsyncAnthropic") as MockClient:
+        mock_instance = MockClient.return_value
+        mock_instance.messages.create = AsyncMock(side_effect=capture_status)
+        await run_evaluation(review.id, contract, db)
+
+    assert captured_status["status"] == "evaluating"

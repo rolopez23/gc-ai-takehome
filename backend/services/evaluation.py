@@ -96,7 +96,7 @@ async def run_evaluation(review_id, contract: Contract, db: AsyncSession):
     if not review:
         return
     review.status = "evaluating"
-    await db.flush()
+    await db.commit()
 
     try:
         await db.refresh(contract, attribute_names=["pdf_blob", "text"])
