@@ -50,8 +50,13 @@ REPORT_EVALUATION_TOOL = {
                 "description": "Severity score from 1 (minor) to 10 (critical).",
             },
             "playbook_status": {
-                "type": ["string", "null"],
-                "enum": ["TRIGGERED", "PASS", "ABSENT", "PARTIAL", None],
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "enum": ["TRIGGERED", "PASS", "ABSENT", "PARTIAL"],
+                    },
+                    {"type": "null"},
+                ],
                 "description": "Playbook check status, or null if no playbook grounding.",
             },
             "playbook_position": {
