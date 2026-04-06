@@ -42,7 +42,11 @@ class TestVerifierPrompt:
         prompt = build_verifier_prompt("Check for NDA")
         assert "Check for NDA" in prompt
         # Should have some attribution about where instructions come from
-        assert "reviewer" in prompt.lower() or "instruction" in prompt.lower() or "user" in prompt.lower()
+        assert (
+            "reviewer" in prompt.lower()
+            or "instruction" in prompt.lower()
+            or "user" in prompt.lower()
+        )
 
     def test_verifier_prompt_without_instructions(self):
         """When no instructions, prompt still works without errors."""
@@ -164,7 +168,9 @@ class TestVerifierAgent:
             )
 
     @pytest.mark.asyncio
-    async def test_verifier_passes_instructions_to_prompt(self, mock_agent_result_contract):
+    async def test_verifier_passes_instructions_to_prompt(
+        self, mock_agent_result_contract
+    ):
         """When instructions provided, they are included in the system prompt."""
         with patch("services.agents.verifier.AgentRunner") as MockRunner:
             instance = MockRunner.return_value
@@ -174,5 +180,9 @@ class TestVerifierAgent:
             await agent.run(pdf_blob=None, text="Contract text")
 
             call_args = instance.run.call_args
-            system_prompt = call_args.args[0] if call_args.args else call_args.kwargs.get("system", "")
+            system_prompt = (
+                call_args.args[0]
+                if call_args.args
+                else call_args.kwargs.get("system", "")
+            )
             assert "Check for NDA" in system_prompt

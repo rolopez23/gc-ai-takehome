@@ -4,11 +4,11 @@ Revision ID: 001
 Revises:
 Create Date: 2026-04-05
 """
+
 from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-
 
 # revision identifiers, used by Alembic.
 revision: str = "001"
@@ -32,7 +32,9 @@ def upgrade() -> None:
     op.create_table(
         "contract_reviews",
         sa.Column("id", sa.Uuid(), primary_key=True),
-        sa.Column("contract_id", sa.Uuid(), sa.ForeignKey("contracts.id"), nullable=False),
+        sa.Column(
+            "contract_id", sa.Uuid(), sa.ForeignKey("contracts.id"), nullable=False
+        ),
         sa.Column("status", sa.String(), nullable=False, server_default="pending"),
         sa.Column("review_instructions", sa.Text(), nullable=True),
         sa.Column("overall_fairness", sa.String(), nullable=True),
@@ -46,7 +48,9 @@ def upgrade() -> None:
     op.create_table(
         "review_clauses",
         sa.Column("id", sa.Uuid(), primary_key=True),
-        sa.Column("review_id", sa.Uuid(), sa.ForeignKey("contract_reviews.id"), nullable=False),
+        sa.Column(
+            "review_id", sa.Uuid(), sa.ForeignKey("contract_reviews.id"), nullable=False
+        ),
         sa.Column("section_number", sa.String(), nullable=False),
         sa.Column("clause_type", sa.String(), nullable=False),
         sa.Column("purpose", sa.Text(), nullable=False),
