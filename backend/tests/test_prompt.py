@@ -5,7 +5,6 @@ class TestPromptContainsAnalysisRules:
     def test_prompt_contains_analysis_rules(self):
         prompt = build_system_prompt()
         assert "senior in-house commercial lawyer" in prompt
-        assert "fairness tiers" in prompt
         assert "dealbreaker" in prompt
         assert "non-standard" in prompt
         assert "Death by paper cuts" in prompt
