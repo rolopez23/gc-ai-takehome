@@ -1,0 +1,21 @@
+Ok some side questions can we update teh readme.md to link to https://github.com/rolopez23/agent-harness also review readme.md for current app state and make sure it is as easy as possible to boot the app, make a .env.tmpl whcih is a copy of necessary .env and indicate how to update it.
+
+---
+
+We can remove portles we dropped. I think the only .emv that is live is the backend one now.  So lets only have the templ.  There on make setup lets create a shell script that verifies a .env with the right first letters exists for anthropic. If not it asks the user to paste it in and update the key.
+
+---
+
+Ok can you push the readme / .env / makefile changes to a clean branch without the agentic work gong on
+
+---
+
+I want to make sure it doesn't disrupt work in progress any ideas? Let me know the plan
+
+---
+
+yes
+
+---
+
+I did it it worked out greate.  Can you make a btw-pull-request skill that handles this workflow.  When you want to commit some unrelated files to a clean PR you can do this.
