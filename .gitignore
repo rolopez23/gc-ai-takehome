@@ -39,3 +39,4 @@ backend/migrations/versions/
 
 # Entire
 .entire/
+.claude/worktrees/
