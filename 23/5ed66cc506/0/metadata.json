@@ -1,0 +1,39 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "235ed66cc506",
+  "session_id": "cb59f4e7-8cde-497b-b6ef-bad45798b634",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-06T07:48:39.294361Z",
+  "branch": "feat/agentic-eval-pipeline",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "backend/services/playbook.py",
+    "backend/services/agents/splitter.py"
+  ],
+  "agent": "Claude Code",
+  "turn_id": "086c7c36f195",
+  "checkpoint_transcript_start": 315,
+  "transcript_lines_at_start": 315,
+  "token_usage": {
+    "input_tokens": 12,
+    "cache_creation_tokens": 3256,
+    "cache_read_tokens": 529681,
+    "output_tokens": 1910,
+    "api_call_count": 4
+  },
+  "session_metrics": {
+    "turn_count": 12
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-06T07:48:38.811169Z",
+    "agent_lines": 0,
+    "agent_removed": 1,
+    "human_added": 5,
+    "human_modified": 7,
+    "human_removed": 0,
+    "total_committed": 6,
+    "total_lines_changed": 13,
+    "agent_percentage": 7.6923076923076925,
+    "metric_version": 2
+  }
+}

@@ -1,0 +1,13 @@
+We will be waiting for a bit
+
+---
+
+i want to finish another feature.
+
+---
+
+Firs though come up with an agent parralization plan.  Some notes we cannot run skills in sub-agents on worktrees. We need to explicitly mark verify => simplify => review is not done and handle when we merge the worktrees.  The value of those skills should be in the parrelization strategy (one claude session vs multiple), not parralelization.  Does that make sense?
+
+---
+
+yes! that works
