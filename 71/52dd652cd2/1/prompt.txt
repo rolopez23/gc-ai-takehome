@@ -291,3 +291,7 @@ hmmm should we not also split the backend data, this would break it like create 
 ---
 
 will it break the frontend if we send extra or does zod just ignore?
+
+---
+
+I think we are ok, but that is a good gotcha we should cover be a comment on the risk in the transitory state.
