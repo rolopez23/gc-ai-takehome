@@ -10,11 +10,11 @@ export const ReviewClauseSchema = z.object({
   id: z.string().uuid(),
   section_number: z.string(),
   clause_type: z.string(),
-  purpose: z.string(),
-  fairness: FairnessRatingSchema,
-  market_standard: z.string(),
-  explanation: z.string(),
-  severity: z.number().min(1).max(10).optional(),
+  purpose: z.string().nullable(),
+  fairness: FairnessRatingSchema.nullable(),
+  market_standard: z.string().nullable(),
+  explanation: z.string().nullable(),
+  severity: z.number().min(1).max(10).optional().nullable(),
 });
 
 export const UploadResponseSchema = z.object({
