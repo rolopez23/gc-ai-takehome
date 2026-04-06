@@ -149,3 +149,101 @@ def test_clause_out():
     assert data["fairness"] == "non-standard"
     assert data["market_standard"] == "Typically mutual"
     assert data["explanation"] == "One-sided indemnification favoring vendor."
+
+
+# --- Agentic pipeline schema tests ---
+
+
+def test_review_out_includes_agreement_type():
+    now = datetime.now(UTC)
+    review = ReviewOut(
+        id=uuid.uuid4(),
+        contract_id=uuid.uuid4(),
+        status="completed",
+        review_instructions=None,
+        overall_fairness="fair",
+        summary="Looks good",
+        call_to_action=["Fix 3.1"],
+        failure_message=None,
+        created_at=now,
+        completed_at=now,
+        agreement_type="NDA",
+    )
+    data = review.model_dump()
+    assert data["agreement_type"] == "NDA"
+
+
+def test_review_out_agreement_type_default_none():
+    now = datetime.now(UTC)
+    review = ReviewOut(
+        id=uuid.uuid4(),
+        contract_id=uuid.uuid4(),
+        status="pending",
+        review_instructions=None,
+        overall_fairness=None,
+        summary=None,
+        call_to_action=None,
+        failure_message=None,
+        created_at=now,
+        completed_at=None,
+    )
+    data = review.model_dump()
+    assert data["agreement_type"] is None
+
+
+def test_clause_out_agentic_fields():
+    clause = ClauseOut(
+        id=uuid.uuid4(),
+        section_number="4.1",
+        clause_type="indemnification",
+        purpose="Limits liability",
+        fairness="non-standard",
+        market_standard="Mutual indemnification",
+        explanation="One-sided",
+        status="evaluated",
+        severity=3,
+        playbook_status="flagged",
+        playbook_position="Section 4",
+        contract_language="Vendor shall...",
+        finding="One-sided indemnification",
+        recommended_redline="Add mutual language",
+        relevant_checks=["check_1"],
+        cross_references=["section_3"],
+        is_cycle=True,
+        is_synthetic=False,
+    )
+    data = clause.model_dump()
+    assert data["status"] == "evaluated"
+    assert data["severity"] == 3
+    assert data["playbook_status"] == "flagged"
+    assert data["playbook_position"] == "Section 4"
+    assert data["contract_language"] == "Vendor shall..."
+    assert data["finding"] == "One-sided indemnification"
+    assert data["recommended_redline"] == "Add mutual language"
+    assert data["relevant_checks"] == ["check_1"]
+    assert data["cross_references"] == ["section_3"]
+    assert data["is_cycle"] is True
+    assert data["is_synthetic"] is False
+
+
+def test_clause_out_agentic_fields_default_null():
+    clause = ClauseOut(
+        id=uuid.uuid4(),
+        section_number="1.0",
+        clause_type="termination",
+    )
+    data = clause.model_dump()
+    assert data["status"] == "pending"
+    assert data["severity"] is None
+    assert data["playbook_status"] is None
+    assert data["contract_language"] is None
+    assert data["finding"] is None
+    assert data["recommended_redline"] is None
+    assert data["relevant_checks"] is None
+    assert data["cross_references"] is None
+    assert data["is_cycle"] is False
+    assert data["is_synthetic"] is False
+    assert data["purpose"] is None
+    assert data["fairness"] is None
+    assert data["market_standard"] is None
+    assert data["explanation"] is None

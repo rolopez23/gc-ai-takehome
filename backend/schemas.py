@@ -41,10 +41,23 @@ class ClauseOut(BaseModel):
     id: uuid.UUID
     section_number: str
     clause_type: str
-    purpose: str
-    fairness: str
-    market_standard: str
-    explanation: str
+    purpose: str | None = None
+    fairness: str | None = None
+    market_standard: str | None = None
+    explanation: str | None = None
+
+    # Agentic pipeline fields
+    status: str = "pending"
+    severity: int | None = None
+    playbook_status: str | None = None
+    playbook_position: str | None = None
+    contract_language: str | None = None
+    finding: str | None = None
+    recommended_redline: str | None = None
+    relevant_checks: list | None = None
+    cross_references: list | None = None
+    is_cycle: bool = False
+    is_synthetic: bool = False
 
 
 class ReviewOut(BaseModel):
@@ -59,6 +72,7 @@ class ReviewOut(BaseModel):
     call_to_action: list | None
     failure_message: str | None
     failure_code: str | None = None
+    agreement_type: str | None = None
     created_at: datetime
     completed_at: datetime | None
 

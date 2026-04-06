@@ -22,7 +22,9 @@ class PlaybookCheck(BaseModel, frozen=True):
     description: str
 
 
-def parse_playbook(path: Path = DEFAULT_PLAYBOOK_PATH) -> dict[str, list[PlaybookCheck]]:
+def parse_playbook(
+    path: Path = DEFAULT_PLAYBOOK_PATH,
+) -> dict[str, list[PlaybookCheck]]:
     """Parse the playbook markdown into a dict of agreement_type -> list[PlaybookCheck].
 
     Raises FileNotFoundError if the path doesn't exist.
@@ -88,9 +90,7 @@ def _cached_playbook() -> dict[str, list[PlaybookCheck]]:
     return parse_playbook()
 
 
-def get_playbook(
-    agreement_type: str, check_names: list[str]
-) -> list[PlaybookCheck]:
+def get_playbook(agreement_type: str, check_names: list[str]) -> list[PlaybookCheck]:
     """Look up checks by exact name match within an agreement type.
 
     Raises KeyError if agreement_type is unknown.
