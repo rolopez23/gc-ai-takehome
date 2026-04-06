@@ -45,3 +45,7 @@ Can you look into verification more, trunning typsecript is not good verificaito
 ---
 
 you are missing the point on verification.  vitest is the auto-test.  Verificaiton should be running the code.  I would say for feedback-types lets look it into antoher step, same with the hooks and controls.  You can test clause and review feedback.  so lets have those tested with playwright.  I would combine thoe feedback-types and hooks-and-controls they are largely unverifiable uitl we test clause or review
+
+---
+
+I think we can do vi-test for review-feedback too and more tests on clause-feedback.
