@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "86a61dd6426e",
+  "strategy": "manual-commit",
+  "branch": "feat/agentic-eval-pipeline",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "backend/services/orchestrator.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/86/a61dd6426e/0/metadata.json",
+      "transcript": "/86/a61dd6426e/0/full.jsonl",
+      "content_hash": "/86/a61dd6426e/0/content_hash.txt",
+      "prompt": "/86/a61dd6426e/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 4087,
+    "cache_creation_tokens": 862535,
+    "cache_read_tokens": 86348482,
+    "output_tokens": 160846,
+    "api_call_count": 406
+  }
+}
