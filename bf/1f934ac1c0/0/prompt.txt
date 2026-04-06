@@ -21,3 +21,7 @@ CAn you re-run the automated reviews?
 ---
 
 I think clear comment, we can assume it is bad, thanks for the push back.  Let us debounce the call on the frontend.  YAGNI for regression we don't support re-running reviews. hmmm lets think more about fetching.  Lets split and defer the fetching.  Feedback is below the fold so I don't want to delay page load.  Feeback only shows after the fetch is complete or when a clause / high level score is hovered over.  When the user leaves teh feedabck or score we dissaper.  Add that to the frontend specification.
+
+---
+
+yes third stress test is the charm
