@@ -58,10 +58,16 @@ def _get_api_key() -> str:
     return os.getenv("ANTHROPIC_API_KEY", "")
 
 
+AGENT_TIMEOUT = 90  # seconds — splitter with 32K tokens can take 30-60s
+
+
 @lru_cache(maxsize=1)
 def _get_shared_client() -> anthropic.AsyncAnthropic:
     """Return a shared Anthropic client instance (created once, reused)."""
-    return anthropic.AsyncAnthropic(api_key=_get_api_key())
+    return anthropic.AsyncAnthropic(
+        api_key=_get_api_key(),
+        timeout=AGENT_TIMEOUT,
+    )
 
 
 @dataclass
