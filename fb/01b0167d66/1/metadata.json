@@ -1,0 +1,41 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "fb01b0167d66",
+  "session_id": "d618d650-fa7f-4b62-801a-445579a2015b",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-06T07:24:52.437233Z",
+  "branch": "feat/agentic-eval-pipeline",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "backend/migrations/versions/001_initial_schema.py",
+    "backend/migrations/versions/002_add_failure_code.py",
+    "docs/agentic-eval-pipeline/plan.md",
+    "docs/feedback/plan.md",
+    "docs/feedback/spec.md",
+    "docs/feedback/steps/feedback-frontend-plumbing.md"
+  ],
+  "agent": "Claude Code",
+  "turn_id": "39d23b4d1a8a",
+  "token_usage": {
+    "input_tokens": 3082,
+    "cache_creation_tokens": 452674,
+    "cache_read_tokens": 31819624,
+    "output_tokens": 100421,
+    "api_call_count": 219
+  },
+  "session_metrics": {
+    "turn_count": 32
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-06T07:24:51.584899Z",
+    "agent_lines": 373,
+    "agent_removed": 17,
+    "human_added": 1719,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 2092,
+    "total_lines_changed": 2112,
+    "agent_percentage": 18.46590909090909,
+    "metric_version": 2
+  }
+}
