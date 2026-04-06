@@ -29,3 +29,7 @@ yes third stress test is the charm
 ---
 
 Good callout of edge case! Mark it.  300ms is a good deboutce.  We are fixing the migraiton in another PR, like that we are catching minor issues.  I thnk we are good now.
+
+---
+
+Launch the /plan Also remember we are on a branch that is currently doing a lot of work.  We should be fine since this is a clean directory.
